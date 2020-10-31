@@ -14,7 +14,7 @@ h1 {
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color:#00b894;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -71,7 +71,7 @@ textarea {
 
 button {
   color: white;
-  background-color: #57b560;
+  background-color: #2d3436;
   border-radius: 0.25rem;
   font-weight: 700;
   border: none;

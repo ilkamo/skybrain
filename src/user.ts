@@ -10,7 +10,6 @@ const skynetClient = new SkynetClient("https://siasky.net");
 const userDataKey = "userData.json";
 const userImagesDataKey = "userImages.json";
 
-
 const nickNameKey = "nickname";
 
 interface UserImage {
@@ -89,7 +88,7 @@ class User {
             const skylink = await skynetClient.uploadFile(file);
             let images = await this.GetImages();
 
-            images.push({
+            images.unshift({
                 added: new Date(Date.now()),
                 skylink: skylink
             });

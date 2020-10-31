@@ -1,5 +1,3 @@
-# Example SkyDB App
-
 ## Available Scripts
 
 _Install dependencies with `yarn` before trying to execute any of the commands._

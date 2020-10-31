@@ -148,7 +148,7 @@ var User = /** @class */ (function () {
                         return [4 /*yield*/, this.GetImages()];
                     case 2:
                         images = _a.sent();
-                        images.push({
+                        images.unshift({
                             added: new Date(Date.now()),
                             skylink: skylink
                         });

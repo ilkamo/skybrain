@@ -84,24 +84,20 @@ function App() {
         });
     }); };
     var handleUpload = function (event) { return __awaiter(_this, void 0, void 0, function () {
-        var _a, _b, img;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var img;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     event.preventDefault();
                     setLoading(true);
-                    _b = (_a = console).log;
-                    return [4 /*yield*/, user.GetImages()];
-                case 1:
-                    _b.apply(_a, [_c.sent()]);
-                    if (!imageFile) return [3 /*break*/, 3];
+                    if (!imageFile) return [3 /*break*/, 2];
                     return [4 /*yield*/, user.AddImage(imageFile)];
-                case 2:
-                    img = _c.sent();
-                    setUserImages(__spreadArrays(userImages, ["https://siasky.net/" + img.replace("sia:", "")]));
+                case 1:
+                    img = _a.sent();
+                    setUserImages(__spreadArrays(["https://siasky.net/" + img.replace("sia:", "")], userImages));
                     setDisplaySuccess(true);
-                    _c.label = 3;
-                case 3:
+                    _a.label = 2;
+                case 2:
                     setLoading(false);
                     return [2 /*return*/];
             }
@@ -118,7 +114,7 @@ function App() {
     return (react_1["default"].createElement("div", { className: "App" },
         react_1["default"].createElement("header", { className: "App-header" },
             react_1["default"].createElement("div", { className: "container" },
-                react_1["default"].createElement("h1", null, "Sia Instagram"),
+                react_1["default"].createElement("h1", null, "Instasia"),
                 authenticated ? (react_1["default"].createElement("div", null,
                     react_1["default"].createElement("label", { htmlFor: "output" }, "Upload an image"),
                     react_1["default"].createElement("div", { className: "flex" },

@@ -40,10 +40,9 @@ function App() {
     event.preventDefault();
     setLoading(true);
 
-    console.log(await user.GetImages())
     if (imageFile) {
       const img = await user.AddImage(imageFile);
-      setUserImages([...userImages, "https://siasky.net/" + img.replace("sia:", "")])
+      setUserImages(["https://siasky.net/" + img.replace("sia:", ""), ...userImages])
       setDisplaySuccess(true);
     }
 
@@ -66,7 +65,7 @@ function App() {
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
 
         <div className="container">
-          <h1>Sia Instagram</h1>
+          <h1>Instasia</h1>
 
           {authenticated ? (
             <div>
