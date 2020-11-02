@@ -7,8 +7,9 @@ import {
   Button,
   FilePicker,
   Heading,
+  LogInIcon,
   Pane,
-  Spinner,
+  TextInputField,
   TrashIcon,
   UploadIcon,
 } from "evergreen-ui";
@@ -85,13 +86,26 @@ function App() {
     <div className="App">
       {/* <img src={logo} className="App-logo" alt="logo" /> */}
 
-      <Pane>
+      <Pane marginLeft={"auto"} marginRight={"auto"}>
         <Heading textAlign={"center"} size={900} marginTop="default">
           Instasia
         </Heading>
+        {!authenticated ? (
+          <Heading textAlign={"center"} size={500} marginTop={8}>
+            Collect your memories!
+          </Heading>
+        ) : (
+          ""
+        )}
         {authenticated ? (
-          <div>
-            <Pane elevation={3} marginTop={16} marginBottom={32} padding={32}>
+          <Pane marginLeft={"auto"} marginRight={"auto"} width={640}>
+            <Pane
+              elevation={3}
+              marginTop={16}
+              marginBottom={32}
+              padding={32}
+              borderRadius={3}
+            >
               <Heading size={500} marginBottom={16}>
                 Upload a memory
               </Heading>
@@ -122,7 +136,7 @@ function App() {
                 let imageWithProtocol =
                   "https://siasky.net/" + image.replace("sia:", "");
                 return (
-                  <Pane key={index} elevation={3} width={600} marginBottom={36}>
+                  <Pane key={index} elevation={0} marginBottom={36}>
                     <img
                       width="100%"
                       id={image}
@@ -148,11 +162,10 @@ function App() {
             ) : (
               <div></div>
             )}
-          </div>
+          </Pane>
         ) : (
-          <form onSubmit={handleLogin}>
-            <div className="mb-2">
-              {/* <label htmlFor="output">Nickname</label>
+          <div>
+            {/* <label htmlFor="output">Nickname</label>
                 <div className="flex">
                   <input
                     id="output"
@@ -162,24 +175,45 @@ function App() {
                     onChange={(event) => setNickName(event.target.value)}
                   />
                 </div> */}
-              <label htmlFor="output">Login passphrase</label>
-              <div className="flex">
-                <input
-                  id="output"
-                  type="secret"
-                  placeholder="Your very secret passphrase"
-                  value={secret}
-                  onChange={(event) => setSecret(event.target.value)}
+
+            <Pane
+              marginLeft={"auto"}
+              marginRight={"auto"}
+              marginTop={32}
+              width={300}
+            >
+              <Pane>
+                <img
+                  src="https://source.unsplash.com/collection/1689441/300x200"
+                  alt="random"
                 />
-              </div>
-            </div>
-            <div className="mb-4">
-              <button disabled={loading}>
-                {loading ? "Logging..." : "Login"}
-              </button>
-            </div>
-          </form>
+              </Pane>
+              <Pane width={300} elevation={0} padding={24}>
+                <TextInputField
+                  label="Login passphrase"
+                  description="A secure passphrase to login into your account. Remember it! It is the only way to access your stored memories."
+                  placeholder="Your very secret passphrase"
+                  onChange={(event) => setSecret(event.target.value)}
+                  value={secret}
+                  type={"password"}
+                />
+                <Button
+                  isLoading={loading}
+                  height={48}
+                  onClick={handleLogin}
+                  appearance="minimal"
+                  intent="success"
+                  iconBefore={LogInIcon}
+                >
+                  Login
+                </Button>
+              </Pane>
+            </Pane>
+          </div>
         )}
+        <Heading textAlign={"center"} size={200} marginTop="default">
+          This service works using SkyDB and Skynet technology ❤.
+        </Heading>
       </Pane>
     </div>
   );

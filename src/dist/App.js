@@ -264,19 +264,32 @@ function App() {
     { className: "App" },
     react_1["default"].createElement(
       evergreen_ui_1.Pane,
-      null,
+      { marginLeft: "auto", marginRight: "auto" },
       react_1["default"].createElement(
         evergreen_ui_1.Heading,
         { textAlign: "center", size: 900, marginTop: "default" },
         "Instasia"
       ),
+      !authenticated
+        ? react_1["default"].createElement(
+            evergreen_ui_1.Heading,
+            { textAlign: "center", size: 500, marginTop: 8 },
+            "Collect your memories!"
+          )
+        : "",
       authenticated
         ? react_1["default"].createElement(
-            "div",
-            null,
+            evergreen_ui_1.Pane,
+            { marginLeft: "auto", marginRight: "auto", width: 640 },
             react_1["default"].createElement(
               evergreen_ui_1.Pane,
-              { elevation: 3, marginTop: 16, marginBottom: 32, padding: 32 },
+              {
+                elevation: 3,
+                marginTop: 16,
+                marginBottom: 32,
+                padding: 32,
+                borderRadius: 3,
+              },
               react_1["default"].createElement(
                 evergreen_ui_1.Heading,
                 { size: 500, marginBottom: 16 },
@@ -315,7 +328,7 @@ function App() {
                     "https://siasky.net/" + image.replace("sia:", "");
                   return react_1["default"].createElement(
                     evergreen_ui_1.Pane,
-                    { key: index, elevation: 3, width: 600, marginBottom: 36 },
+                    { key: index, elevation: 0, marginBottom: 36 },
                     react_1["default"].createElement("img", {
                       width: "100%",
                       id: image,
@@ -342,40 +355,61 @@ function App() {
               : react_1["default"].createElement("div", null)
           )
         : react_1["default"].createElement(
-            "form",
-            { onSubmit: handleLogin },
+            "div",
+            null,
             react_1["default"].createElement(
-              "div",
-              { className: "mb-2" },
+              evergreen_ui_1.Pane,
+              {
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginTop: 32,
+                width: 300,
+              },
               react_1["default"].createElement(
-                "label",
-                { htmlFor: "output" },
-                "Login passphrase"
+                evergreen_ui_1.Pane,
+                null,
+                react_1["default"].createElement("img", {
+                  src: "https://source.unsplash.com/collection/1689441/300x200",
+                  alt: "random",
+                })
               ),
               react_1["default"].createElement(
-                "div",
-                { className: "flex" },
-                react_1["default"].createElement("input", {
-                  id: "output",
-                  type: "secret",
-                  placeholder: "Your very secret passphrase",
-                  value: secret,
-                  onChange: function (event) {
-                    return setSecret(event.target.value);
+                evergreen_ui_1.Pane,
+                { width: 300, elevation: 0, padding: 24 },
+                react_1["default"].createElement(
+                  evergreen_ui_1.TextInputField,
+                  {
+                    label: "Login passphrase",
+                    description:
+                      "A secure passphrase to login into your account. Remember it! It is the only way to access your stored memories.",
+                    placeholder: "Your very secret passphrase",
+                    onChange: function (event) {
+                      return setSecret(event.target.value);
+                    },
+                    value: secret,
+                    type: "password",
+                  }
+                ),
+                react_1["default"].createElement(
+                  evergreen_ui_1.Button,
+                  {
+                    isLoading: loading,
+                    height: 48,
+                    onClick: handleLogin,
+                    appearance: "minimal",
+                    intent: "success",
+                    iconBefore: evergreen_ui_1.LogInIcon,
                   },
-                })
-              )
-            ),
-            react_1["default"].createElement(
-              "div",
-              { className: "mb-4" },
-              react_1["default"].createElement(
-                "button",
-                { disabled: loading },
-                loading ? "Logging..." : "Login"
+                  "Login"
+                )
               )
             )
-          )
+          ),
+      react_1["default"].createElement(
+        evergreen_ui_1.Heading,
+        { textAlign: "center", size: 200, marginTop: "default" },
+        "This service works using SkyDB and Skynet technology \u2764."
+      )
     )
   );
 }
