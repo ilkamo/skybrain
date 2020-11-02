@@ -1,5 +1,5 @@
 body {
-  font-family: "Metropolis", Helvetica, Arial, Sans-Serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .App-logo {
@@ -13,15 +13,15 @@ h1 {
   text-align: center;
 }
 
-.App-header {
-  background-color:#00b894;
+.App {
+  background-color: #f5f6fa;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: #2f3640;
 }
 
 input {
@@ -42,7 +42,7 @@ label {
   font-size: 1.275rem;
   font-weight: 700;
   display: block;
-  color: white;
+  color: #7f8fa6;
 }
 
 .skylink {
