@@ -1,0 +1,24 @@
+<p>Wall</p>
+
+<div>
+  {{ userData | json }}
+</div>
+
+<hr>
+
+<form [formGroup]="imageForm" (ngSubmit)="onSubmit()">
+  <label for="file">Image</label>
+  <input type="file" formControlName="image" accept="image/x-png,image/gif,image/jpeg" (change)="onFileChange($event)">
+  <div>
+    <button [disabled]="loading">
+        Upload
+    </button>
+  </div>
+</form>
+
+<hr>
+
+<div *ngFor="let image of images$ | async; trackBy:trackImage" style="max-width: 300px;">
+  <p>{{image.added | date }}</p>
+  <img src="{{ image.skylink | siaUrl }}" style="max-width: 100%; height: auto;">
+</div>

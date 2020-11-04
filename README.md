@@ -1,17 +1,27 @@
-## Available Scripts
+# Sia
 
-_Install dependencies with `yarn` before trying to execute any of the commands._
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.2.0.
 
-In the project directory, you can run:
+## Development server
 
-- `yarn start`: start the project in development mode (open [http://localhost:3000](http://localhost:3000) to view it in the browser)
-- `yarn test`: launch test runner in the interactive watch mode
-- `yarn build`: build the app for production to the `build` folder
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Deploying to Skynet
+## Code scaffolding
 
-1. run `yarn build` to build the app for production
-2. visit [siasky.net](https://siasky.net) and click on "Do you want to upload entire directory?" to switch to directory upload mode
-3. drag the `build` folder over the upload area (or click "Browse" and select the directory from the file browser window)
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
-To learn more about Skynet, visit [siasky.net](https://siasky.net) official webpage.
+## Build
+
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Running unit tests
+
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+
+## Running end-to-end tests
+
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+
+## Further help
+
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
