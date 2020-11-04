@@ -5,6 +5,8 @@ import { from } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { ApiService } from 'src/app/services/api.service';
 import { logError } from 'src/app/utils';
+import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
+import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-login',
@@ -16,13 +18,17 @@ export class LoginComponent implements OnInit {
   loading = false;
   submitted = false;
   returnUrl: string;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    library: FaIconLibrary
   ) {
+    library.addIcons(faEye, faEyeSlash);
+
     this.loginForm = this.formBuilder.group({
       nickname: ['', Validators.required],
       passphrase: ['', Validators.required]

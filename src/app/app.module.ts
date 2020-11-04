@@ -11,6 +11,7 @@ import { WallComponent } from './pages/wall/wall.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SiaUrlPipe } from './pipes/sia-url.pipe';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { SiaUrlPipe } from './pipes/sia-url.pipe';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FontAwesomeModule
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'userData.json' },
