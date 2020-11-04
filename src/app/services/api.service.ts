@@ -2,7 +2,7 @@ import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, keyPairFromSeed, PublicKey, SecretKey, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, USER_DATA_KEY } from '../models/user-data';
-import { UserImage, USER_IMAGES_KEY } from '../models/user-image';
+import { UserFile, USER_FILES_KEY } from '../models/user-file';
 import { logError } from '../utils';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class ApiService {
     private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
-    @Inject(USER_IMAGES_KEY) private userImagesKey: string,
+    @Inject(USER_FILES_KEY) private userImagesKey: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -96,7 +96,7 @@ export class ApiService {
     }
   }
 
-  public async getImages(): Promise<UserImage[]> {
+  public async getImages(): Promise<UserFile[]> {
     try {
       const { data } = await this.skynetClient.db.getJSON(
         this._publicKey,
@@ -106,9 +106,9 @@ export class ApiService {
         return [];
       }
       if (typeof data === 'string') {
-        return JSON.parse(data) as UserImage[]; // TODO: backward compatibility
+        return JSON.parse(data) as UserFile[]; // TODO: backward compatibility
       }
-      return data as UserImage[];
+      return data as UserFile[];
     } catch (error) {
       logError(error);
       return [];
