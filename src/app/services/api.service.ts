@@ -147,7 +147,7 @@ export class ApiService {
     try {
       let images = await this.getImages();
       const foundIndex = images.findIndex(
-        (img) => img.skylink.search(skylink) > -1
+        (img) => img.skylink && img.skylink.search(skylink) > -1
       );
       if (foundIndex > -1) {
         images = [

@@ -1,24 +1,42 @@
-<p>Wall</p>
+<div class="d-flex justify-content-center">
+  <div class="memories d-flex flex-column">
 
-<div>
-  {{ userData | json }}
-</div>
+    <div class="card memories-card my-3">
+      <form [formGroup]="imageForm" (ngSubmit)="onSubmit()">
+        <div class="card-body">
+          <h1>My Memories</h1>
 
-<hr>
+          <div>
+            {{ userData | json }}
+          </div>
 
-<form [formGroup]="imageForm" (ngSubmit)="onSubmit()">
-  <label for="file">Image</label>
-  <input type="file" formControlName="image" accept="image/x-png,image/gif,image/jpeg" (change)="onFileChange($event)">
-  <div>
-    <button [disabled]="loading">
-        Upload
-    </button>
+          <label for="file">Memory</label>
+          <input type="file" formControlName="image" accept="image/x-png,image/gif,image/jpeg" (change)="onFileChange($event)">
+        </div>
+        <div class="card-footer">
+          <button [disabled]="loading" class="btn btn-primary btn-block">
+            <fa-icon [icon]="['fas', 'comment-medical']"></fa-icon>
+            Remember
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngFor="let image of images$ | async; trackBy:trackImage" class="card memory-card mb-3">
+      <div class="card-header">
+        {{image.added | date }}
+      </div>
+      <img *ngIf="image.skylink" class="card-img-top" src="{{ image.skylink | siaUrl }}" alt="">
+      <div *ngIf="image.text" class="card-body">
+        <p class="text-lead">{{ image.text }}</p>
+      </div>
+      <div class="card-footer text-muted">
+        <a href="#" class="btn btn-outline-primary btn-block">
+          <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
+          Forget
+        </a>
+      </div>
+    </div>
+
   </div>
-</form>
-
-<hr>
-
-<div *ngFor="let image of images$ | async; trackBy:trackImage" style="max-width: 300px;">
-  <p>{{image.added | date }}</p>
-  <img src="{{ image.skylink | siaUrl }}" style="max-width: 100%; height: auto;">
 </div>
