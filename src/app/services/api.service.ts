@@ -106,17 +106,14 @@ export class ApiService {
 
   public async getImages(): Promise<UserFile[]> {
     try {
-      const { data } = await this.skynetClient.db.getJSON(
+      const response = await this.skynetClient.db.getJSON(
         this._publicKey,
         this._userFilesKey
       );
-      if (!data) {
+      if (!response || !response.data) {
         return [];
       }
-      if (typeof data === 'string') {
-        return JSON.parse(data) as UserFile[]; // TODO: backward compatibility
-      }
-      return data as UserFile[];
+      return response.data as UserFile[];
     } catch (error) {
       logError(error);
       return [];

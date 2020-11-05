@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { from } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { ApiService } from 'src/app/services/api.service';
@@ -15,12 +17,16 @@ export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   loading = false;
   submitted = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    library: FaIconLibrary
   ) {
+    library.addIcons(faEye, faEyeSlash);
+
     this.registerForm = this.formBuilder.group({
       nickname: ['', Validators.required],
       passphrase: ['', [Validators.required, Validators.minLength(4)]]
