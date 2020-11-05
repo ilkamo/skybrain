@@ -29,7 +29,7 @@ export class RegisterComponent implements OnInit {
 
     this.registerForm = this.formBuilder.group({
       nickname: ['', Validators.required],
-      passphrase: ['', [Validators.required, Validators.minLength(6)]]
+      passphrase: ['', [Validators.required, Validators.minLength(4)]]
     });
   }
 
