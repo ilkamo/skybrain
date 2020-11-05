@@ -27,7 +27,7 @@ export class WallComponent implements OnInit {
     library.addIcons(faCommentDots, faCommentMedical);
     this.userData = this.apiService.userData;
     this.images$ = this.reloadImages$.asObservable().pipe(
-      switchMap(_ => this.apiService.getImages())
+      switchMap(_ => this.apiService.getMemories())
     );
     this.imageForm =  this.formBuilder.group({
       image: ['', Validators.required],
@@ -65,7 +65,7 @@ export class WallComponent implements OnInit {
 
     this.loading = true;
 
-    from(this.apiService.addImage(this.form.imageSource.value))
+    from(this.apiService.addMemory(this.form.imageSource.value))
       .pipe(first())
       .subscribe(
           imageKey => {

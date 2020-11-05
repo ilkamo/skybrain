@@ -104,7 +104,7 @@ export class ApiService {
     return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
   }
 
-  public async getImages(): Promise<UserMemory[]> {
+  public async getMemories(): Promise<UserMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
         this._publicKey,
@@ -120,12 +120,12 @@ export class ApiService {
     }
   }
 
-  public async addImage(file: File): Promise<string | null> {
+  public async addMemory(file: File): Promise<string | null> {
     try {
       const skylink = await this.skynetClient.uploadFile(file);
-      const images = await this.getImages();
+      const memories = await this.getMemories();
 
-      images.unshift({
+      memories.unshift({
         added: new Date(Date.now()),
         skylink,
       });
@@ -133,7 +133,7 @@ export class ApiService {
       await this.skynetClient.db.setJSON(
         this._privateKey,
         this._userMemoriesKey,
-        images, // TODO: backward compatibility (images)
+        memories,
       );
 
       return skylink;
@@ -143,21 +143,21 @@ export class ApiService {
     }
   }
 
-  public async deleteImage(skylink: string): Promise<void> {
+  public async deleteMemory(skylink: string): Promise<void> {
     try {
-      let images = await this.getImages();
-      const foundIndex = images.findIndex(
-        (img) => img.skylink && img.skylink.search(skylink) > -1
+      let memories = await this.getMemories();
+      const foundIndex = memories.findIndex(
+        (memory) => memory.skylink && memory.skylink.search(skylink) > -1
       );
       if (foundIndex > -1) {
-        images = [
-          ...images.slice(0, foundIndex),
-          ...images.slice(foundIndex + 1),
+        memories = [
+          ...memories.slice(0, foundIndex),
+          ...memories.slice(foundIndex + 1),
         ];
         await this.skynetClient.db.setJSON(
           this._privateKey,
           this._userMemoriesKey,
-          images
+          memories
         );
       }
     } catch (error) {
