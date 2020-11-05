@@ -6,7 +6,7 @@ import { faCommentMedical } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 import { UserData } from 'src/app/models/user-data';
-import { UserFile } from 'src/app/models/user-file';
+import { UserMemory } from 'src/app/models/user-file';
 import { ApiService } from 'src/app/services/api.service';
 import { logError } from 'src/app/utils';
 
@@ -17,7 +17,7 @@ import { logError } from 'src/app/utils';
 })
 export class WallComponent implements OnInit {
   userData: UserData|null;
-  images$: Observable<UserFile[]>;
+  images$: Observable<UserMemory[]>;
   imageForm: FormGroup;
   loading = false;
   submitted = false;
@@ -80,7 +80,7 @@ export class WallComponent implements OnInit {
           });
   }
 
-  trackImage(index: number, image: UserFile): string {
+  trackImage(index: number, image: UserMemory): string {
     return (image.skylink || image.text) as string;
   }
 }

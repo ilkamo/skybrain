@@ -1,7 +1,8 @@
 import { InjectionToken } from '@angular/core';
-export const USER_PUBLIC_FILES_KEY = new InjectionToken('sia-user-public-files-key');
+import { UserMemory } from './user-file';
+export const USER_PUBLIC_MEMORIES_KEY = new InjectionToken('sia-user-public-memories-key');
 
-export interface UserPublicFile {
-  skylink: string;
+export interface UserPublicMemory {
+  memory: UserMemory;
   publicAt: Date;
 }
