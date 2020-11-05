@@ -6,7 +6,7 @@ import { faCommentMedical } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 import { UserData } from 'src/app/models/user-data';
-import { Memory } from 'src/app/models/memory';
+import { UserMemory } from 'src/app/models/user-memory';
 import { ApiService } from 'src/app/services/api.service';
 import { logError } from 'src/app/utils';
 
@@ -17,7 +17,7 @@ import { logError } from 'src/app/utils';
 })
 export class WallComponent implements OnInit {
   userData: UserData|null;
-  memories$: Observable<Memory[]>;
+  memories$: Observable<UserMemory[]>;
   uploadForm: FormGroup;
   loading = false;
   submitted = false;
@@ -27,7 +27,7 @@ export class WallComponent implements OnInit {
     library.addIcons(faCommentDots, faCommentMedical);
     this.userData = this.apiService.userData;
     this.memories$ = this.reloadMemories$.asObservable().pipe(
-      switchMap(_ => this.apiService.getImages())
+      switchMap(_ => this.apiService.getMemories())
     );
     this.uploadForm =  this.formBuilder.group({
       file: [''],
@@ -72,7 +72,7 @@ export class WallComponent implements OnInit {
           });
   }
 
-  forgetMemory(memory: Memory): void {
+  forgetMemory(memory: UserMemory): void {
     if (!memory || !memory.skylink) {
       return;
     }
@@ -88,7 +88,7 @@ export class WallComponent implements OnInit {
           });
   }
 
-  trackMemory(index: number, image: Memory): string {
+  trackMemory(index: number, image: UserMemory): string {
     return (image.skylink || image.text) as string;
   }
 }

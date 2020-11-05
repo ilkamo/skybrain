@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
-export const USER_MEMORIES_KEY_PREFIX = new InjectionToken('sia-user-memories-key');
+export const USER_MEMORIES_KEY_PREFIX = new InjectionToken('sia-user-memories-key-prefix');
 
-export interface Memory {
+export interface UserMemory {
   added: Date;
   skylink?: string;
   text?: string;
@@ -9,3 +9,4 @@ export interface Memory {
   tags?: string[];
   location?: string;
 }
+

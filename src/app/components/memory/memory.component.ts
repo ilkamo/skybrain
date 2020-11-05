@@ -1,5 +1,5 @@
 import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
-import { Memory } from 'src/app/models/memory';
+import { UserMemory } from 'src/app/models/user-memory';
 
 @Component({
   selector: 'app-memory',
@@ -9,8 +9,8 @@ import { Memory } from 'src/app/models/memory';
 export class MemoryComponent implements OnInit {
   forgeting = false;
   @HostBinding('class') cardClass = 'card';
-  @Input() memory?: Memory;
-  @Output() forget = new EventEmitter<Memory>();
+  @Input() memory?: UserMemory;
+  @Output() forget = new EventEmitter<UserMemory>();
 
   constructor() { }
 

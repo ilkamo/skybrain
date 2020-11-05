@@ -2,8 +2,8 @@ import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, keyPairFromSeed, PublicKey, SecretKey, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, USER_DATA_KEY } from '../models/user-data';
-import { Memory, USER_MEMORIES_KEY_PREFIX } from '../models/memory';
 import { logError } from '../utils';
+import { UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 
 @Injectable({
   providedIn: 'root'
@@ -13,14 +13,15 @@ export class ApiService {
   private _authenticated = false;
   private _publicKey: PublicKey | null = null;
   private _privateKey: SecretKey | null = null;
-  private _userFilesKey: string | null = null;
+  private _userMemoriesKey: string | null = null;
+  private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
   constructor(
     private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
-    @Inject(USER_MEMORIES_KEY_PREFIX) private userFilesKeyPrefix: string,
+    @Inject(USER_MEMORIES_KEY_PREFIX) private userMemoriesKeyPrefix: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -55,7 +56,8 @@ export class ApiService {
         this._userData = data as UserData;
         this._publicKey = publicKey;
         this._privateKey = privateKey;
-        this._userFilesKey = await this.generateUserFilesKey(basePassphrase);
+        this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
+        this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
       } else {
@@ -88,7 +90,8 @@ export class ApiService {
         this._userData = userData;
         this._publicKey = publicKey;
         this._privateKey = privateKey;
-        this._userFilesKey = await this.generateUserFilesKey(basePassphrase);
+        this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
+        this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
       }
@@ -99,21 +102,26 @@ export class ApiService {
     }
   }
 
-  private async generateUserFilesKey(basePassphrase: string): Promise<string> {
-    const userFilesKeySuffix = await this._sha256(`${basePassphrase}_USER_FILES`); // TODO: make it stronger!
-    return `${this.userFilesKeyPrefix}_${userFilesKeySuffix}`;
+  private async generateUserMemoriesKey(basePassphrase: string): Promise<string> {
+    const userMemoriesKeySuffix = await this._sha256(`${basePassphrase}_USER_MEMORIES`); // TODO: make it stronger!
+    return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
   }
 
-  public async getImages(): Promise<Memory[]> {
+  private async generateUserMemoriesEncryptionKey(basePassphrase: string): Promise<string> {
+    const userMemoriesKeySuffix = await this._sha256(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`); // TODO: make it stronger!
+    return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
+  }
+
+  public async getMemories(): Promise<UserMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
         this._publicKey,
-        this._userFilesKey
+        this._userMemoriesKey
       );
       if (!response || !response.data) {
         return [];
       }
-      return response.data as Memory[];
+      return response.data as UserMemory[];
     } catch (error) {
       logError(error);
       return [];
@@ -124,17 +132,17 @@ export class ApiService {
     // TODO: const mimeType = file ? file.type : null;
     try {
       const skylink = await this.skynetClient.uploadFile(file);
-      const images = await this.getImages();
+      const memories = await this.getMemories();
 
-      images.unshift({
+      memories.unshift({
         added: new Date(Date.now()),
         skylink,
       });
 
       await this.skynetClient.db.setJSON(
         this._privateKey,
-        this._userFilesKey,
-        images, // TODO: backward compatibility (images)
+        this._userMemoriesKey,
+        memories,
       );
 
       return skylink;
@@ -146,24 +154,30 @@ export class ApiService {
 
   public async deleteMemory(skylink: string): Promise<void> {
     try {
-      let images = await this.getImages();
-      const foundIndex = images.findIndex(
-        (img) => img.skylink && img.skylink.search(skylink) > -1
+      let memories = await this.getMemories();
+      const foundIndex = memories.findIndex(
+        (memory) => memory.skylink && memory.skylink.search(skylink) > -1
       );
       if (foundIndex > -1) {
-        images = [
-          ...images.slice(0, foundIndex),
-          ...images.slice(foundIndex + 1),
+        memories = [
+          ...memories.slice(0, foundIndex),
+          ...memories.slice(foundIndex + 1),
         ];
         await this.skynetClient.db.setJSON(
           this._privateKey,
-          this._userFilesKey,
-          images
+          this._userMemoriesKey,
+          memories
         );
       }
     } catch (error) {
       logError(error);
     }
+  }
+
+  public async resolveSkylink(skylink: string): Promise<void> {
+    // TODO: implement me!!
+    // decode the file
+    // return bytes
   }
 
   private async _sha256(message: string): Promise<string> {
