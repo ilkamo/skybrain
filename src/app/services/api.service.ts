@@ -14,7 +14,7 @@ export class ApiService {
   private _publicKey: PublicKey | null = null;
   private _privateKey: SecretKey | null = null;
   private _userMemoriesKey: string | null = null;
-  private _userMemoriesSkyKeyName: string | null = null;
+  private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
   constructor(
@@ -57,7 +57,7 @@ export class ApiService {
         this._publicKey = publicKey;
         this._privateKey = privateKey;
         this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
-        this._userMemoriesSkyKeyName = await this.generateUserMemoriesEncryptionKey(basePassphrase);
+        this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
       } else {
@@ -91,7 +91,7 @@ export class ApiService {
         this._publicKey = publicKey;
         this._privateKey = privateKey;
         this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
-        this._userMemoriesSkyKeyName = await this.generateUserMemoriesEncryptionKey(basePassphrase);
+        this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
       }
