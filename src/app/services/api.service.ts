@@ -14,6 +14,7 @@ export class ApiService {
   private _publicKey: PublicKey | null = null;
   private _privateKey: SecretKey | null = null;
   private _userMemoriesKey: string | null = null;
+  private _userMemoriesSkyKeyName: string | null = null;
   private skynetClient: SkynetClient;
 
   constructor(
@@ -56,6 +57,7 @@ export class ApiService {
         this._publicKey = publicKey;
         this._privateKey = privateKey;
         this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
+        this._userMemoriesSkyKeyName = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
       } else {
@@ -89,6 +91,7 @@ export class ApiService {
         this._publicKey = publicKey;
         this._privateKey = privateKey;
         this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
+        this._userMemoriesSkyKeyName = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
       }
@@ -101,6 +104,11 @@ export class ApiService {
 
   private async generateUserMemoriesKey(basePassphrase: string): Promise<string> {
     const userMemoriesKeySuffix = await this._sha256(`${basePassphrase}_USER_MEMORIES`); // TODO: make it stronger!
+    return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
+  }
+
+  private async generateUserMemoriesEncryptionKey(basePassphrase: string): Promise<string> {
+    const userMemoriesKeySuffix = await this._sha256(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`); // TODO: make it stronger!
     return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
   }
 
@@ -163,6 +171,12 @@ export class ApiService {
     } catch (error) {
       logError(error);
     }
+  }
+
+  public async resolveSkylink(skylink: string) {
+    // TODO: implement me!! 
+    // decode the file
+    // return bytes
   }
 
   private async _sha256(message: string): Promise<string> {

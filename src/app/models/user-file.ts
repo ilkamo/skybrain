@@ -9,3 +9,4 @@ export interface UserMemory {
   tags?: string[];
   location?: string;
 }
+
