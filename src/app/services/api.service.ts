@@ -45,8 +45,7 @@ export class ApiService {
       return null;
     }
 
-    nickname = 'test'; // TODO: backward compatibility
-    const { publicKey, privateKey } = keyPairFromSeed('test'/* `${nickname}_${passphrase}` */); // TODO: backward compatibility
+    const { publicKey, privateKey } = keyPairFromSeed(`${nickname}_${passphrase}`);
 
     try {
       const { data } = await this.skynetClient.db.getJSON(publicKey, this.userDataKey);
@@ -75,8 +74,7 @@ export class ApiService {
       return null;
     }
 
-    userData.nickname = 'test'; // TODO: backward compatibility
-    const { publicKey, privateKey } = keyPairFromSeed('test'/* `${userData.nickname}_${passphrase}` */); // TODO: backward compatibility
+    const { publicKey, privateKey } = keyPairFromSeed(`${userData.nickname}_${passphrase}`);
 
     // TODO: Check if user exists
 
@@ -98,17 +96,14 @@ export class ApiService {
 
   public async getImages(): Promise<UserFile[]> {
     try {
-      const { data } = await this.skynetClient.db.getJSON(
+      const response = await this.skynetClient.db.getJSON(
         this._publicKey,
         this.userImagesKey
       );
-      if (!data) {
+      if (!response || !response.data) {
         return [];
       }
-      if (typeof data === 'string') {
-        return JSON.parse(data) as UserFile[]; // TODO: backward compatibility
-      }
-      return data as UserFile[];
+      return response.data as UserFile[];
     } catch (error) {
       logError(error);
       return [];
@@ -128,7 +123,7 @@ export class ApiService {
       await this.skynetClient.db.setJSON(
         this._privateKey,
         this.userImagesKey,
-        JSON.stringify(images) // TODO: backward compatibility (images)
+        images
       );
 
       return skylink;
