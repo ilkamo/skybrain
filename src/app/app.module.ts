@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { USER_DATA_KEY } from './models/user-data';
-import { USER_FILES_KEY } from './models/user-file';
+import { USER_FILES_KEY_PREFIX } from './models/user-file';
 import { USER_FOLLOWS_KEY } from './models/user-follows';
 import { USER_SHARED_FILES_KEY } from './models/user-shared-files';
 import { USER_PUBLIC_FILES_KEY } from './models/user-public-files';
@@ -32,15 +32,15 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     FontAwesomeModule
   ],
   providers: [
-    { provide: USER_DATA_KEY, useValue: 'userData.json' },
+    { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },
     /* 
       TODO: USER_FILES_KEY should be based on UserFilesKey generated from the login passphrase in order to make it accessible only to the logged users. 
-      Something like: user-{UserFilesKey}-files.json
+      Something like: SKYBRAIN__USER_FILES_{UserFilesKey}
     */
-    { provide: USER_FILES_KEY, useValue: 'userImages.json' },
-    { provide: USER_PUBLIC_FILES_KEY, useValue: 'userPublicFiles.json' },
-    { provide: USER_SHARED_FILES_KEY, useValue: 'userSharedFiles.json' },
-    { provide: USER_FOLLOWS_KEY, useValue: 'userFollowsKeys.json' },
+    { provide: USER_FILES_KEY_PREFIX, useValue: 'SKYBRAIN__USER_FILES' },
+    { provide: USER_PUBLIC_FILES_KEY, useValue: 'SKYBRAIN__USER_PUBLIC_FILES' },
+    { provide: USER_SHARED_FILES_KEY, useValue: 'SKYBRAIN__USER_SHARED_FILES' },
+    { provide: USER_FOLLOWS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
   ],
   bootstrap: [AppComponent]
 })
