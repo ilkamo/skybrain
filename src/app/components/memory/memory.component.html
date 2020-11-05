@@ -1,0 +1,15 @@
+<ng-container *ngIf="memory">
+  <div class="card-header">
+    {{memory?.added | date }}
+  </div>
+  <img *ngIf="memory?.skylink" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
+  <div *ngIf="memory?.text" class="card-body">
+    <p class="text-lead">{{ memory?.text }}</p>
+  </div>
+  <div class="card-footer text-muted">
+    <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+      <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
+      Forget
+    </a>
+  </div>
+</ng-container>

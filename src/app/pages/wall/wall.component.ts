@@ -6,7 +6,7 @@ import { faCommentMedical } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 import { UserData } from 'src/app/models/user-data';
-import { UserFile } from 'src/app/models/user-file';
+import { Memory } from 'src/app/models/memory';
 import { ApiService } from 'src/app/services/api.service';
 import { logError } from 'src/app/utils';
 
@@ -17,62 +17,54 @@ import { logError } from 'src/app/utils';
 })
 export class WallComponent implements OnInit {
   userData: UserData|null;
-  images$: Observable<UserFile[]>;
-  imageForm: FormGroup;
+  memories$: Observable<Memory[]>;
+  uploadForm: FormGroup;
   loading = false;
   submitted = false;
-  reloadImages$ = new BehaviorSubject(null);
+  reloadMemories$ = new BehaviorSubject(null);
 
   constructor(private apiService: ApiService, private formBuilder: FormBuilder, library: FaIconLibrary) {
     library.addIcons(faCommentDots, faCommentMedical);
     this.userData = this.apiService.userData;
-    this.images$ = this.reloadImages$.asObservable().pipe(
+    this.memories$ = this.reloadMemories$.asObservable().pipe(
       switchMap(_ => this.apiService.getImages())
     );
-    this.imageForm =  this.formBuilder.group({
-      image: ['', Validators.required],
-      imageSource: ['', [Validators.required]]
+    this.uploadForm =  this.formBuilder.group({
+      file: [''],
+      text: [''],
+      tags: [''],
+      location: ['']
     });
   }
 
   ngOnInit(): void {
-    this.reloadImages$.next(null);
+    this.reloadMemories$.next(null);
   }
 
   get form(): {
     [key: string]: AbstractControl;
   } {
-    return this.imageForm.controls;
-  }
-
-  onFileChange(event: Event): void {
-    const input = event?.target as EventTarget & { files: FileList };
-    if (input.files.length > 0) {
-      const file = input.files[0];
-      this.imageForm.patchValue({
-        imageSource: file
-      });
-    }
+    return this.uploadForm.controls;
   }
 
   onSubmit(): void {
     this.submitted = true;
 
     // stop here if form is invalid
-    if (this.imageForm.invalid) {
+    if (this.uploadForm.invalid) {
         return;
     }
 
     this.loading = true;
 
-    from(this.apiService.addImage(this.form.imageSource.value))
+    from(this.apiService.addMemory(this.form.file.value, this.form.text.value, this.form.tags.value, this.form.location.value))
       .pipe(first())
       .subscribe(
-          imageKey => {
+          _ => {
             this.loading = false;
             this.submitted = false;
-            this.imageForm.reset();
-            this.reloadImages$.next(null);
+            this.uploadForm.reset();
+            this.reloadMemories$.next(null);
           },
           error => {
               logError(error);
@@ -80,7 +72,23 @@ export class WallComponent implements OnInit {
           });
   }
 
-  trackImage(index: number, image: UserFile): string {
+  forgetMemory(memory: Memory): void {
+    if (!memory || !memory.skylink) {
+      return;
+    }
+    from(this.apiService.deleteMemory(memory.skylink))
+      .pipe(first())
+      .subscribe(
+          _ => {
+            this.reloadMemories$.next(null);
+          },
+          error => {
+              logError(error);
+              this.reloadMemories$.next(null);
+          });
+  }
+
+  trackMemory(index: number, image: Memory): string {
     return (image.skylink || image.text) as string;
   }
 }

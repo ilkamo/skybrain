@@ -12,8 +12,8 @@ export class SiaUrlPipe implements PipeTransform {
     }
   }
 
-  transform(url: string): unknown {
-    if (!url.startsWith('sia:')) {
+  transform(url?: string): unknown {
+    if (!url || typeof url !== 'string' || !url.startsWith('sia:')) {
       return url;
     }
 

@@ -1,0 +1,9 @@
+<label for="{{id}}">{{label}}</label>
+<br/>
+<label class="input-file" [attr.data-selected]="selectedFile">
+  <span class="btn" [ngClass]="{
+    'btn-secondary': valid,
+    'btn-danger': !valid
+  }">Browse</span>
+  <input type="file" id="{{id}}" [accept]="accept" [disabled]="disabled">
+</label>

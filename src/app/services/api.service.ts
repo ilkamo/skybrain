@@ -2,7 +2,7 @@ import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, keyPairFromSeed, PublicKey, SecretKey, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, USER_DATA_KEY } from '../models/user-data';
-import { UserFile, USER_FILES_KEY_PREFIX } from '../models/user-file';
+import { Memory, USER_MEMORIES_KEY_PREFIX } from '../models/memory';
 import { logError } from '../utils';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class ApiService {
     private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
-    @Inject(USER_FILES_KEY_PREFIX) private userFilesKeyPrefix: string,
+    @Inject(USER_MEMORIES_KEY_PREFIX) private userFilesKeyPrefix: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -77,7 +77,7 @@ export class ApiService {
       return null;
     }
 
-    const basePassphrase = `${userData.nickname}_${passphrase}`
+    const basePassphrase = `${userData.nickname}_${passphrase}`;
     const { publicKey, privateKey } = keyPairFromSeed(`${basePassphrase}`);
 
     // TODO: Check if user exists
@@ -104,7 +104,7 @@ export class ApiService {
     return `${this.userFilesKeyPrefix}_${userFilesKeySuffix}`;
   }
 
-  public async getImages(): Promise<UserFile[]> {
+  public async getImages(): Promise<Memory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
         this._publicKey,
@@ -113,14 +113,15 @@ export class ApiService {
       if (!response || !response.data) {
         return [];
       }
-      return response.data as UserFile[];
+      return response.data as Memory[];
     } catch (error) {
       logError(error);
       return [];
     }
   }
 
-  public async addImage(file: File): Promise<string | null> {
+  public async addMemory(file: File, text?: string, tags?: string, location?: string): Promise<string | null> {
+    // TODO: const mimeType = file ? file.type : null;
     try {
       const skylink = await this.skynetClient.uploadFile(file);
       const images = await this.getImages();
@@ -143,7 +144,7 @@ export class ApiService {
     }
   }
 
-  public async deleteImage(skylink: string): Promise<void> {
+  public async deleteMemory(skylink: string): Promise<void> {
     try {
       let images = await this.getImages();
       const foundIndex = images.findIndex(
