@@ -21,6 +21,11 @@ export class ApiService {
   private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
+  // TODO: implement cache in order to avoid additional calls to Skydb
+  private _cachedMemories: UserMemory[] = [];
+  private _cachedPublicMemories: UserPublicMemory[] = [];
+  private _cachedFollowedUsers: FollowedUser[] = [];
+
   constructor(
     private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
