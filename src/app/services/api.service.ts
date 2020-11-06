@@ -4,6 +4,8 @@ import { SkynetClient, keyPairFromSeed, PublicKey, SecretKey, defaultSkynetPorta
 import { UserData, USER_DATA_KEY } from '../models/user-data';
 import { logError } from '../utils';
 import { UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
+import { v4 as uuidv4 } from 'uuid';
+import { V4MAPPED } from 'dns';
 
 @Injectable({
   providedIn: 'root'
@@ -121,6 +123,7 @@ export class ApiService {
       if (!response || !response.data) {
         return [];
       }
+
       return response.data as UserMemory[];
     } catch (error) {
       logError(error);
@@ -134,10 +137,28 @@ export class ApiService {
       const skylink = await this.skynetClient.uploadFile(file);
       const memories = await this.getMemories();
 
-      memories.unshift({
+      const tempMemory: UserMemory = {
+        id: uuidv4(),
         added: new Date(Date.now()),
-        skylink,
-      });
+      }
+
+      if (text) {
+        tempMemory.text = text;
+      }
+
+      if (tags) {
+        tempMemory.tags = tags.split(",").map((item: string) => item.trim());
+      }
+
+      if (location) {
+        tempMemory.location = location;
+      }
+
+      if (skylink) {
+        tempMemory.skylink = skylink;
+      }
+
+      memories.unshift(tempMemory);
 
       await this.skynetClient.db.setJSON(
         this._privateKey,
@@ -152,11 +173,17 @@ export class ApiService {
     }
   }
 
-  public async deleteMemory(skylink: string): Promise<void> {
+  public async deleteMemory(skylink: string, id?: string): Promise<void> {
     try {
       let memories = await this.getMemories();
       const foundIndex = memories.findIndex(
-        (memory) => memory.skylink && memory.skylink.search(skylink) > -1
+        (memory) => {
+          if (id) {
+            return memory.id && memory.id.search(id) > -1
+          } else {
+            return memory.skylink && memory.skylink.search(skylink) > -1  // TODO: use only id
+          }
+        }
       );
       if (foundIndex > -1) {
         memories = [
