@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { USER_DATA_KEY } from './models/user-data';
 import { USER_MEMORIES_KEY_PREFIX } from './models/user-memory';
-import { USER_FOLLOWS_KEY } from './models/user-follows';
+import { USER_FOLLOWED_USERS_KEY } from './models/user-followed-users';
 import { USER_SHARED_MEMORIES_KEY } from './models/user-shared-files';
 import { USER_PUBLIC_MEMORIES_KEY } from './models/user-public-files';
 import { LoginComponent } from './pages/login/login.component';
@@ -45,7 +45,7 @@ import { MemoryComponent } from './components/memory/memory.component';
     { provide: USER_MEMORIES_KEY_PREFIX, useValue: 'SKYBRAIN__USER_MEMORIES' },
     { provide: USER_PUBLIC_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_PUBLIC_MEMORIES' },
     { provide: USER_SHARED_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_SHARED_MEMORIES' },
-    { provide: USER_FOLLOWS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
+    { provide: USER_FOLLOWED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
   ],
   bootstrap: [AppComponent]
 })

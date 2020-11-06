@@ -5,7 +5,9 @@ import { UserData, USER_DATA_KEY } from '../models/user-data';
 import { logError } from '../utils';
 import { UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 import { v4 as uuidv4 } from 'uuid';
-import { V4MAPPED } from 'dns';
+import { UserPublicMemory, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-files';
+import { USER_SHARED_MEMORIES_KEY } from '../models/user-shared-files';
+import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +15,9 @@ import { V4MAPPED } from 'dns';
 export class ApiService {
   private _userData: UserData | null = null;
   private _authenticated = false;
-  private _publicKey: PublicKey | null = null;
-  private _privateKey: SecretKey | null = null;
-  private _userMemoriesKey: string | null = null;
+  private _publicKeyFromSeed: PublicKey | null = null;
+  private _privateKeyFromSeed: SecretKey | null = null;
+  private _userMemoriesSkydbKey: string | null = null;
   private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
@@ -23,7 +25,10 @@ export class ApiService {
     private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
-    @Inject(USER_MEMORIES_KEY_PREFIX) private userMemoriesKeyPrefix: string,
+    @Inject(USER_MEMORIES_KEY_PREFIX) private _userMemoriesSkydbKeyPrefix: string,
+    @Inject(USER_PUBLIC_MEMORIES_KEY) private userPublicMemoriesSkydbKey: string,
+    @Inject(USER_SHARED_MEMORIES_KEY) private userSharedMemoriesSkydbKey: string,
+    @Inject(USER_FOLLOWED_USERS_KEY) private userFollowedUsersSkydbKey: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -56,9 +61,9 @@ export class ApiService {
       console.log(data);
       if (data && 'nickname' in data && data.nickname === nickname) {
         this._userData = data as UserData;
-        this._publicKey = publicKey;
-        this._privateKey = privateKey;
-        this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
+        this._publicKeyFromSeed = publicKey;
+        this._privateKeyFromSeed = privateKey;
+        this._userMemoriesSkydbKey = await this.generateUserMemoriesKey(basePassphrase);
         this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
@@ -90,9 +95,9 @@ export class ApiService {
       const response = await this.skynetClient.db.setJSON(privateKey, this.userDataKey, userData);
       if (autoLogin) {
         this._userData = userData;
-        this._publicKey = publicKey;
-        this._privateKey = privateKey;
-        this._userMemoriesKey = await this.generateUserMemoriesKey(basePassphrase);
+        this._publicKeyFromSeed = publicKey;
+        this._privateKeyFromSeed = privateKey;
+        this._userMemoriesSkydbKey = await this.generateUserMemoriesKey(basePassphrase);
         this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
         return this._userData;
@@ -106,19 +111,19 @@ export class ApiService {
 
   private async generateUserMemoriesKey(basePassphrase: string): Promise<string> {
     const userMemoriesKeySuffix = await this._sha256(`${basePassphrase}_USER_MEMORIES`); // TODO: make it stronger!
-    return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
+    return `${this._userMemoriesSkydbKeyPrefix}_${userMemoriesKeySuffix}`;
   }
 
   private async generateUserMemoriesEncryptionKey(basePassphrase: string): Promise<string> {
     const userMemoriesKeySuffix = await this._sha256(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`); // TODO: make it stronger!
-    return `${this.userMemoriesKeyPrefix}_${userMemoriesKeySuffix}`;
+    return `${this._userMemoriesSkydbKeyPrefix}_${userMemoriesKeySuffix}`;
   }
 
   public async getMemories(): Promise<UserMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
-        this._publicKey,
-        this._userMemoriesKey
+        this._publicKeyFromSeed,
+        this._userMemoriesSkydbKey
       );
       if (!response || !response.data) {
         return [];
@@ -161,8 +166,8 @@ export class ApiService {
       memories.unshift(tempMemory);
 
       await this.skynetClient.db.setJSON(
-        this._privateKey,
-        this._userMemoriesKey,
+        this._privateKeyFromSeed,
+        this._userMemoriesSkydbKey,
         memories,
       );
 
@@ -191,13 +196,170 @@ export class ApiService {
           ...memories.slice(foundIndex + 1),
         ];
         await this.skynetClient.db.setJSON(
-          this._privateKey,
-          this._userMemoriesKey,
+          this._privateKeyFromSeed,
+          this._userMemoriesSkydbKey,
           memories
         );
       }
     } catch (error) {
       logError(error);
+    }
+  }
+
+  public async getPublicMemories(): Promise<UserPublicMemory[]> {
+    try {
+      const response = await this.skynetClient.db.getJSON(
+        this._publicKeyFromSeed,
+        this.userPublicMemoriesSkydbKey,
+      );
+      if (!response || !response.data) {
+        return [];
+      }
+
+      return response.data as UserPublicMemory[];
+    } catch (error) {
+      logError(error);
+      return [];
+    }
+  }
+
+  public async publicMemory(id: string): Promise<void> {
+    try {
+      const memories = await this.getMemories();
+      const found = memories.find((memory) => memory.id && memory.id.search(id) > -1);
+      if (!found) {
+        console.log("memory not found")
+        return
+      }
+
+      const publicMemories = await this.getPublicMemories();
+      const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
+      if (foundIndex > -1) {
+        return
+      }
+
+      const tempPublicMemory: UserPublicMemory = {
+        publicAt: new Date(Date.now()),
+        memory: found,
+      }
+
+      publicMemories.unshift(tempPublicMemory);
+
+      await this.skynetClient.db.setJSON(
+        this._privateKeyFromSeed,
+        this.userPublicMemoriesSkydbKey,
+        publicMemories,
+      );
+
+      return;
+    } catch (error) {
+      logError(error);
+      return;
+    }
+  }
+
+  public async removePublicMemory(id: string): Promise<void> {
+    try {
+      let publicMemories = await this.getPublicMemories();
+      const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
+      if (foundIndex == -1) {
+        return
+      }
+
+      if (foundIndex > -1) {
+        publicMemories = [
+          ...publicMemories.slice(0, foundIndex),
+          ...publicMemories.slice(foundIndex + 1),
+        ];
+
+        await this.skynetClient.db.setJSON(
+          this._privateKeyFromSeed,
+          this.userPublicMemoriesSkydbKey,
+          publicMemories
+        );
+      }
+
+      return;
+    } catch (error) {
+      logError(error);
+      return;
+    }
+  }
+
+  public async getFollowedUsers(): Promise<FollowedUser[]> {
+    try {
+      const response = await this.skynetClient.db.getJSON(
+        this._publicKeyFromSeed,
+        this.userFollowedUsersSkydbKey,
+      );
+      if (!response || !response.data) {
+        return [];
+      }
+
+      return response.data as FollowedUser[];
+    } catch (error) {
+      logError(error);
+      return [];
+    }
+  }
+
+  public async followUserByPublicKey(followedUserPublicKey: string): Promise<void> {
+    // TODO: check public key length
+
+    try {
+      const followedUsers = await this.getFollowedUsers();
+      const found = followedUsers.find((u) => u.publicKey.search(followedUserPublicKey) > -1);
+      if (found) {
+        return;
+      }
+
+      const tempFollowedUser: FollowedUser = {
+        startedAt: new Date(Date.now()),
+        publicKey: followedUserPublicKey,
+      }
+
+      followedUsers.unshift(tempFollowedUser);
+
+      await this.skynetClient.db.setJSON(
+        this._privateKeyFromSeed,
+        this.userFollowedUsersSkydbKey,
+        followedUsers,
+      );
+
+      return;
+    } catch (error) {
+      logError(error);
+      return;
+    }
+  }
+
+  public async unfollowUserByPublicKey(followedUserPublicKey: string): Promise<void> {
+    // TODO: check public key length
+
+    try {
+      let followedUsers = await this.getFollowedUsers();
+      const foundIndex = followedUsers.findIndex((u) => u.publicKey.search(followedUserPublicKey) > -1);
+      if (foundIndex == -1) {
+        return;
+      }
+
+      if (foundIndex > -1) {
+        followedUsers = [
+          ...followedUsers.slice(0, foundIndex),
+          ...followedUsers.slice(foundIndex + 1),
+        ];
+
+        await this.skynetClient.db.setJSON(
+          this._privateKeyFromSeed,
+          this.userFollowedUsersSkydbKey,
+          followedUsers
+        );
+      }
+
+      return;
+    } catch (error) {
+      logError(error);
+      return;
     }
   }
 
