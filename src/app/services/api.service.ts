@@ -64,6 +64,7 @@ export class ApiService {
     try {
       const { data } = await this.skynetClient.db.getJSON(publicKey, this.userDataKey);
       console.log(data);
+
       if (data && 'nickname' in data && data.nickname === nickname) {
         this._userData = data as UserData;
         this._publicKeyFromSeed = publicKey;
@@ -71,6 +72,10 @@ export class ApiService {
         this._userMemoriesSkydbKey = await this.generateUserMemoriesKey(basePassphrase);
         this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
+
+        // TODO: remove me!!!!!!!
+        this.logTestData();
+
         return this._userData;
       } else {
         return null;
@@ -79,6 +84,23 @@ export class ApiService {
       logError(error);
       return null;
     }
+  }
+
+  public async logTestData() {
+    const m = await this.getMemories()
+    console.log(m);
+
+    if (m.length > 0) {
+      await this.publicMemory(m[0].id);
+      console.log(await this.getPublicMemories());
+      // await this.removePublicMemory(m[0].id);
+      // console.log(await this.getPublicMemories());
+
+      // await this.followUserByPublicKey("f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295"); // INFO: public key of user test2:test2
+      console.log(await this.getFollowedUsers());
+      console.log(await this.getMemoriesOfFollowedUsers());
+    }
+
   }
 
   public async register(userData: UserData, passphrase: string, autoLogin = true): Promise<UserData | boolean | null> {
@@ -371,7 +393,7 @@ export class ApiService {
   public async getPublicMemoriesByFollowedUserPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
-        followedUserPublicKey, // TODO: will work with the next version of the skynet-js api as promised by David!
+        this._hexToUint8(followedUserPublicKey), // TODO: it will work without _hexToUint8 in the next version of the skynet-js api as promised by David!
         this.userPublicMemoriesSkydbKey,
       );
       if (!response || !response.data) {
@@ -406,8 +428,14 @@ export class ApiService {
   private async _sha256(message: string): Promise<string> {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
-    return hashHex;
+    return this._hashHex(new Uint8Array(hashBuffer));
+  }
+
+  private _hashHex(hashArray: Uint8Array): string {
+    return Buffer.from(new Uint8Array(hashArray)).toString('hex');
+  }
+
+  private _hexToUint8(hex: string): Uint8Array {
+    return Uint8Array.from(Buffer.from(hex, 'hex'));
   }
 }

@@ -25,6 +25,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@types/uuid": "^8.3.0",
     "bootstrap": "^4.5.3",
+    "buffer": "^6.0.1",
     "rxjs": "~6.6.0",
     "skynet-js": "^2.4.0",
     "tslib": "^2.0.0",
