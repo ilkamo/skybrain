@@ -6,3 +6,7 @@ export interface UserPublicMemory {
   memory: UserMemory;
   publicAt: Date;
 }
+
+export interface UsersPublicMemories {
+  [userPublicKey: string]: UserPublicMemory[]
+}

@@ -5,8 +5,8 @@ import { UserData, USER_DATA_KEY } from '../models/user-data';
 import { logError } from '../utils';
 import { UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 import { v4 as uuidv4 } from 'uuid';
-import { UserPublicMemory, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-files';
-import { USER_SHARED_MEMORIES_KEY } from '../models/user-shared-files';
+import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
+import { USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 
 @Injectable({
@@ -361,6 +361,35 @@ export class ApiService {
       logError(error);
       return;
     }
+  }
+
+  public async getPublicMemoriesByPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
+    try {
+      const response = await this.skynetClient.db.getJSON(
+        followedUserPublicKey, // TODO: will work with the next version of the skynet-js api as promised by David!
+        this.userPublicMemoriesSkydbKey,
+      );
+      if (!response || !response.data) {
+        return [];
+      }
+
+      return response.data as UserPublicMemory[];
+    } catch (error) {
+      logError(error);
+      return [];
+    }
+  }
+
+  public async getMemoriesFromFollowedUsers(): Promise<UsersPublicMemories> {
+    const followedUsersMemories: UsersPublicMemories = {};
+
+    const followedUsers = await this.getFollowedUsers();
+    followedUsers.forEach(async (fu) => {
+      const followedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemoriesByPublicKey(fu.publicKey);
+      followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
+    });
+  
+    return followedUsersMemories;
   }
 
   public async resolveSkylink(skylink: string): Promise<void> {
