@@ -363,7 +363,7 @@ export class ApiService {
     }
   }
 
-  public async getPublicMemoriesByPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
+  public async getPublicMemoriesByFollowedUserPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
         followedUserPublicKey, // TODO: will work with the next version of the skynet-js api as promised by David!
@@ -380,12 +380,12 @@ export class ApiService {
     }
   }
 
-  public async getMemoriesFromFollowedUsers(): Promise<UsersPublicMemories> {
+  public async getMemoriesOfFollowedUsers(): Promise<UsersPublicMemories> {
     const followedUsersMemories: UsersPublicMemories = {};
 
     const followedUsers = await this.getFollowedUsers();
     followedUsers.forEach(async (fu) => {
-      const followedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemoriesByPublicKey(fu.publicKey);
+      const followedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemoriesByFollowedUserPublicKey(fu.publicKey);
       followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
     });
   
