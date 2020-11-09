@@ -1,13 +1,14 @@
 import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
-import { SkynetClient, genKeyPairFromSeed, PublicKey, SecretKey, defaultSkynetPortalUrl } from 'skynet-js';
+import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, USER_DATA_KEY } from '../models/user-data';
 import { logError } from '../utils';
 import { UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 import { v4 as uuidv4 } from 'uuid';
 import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
-import { USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
+import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
+import * as cryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root'
@@ -58,23 +59,21 @@ export class ApiService {
       return null;
     }
 
-    const basePassphrase = `${nickname}_${passphrase}`;
-    const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
+    const { publicKey, privateKey } = genKeyPairFromSeed(passphrase);
 
     try {
       const { data } = await this.skynetClient.db.getJSON(publicKey, this.userDataKey);
-      console.log(data);
 
       if (data && 'nickname' in data && data.nickname === nickname) {
         this._userData = data as UserData;
         this._publicKeyFromSeed = publicKey;
         this._privateKeyFromSeed = privateKey;
-        this._userMemoriesSkydbKey = await this.generateUserMemoriesKey(basePassphrase);
-        this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(basePassphrase);
+        this._userMemoriesSkydbKey = await this.generateUserMemoriesKey(passphrase);
+        this._userMemoriesEncryptionKey = await this.generateUserMemoriesEncryptionKey(passphrase);
         this._authenticated = true;
 
         // TODO: remove me!!!!!!!
-        this.logTestData();
+        // this.logTestData();
 
         return this._userData;
       } else {
@@ -99,6 +98,13 @@ export class ApiService {
       // await this.followUserByPublicKey("f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295"); // INFO: public key of user test2:test2
       console.log(await this.getFollowedUsers());
       console.log(await this.getPublicMemoriesOfFollowedUsers());
+      console.log(await this.getSharedMemories());
+      console.log(await this.resolveMemoryFromBase64("eyJwdWJsaWNLZXkiOiIyZmZlOGUxYjA5MWVjN2Q3M2I5ZTg5NDczMDYzMmM1ZTEyYzI4OWRjOTQzMjYwMzdlMjNmMzNkNTRmOTVhYWQ4Iiwic2hhcmVkSWQiOiIyYjY2OGFjZC1hYzMwLTRhNzYtYmMxMi01ODgwOWM2NTkxMTAiLCJlbmNyeXB0aW9uS2V5IjoiZWQxMzI4YTljMWE5ZDE1NTVmNzhiYzJjYmZiMjY4NzExM2E3NzIzNjdjNTA0YTU5ZTY4OTM3MGViZGM0NzJhNSJ9"))
+
+      // const base64Link = await this.shareMemory(m[0].id)
+      // if (base64Link) {
+      //   console.log(base64Link);
+      // }
     }
 
   }
@@ -114,7 +120,7 @@ export class ApiService {
     }
 
     const basePassphrase = `${userData.nickname}_${passphrase}`;
-    const { publicKey, privateKey } = genKeyPairFromSeed(`${basePassphrase}`);
+    const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
 
     // TODO: Check if user exists
 
@@ -419,19 +425,88 @@ export class ApiService {
     return followedUsersMemories;
   }
 
-  public async resolveSkylink(skylink: string): Promise<void> {
-    // TODO: implement me!!
-    // decode the file
-    // return bytes
+  public async getSharedMemories(publicKey?: string): Promise<UserSharedMemory[]> {
+    const pubKey = publicKey ? publicKey : this._publicKeyFromSeed;
+    try {
+      console.log('entro');
+      const response = await this.skynetClient.db.getJSON(
+        pubKey,
+        this.userSharedMemoriesSkydbKey,
+      );
+      console.log('entro2');
+      if (!response || !response.data) {
+        return [];
+      }
+
+      return response.data as UserSharedMemory[];
+    } catch (error) {
+      console.log('entro3');
+      logError(error);
+      return [];
+    }
+  }
+
+  public async shareMemory(id: string): Promise<string | null> {
+    if (!this._publicKeyFromSeed) {
+      return null;
+    }
+    
+    try {
+      const memories = await this.getMemories();
+      const found = memories.find((memory) => memory.id && memory.id.search(id) > -1);
+      if (!found) {
+        console.log("memory not found")
+        return null;
+      }
+
+      const sharedMemories = await this.getSharedMemories();
+
+      const { publicKey } = genKeyPairAndSeed();
+      const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), publicKey);
+
+      const tempSharedMemory: UserSharedMemory = {
+        memoryId: found.id,
+        sharedId: uuidv4(),
+        encryptedMemory: encryptedMemory.toString(),
+        sharedAt: new Date(Date.now()),
+      }
+
+      sharedMemories.unshift(tempSharedMemory);
+
+      await this.skynetClient.db.setJSON(
+        this._privateKeyFromSeed,
+        this.userSharedMemoriesSkydbKey,
+        sharedMemories,
+      );
+
+      // `${this._publicKeyFromSeed}_${tempSharedMemory.sharedId}_${publicKey}`
+      const tempSharedMemoryLink: UserSharedMemoryLink = {
+        publicKey: this._publicKeyFromSeed,
+        sharedId: tempSharedMemory.sharedId,
+        encryptionKey: publicKey,
+      }
+      return btoa(JSON.stringify(tempSharedMemoryLink));
+    } catch (error) {
+      logError(error);
+      return null;
+    }
+  }
+
+  public async resolveMemoryFromBase64(base64Data: string): Promise<UserMemory> {
+    const memoryLink = JSON.parse(atob(base64Data)) as UserSharedMemoryLink;
+    const sharedMemories = await this.getSharedMemories(memoryLink.publicKey);
+
+    const found = sharedMemories.find((memory) => memory.sharedId && memory.sharedId.search(memoryLink.sharedId) > -1);
+    if (!found) {
+      console.log("shared memory not found")
+      return {} as UserMemory;
+    }
+
+    const decryptedMemory = cryptoJS.AES.decrypt(found.encryptedMemory, memoryLink.encryptionKey);
+    return JSON.parse(decryptedMemory.toString()) as UserMemory;
   }
 
   private async _sha256(message: string): Promise<string> {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    return this._hashHex(new Uint8Array(hashBuffer));
-  }
-
-  private _hashHex(hashArray: Uint8Array): string {
-    return Buffer.from(new Uint8Array(hashArray)).toString('hex');
+    return cryptoJS.SHA256(message).toString();
   }
 }

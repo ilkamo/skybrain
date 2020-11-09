@@ -18,6 +18,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { UploadComponent } from './components/upload/upload.component';
 import { MemoryComponent } from './components/memory/memory.component';
 
+import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,6 +48,7 @@ import { MemoryComponent } from './components/memory/memory.component';
     { provide: USER_PUBLIC_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_PUBLIC_MEMORIES' },
     { provide: USER_SHARED_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_SHARED_MEMORIES' },
     { provide: USER_FOLLOWED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
+    { provide: LocationStrategy, useClass: HashLocationStrategy},
   ],
   bootstrap: [AppComponent]
 })
