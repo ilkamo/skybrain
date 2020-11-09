@@ -1,6 +1,6 @@
 import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
-import { SkynetClient, keyPairFromSeed, PublicKey, SecretKey, defaultSkynetPortalUrl } from 'skynet-js';
+import { SkynetClient, genKeyPairFromSeed, PublicKey, SecretKey, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, USER_DATA_KEY } from '../models/user-data';
 import { logError } from '../utils';
 import { UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
@@ -15,8 +15,8 @@ import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-u
 export class ApiService {
   private _userData: UserData | null = null;
   private _authenticated = false;
-  private _publicKeyFromSeed: PublicKey | null = null;
-  private _privateKeyFromSeed: SecretKey | null = null;
+  private _publicKeyFromSeed: string | null = null;
+  private _privateKeyFromSeed: string | null = null;
   private _userMemoriesSkydbKey: string | null = null;
   private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
@@ -59,7 +59,7 @@ export class ApiService {
     }
 
     const basePassphrase = `${nickname}_${passphrase}`;
-    const { publicKey, privateKey } = keyPairFromSeed(basePassphrase);
+    const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
 
     try {
       const { data } = await this.skynetClient.db.getJSON(publicKey, this.userDataKey);
@@ -98,7 +98,7 @@ export class ApiService {
 
       // await this.followUserByPublicKey("f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295"); // INFO: public key of user test2:test2
       console.log(await this.getFollowedUsers());
-      console.log(await this.getMemoriesOfFollowedUsers());
+      console.log(await this.getPublicMemoriesOfFollowedUsers());
     }
 
   }
@@ -114,7 +114,7 @@ export class ApiService {
     }
 
     const basePassphrase = `${userData.nickname}_${passphrase}`;
-    const { publicKey, privateKey } = keyPairFromSeed(`${basePassphrase}`);
+    const { publicKey, privateKey } = genKeyPairFromSeed(`${basePassphrase}`);
 
     // TODO: Check if user exists
 
@@ -393,7 +393,7 @@ export class ApiService {
   public async getPublicMemoriesByFollowedUserPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
-        this._hexToUint8(followedUserPublicKey), // TODO: it will work without _hexToUint8 in the next version of the skynet-js api as promised by David!
+        followedUserPublicKey, // TODO: it will work without _hexToUint8 in the next version of the skynet-js api as promised by David!
         this.userPublicMemoriesSkydbKey,
       );
       if (!response || !response.data) {
@@ -407,7 +407,7 @@ export class ApiService {
     }
   }
 
-  public async getMemoriesOfFollowedUsers(): Promise<UsersPublicMemories> {
+  public async getPublicMemoriesOfFollowedUsers(): Promise<UsersPublicMemories> {
     const followedUsersMemories: UsersPublicMemories = {};
 
     const followedUsers = await this.getFollowedUsers();
@@ -433,9 +433,5 @@ export class ApiService {
 
   private _hashHex(hashArray: Uint8Array): string {
     return Buffer.from(new Uint8Array(hashArray)).toString('hex');
-  }
-
-  private _hexToUint8(hex: string): Uint8Array {
-    return Uint8Array.from(Buffer.from(hex, 'hex'));
   }
 }
