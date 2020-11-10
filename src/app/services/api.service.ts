@@ -400,7 +400,7 @@ export class ApiService {
   public async getPublicMemoriesByFollowedUserPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
-        followedUserPublicKey, // TODO: it will work without _hexToUint8 in the next version of the skynet-js api as promised by David!
+        followedUserPublicKey,
         this.userPublicMemoriesSkydbKey,
       );
       if (!response || !response.data) {
@@ -458,11 +458,7 @@ export class ApiService {
       }
 
       const sharedMemories = await this.getSharedMemories();
-
-      // const { publicKey } = genKeyPairAndSeed(); 
-      const publicKey  = await this._sha256(uuidv4()); // TODO: use genKeyPairAndSeed when is fixed
-      
-      console.log("encrypted: "+JSON.stringify(found));
+      const { publicKey } = genKeyPairAndSeed();
       const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), publicKey);
 
       const tempSharedMemory: UserSharedMemory = {
@@ -475,12 +471,11 @@ export class ApiService {
       sharedMemories.unshift(tempSharedMemory);
 
       await this.skynetClient.db.setJSON(
-        this._privateKeyFromSeed, // something if wrong with the new version of the lib
+        this._privateKeyFromSeed,
         this.userSharedMemoriesSkydbKey,
         sharedMemories,
       );
 
-      // `${this._publicKeyFromSeed}_${tempSharedMemory.sharedId}_${publicKey}`
       const tempSharedMemoryLink: UserSharedMemoryLink = {
         publicKey: this._publicKeyFromSeed,
         sharedId: tempSharedMemory.sharedId,
@@ -495,12 +490,8 @@ export class ApiService {
 
   public async resolveMemoryFromBase64(base64Data: string): Promise<UserMemory> {
     const decodedBase64 = atob(base64Data)
-    console.log(decodedBase64);
     const memoryLink = JSON.parse(decodedBase64) as UserSharedMemoryLink;
-    console.log(decodedBase64);
     const sharedMemories = await this.getSharedMemories(memoryLink.publicKey);
-    console.log("jjooo");
-    console.log(sharedMemories);
 
     const found = sharedMemories.find((memory) => memory.sharedId && memory.sharedId.search(memoryLink.sharedId) > -1);
     if (!found) {
@@ -508,9 +499,9 @@ export class ApiService {
       return {} as UserMemory;
     }
 
-    const decryptedMemory = cryptoJS.AES.decrypt(found.encryptedMemory, memoryLink.encryptionKey);
-    console.log(decryptedMemory.toString());
-    return JSON.parse(decryptedMemory.toString()) as UserMemory;
+    const decryptedMemory = cryptoJS.AES.decrypt(found.encryptedMemory, memoryLink.encryptionKey).toString(cryptoJS.enc.Utf8);
+    const parsedDecryptedMemory = JSON.parse(decryptedMemory);
+    return parsedDecryptedMemory;
   }
 
   private async _sha256(message: string): Promise<string> {
