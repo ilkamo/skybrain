@@ -13,6 +13,6 @@ export interface UserMemory {
 }
 
 export interface UserMemoriesEncrypted {
-  encryptedMemories: string
-  encryptionType: EncryptionType // to allow migration if the encryptionType changes
+  encryptedMemories: string;
+  encryptionType: EncryptionType; // to allow migration if the encryptionType changes
 }

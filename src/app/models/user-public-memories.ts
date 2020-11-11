@@ -8,5 +8,5 @@ export interface UserPublicMemory {
 }
 
 export interface UsersPublicMemories {
-  [userPublicKey: string]: UserPublicMemory[]
+  [userPublicKey: string]: UserPublicMemory[];
 }
