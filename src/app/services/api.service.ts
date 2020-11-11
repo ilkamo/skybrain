@@ -3,12 +3,13 @@ import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, USER_DATA_KEY } from '../models/user-data';
 import { logError } from '../utils';
-import { EncryptionType, UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
+import { UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 import { v4 as uuidv4 } from 'uuid';
 import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
 import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 import * as cryptoJS from 'crypto-js';
+import { EncryptionType } from '../models/encryption';
 
 @Injectable({
   providedIn: 'root'
@@ -478,13 +479,14 @@ export class ApiService {
       }
 
       const sharedMemories = await this.getSharedMemories();
-      const { publicKey } = genKeyPairAndSeed();
-      const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), publicKey);
+      const { privateKey } = genKeyPairAndSeed();
+      const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), privateKey);
 
       const tempSharedMemory: UserSharedMemory = {
         memoryId: found.id,
         sharedId: uuidv4(),
         encryptedMemory: encryptedMemory.toString(),
+        encryptionType: EncryptionType.KeyPairFromSeed,
         sharedAt: new Date(Date.now()),
       }
 
@@ -499,7 +501,7 @@ export class ApiService {
       const tempSharedMemoryLink: UserSharedMemoryLink = {
         publicKey: this._publicKeyFromSeed,
         sharedId: tempSharedMemory.sharedId,
-        encryptionKey: publicKey,
+        encryptionKey: privateKey,
       }
       return btoa(JSON.stringify(tempSharedMemoryLink));
     } catch (error) {

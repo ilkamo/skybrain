@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import { EncryptionType } from './encryption';
 export const USER_MEMORIES_KEY_PREFIX = new InjectionToken('sia-user-memories-key-prefix');
 
 export interface UserMemory {
@@ -9,10 +10,6 @@ export interface UserMemory {
   name?: string;
   tags?: string[];
   location?: string;
-}
-
-export enum EncryptionType {
-  KeyPairFromSeed
 }
 
 export interface UserMemoriesEncrypted {

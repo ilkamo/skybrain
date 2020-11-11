@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+import { EncryptionType } from './encryption';
 export const USER_SHARED_MEMORIES_KEY = new InjectionToken('sia-user-shared-memories-key');
 
 /* 
@@ -13,6 +14,7 @@ export interface UserSharedMemory {
   sharedId: string;
   memoryId: string; // needed if the user want to revoke the access
   encryptedMemory: string;
+  encryptionType: EncryptionType;
   sharedAt: Date;
 }
 
