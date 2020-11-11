@@ -11,3 +11,11 @@ export interface UserMemory {
   location?: string;
 }
 
+export enum EncryptionType {
+  KeyPairFromSeed
+}
+
+export interface UserMemoriesEncrypted {
+  encryptedMemories: string
+  encryptionType: EncryptionType // to allow migration if the encryptionType changes
+}
