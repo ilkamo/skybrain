@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-center">
-  <div class="card login-card mt-3">
-    <img className="mx-auto h-24 w-auto" src="https://siasky.net/CAA4f8Z4YdfINcXK_bdDJH4lU4t0Bs07WgWjA5YHELUHYA" alt="Skybrain" />
+  <div class="card login-card mt-3 text-left">
+    <img class="card-img-top" src="https://siasky.net/CAA4f8Z4YdfINcXK_bdDJH4lU4t0Bs07WgWjA5YHELUHYA" alt="Skybrain" />
     <div class="card-body">
-      <h1 class="text-center">Login</h1>
-      <p class="text-center">Hello! Log in with your nickname.</p>
+      <h5 class="card-title">Login with passphrase</h5>
+      <p class="card-text">Use your passphrase to login into your account.</p>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
             <label for="nickname">Nickname</label>
