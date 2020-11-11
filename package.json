@@ -23,11 +23,13 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
     "@fortawesome/free-regular-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@types/crypto-js": "^4.0.1",
     "@types/uuid": "^8.3.0",
     "bootstrap": "^4.5.3",
     "buffer": "^6.0.1",
+    "crypto-js": "^4.0.0",
     "rxjs": "~6.6.0",
-    "skynet-js": "^2.4.0",
+    "skynet-js": "^2.6.0",
     "tslib": "^2.0.0",
     "uuid": "^8.3.1",
     "zone.js": "~0.10.2"
@@ -52,5 +54,8 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~4.0.2"
+  },
+  "browser": {
+    "crypto": false
   }
 }
