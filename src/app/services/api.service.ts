@@ -611,7 +611,7 @@ export class ApiService {
     return parsedDecryptedMemory;
   }
 
-  public _encryptUserMemories(memories: UserMemory[]): string | null {
+  private _encryptUserMemories(memories: UserMemory[]): string | null {
     if (!this._userMemoriesEncryptionKey) {
       console.log("something really bad happened, no _userMemoriesEncryptionKey")
       return null;
@@ -620,7 +620,7 @@ export class ApiService {
     return cryptoJS.AES.encrypt(JSON.stringify(memories), this._userMemoriesEncryptionKey).toString();
   }
 
-  public _decryptUserMemories(encryptedMemories: string): UserMemory[] | null {
+  private _decryptUserMemories(encryptedMemories: string): UserMemory[] | null {
     if (!this._userMemoriesEncryptionKey) {
       return null;
     }
