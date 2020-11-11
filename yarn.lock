@@ -7670,10 +7670,10 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-skynet-js@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/skynet-js/-/skynet-js-2.6.0.tgz#3b90115459c5264fa076d9d9d5fbad78a2720887"
-  integrity sha512-12tsVyfLqNgwC+dA2mCmQfzmN+bq010RVUnML70ZBSE0oR+y8qbW2V/Eief9f4aJr7b9TME9VCE8Z/i4Hpyneg==
+skynet-js@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/skynet-js/-/skynet-js-2.7.0.tgz#e816d92ec6d97e27aa5260e7341ea154b5765561"
+  integrity sha512-ruEZ6Xwg8jnAWAz01ZVa1hY8DzPRoj7GZE0Q6UYDSOQo8mSqR1ezVoow1AluhvS/OEgdk45Iwy07En0Faao4iQ==
   dependencies:
     "@babel/runtime" "^7.11.2"
     axios "^0.21.0"
