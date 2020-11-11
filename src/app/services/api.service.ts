@@ -10,7 +10,6 @@ import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
-import { faAd } from '@fortawesome/free-solid-svg-icons';
 
 @Injectable({
   providedIn: 'root'
