@@ -10,12 +10,13 @@ import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
+import { ErrorType, ServiceError } from '../models/error';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private _userData: UserData | null = null;
+  private _userData: UserData = {};
   private _authenticated = false;
   private _publicKeyFromSeed: string | null = null;
   private _privateKeyFromSeed: string | null = null;
@@ -23,9 +24,9 @@ export class ApiService {
   private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
-  // TODO: implement cache in order to avoid additional calls to Skydb
   private _cachedMemories: UserMemory[] | null = null;
   private _cachedPublicMemories: UserPublicMemory[] | null = null;
+  // TODO: implement cache in order to avoid additional calls to Skydb
   private _cachedFollowedUsers: FollowedUser[] | null = null;
 
   constructor(
@@ -51,16 +52,19 @@ export class ApiService {
     return this._userData;
   }
 
-  public async login(nickname: string, passphrase: string): Promise<UserData | null> {
+  public async login(
+    nickname: string,
+    passphrase: string,
+  ): Promise<UserData | ServiceError> {
     if (this.isAuthenticated()) {
-      return this._userData;
+      return this._userData; // Check if there is a nickname, otherwise show a new page to fill this info.
     }
 
     if (!nickname || !passphrase) {
-      return null;
+      return new ServiceError("invalid passphrase", ErrorType.LoginError);
     }
 
-    const basePassphrase = `${nickname}_${passphrase}`;
+    const basePassphrase = `${nickname}_${passphrase}`; // TODO: user olny the passphrase to generate keys
     const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
 
     try {
@@ -84,16 +88,16 @@ export class ApiService {
 
         return this._userData;
       } else {
-        return null;
+        return new ServiceError("nickname could not be empty", ErrorType.LoginError);
       }
     } catch (error) {
       logError(error);
-      return null;
+      return new ServiceError(error, ErrorType.LoginError);
     }
   }
 
   public async logTestData() {
-    const m = await this.getMemories()
+    const m = await this._getMemories()
     console.log(m);
 
     if (m.length > 0) {
@@ -103,27 +107,32 @@ export class ApiService {
       // console.log(await this.getPublicMemories());
 
       await this.followUserByPublicKey("f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295"); // INFO: public key of user test2:test2
-      console.log(await this.getFollowedUsers());
+      console.log(await this._getFollowedUsers());
       console.log(await this.getPublicMemoriesOfFollowedUsers());
-      console.log(await this.getSharedMemories());
+      console.log(await this._getSharedMemories());
       const base64Link = await this.shareMemory(m[0].id)
       if (base64Link) {
         console.log('resolving')
         // console.log(await this.resolveMemoryFromBase64("eyJwdWJsaWNLZXkiOiIyZmZlOGUxYjA5MWVjN2Q3M2I5ZTg5NDczMDYzMmM1ZTEyYzI4OWRjOTQzMjYwMzdlMjNmMzNkNTRmOTVhYWQ4Iiwic2hhcmVkSWQiOiIyYjY2OGFjZC1hYzMwLTRhNzYtYmMxMi01ODgwOWM2NTkxMTAiLCJlbmNyeXB0aW9uS2V5IjoiZWQxMzI4YTljMWE5ZDE1NTVmNzhiYzJjYmZiMjY4NzExM2E3NzIzNjdjNTA0YTU5ZTY4OTM3MGViZGM0NzJhNSJ9"));
-        console.log(await this.resolveMemoryFromBase64(base64Link));
+        // console.log(await this.resolveMemoryFromBase64(base64Link));
       }
     }
 
   }
 
-  public async register(userData: UserData, passphrase: string, autoLogin = true): Promise<UserData | boolean | null> {
+  public async register(
+    userData: UserData,
+    passphrase: string,
+    autoLogin = true,
+  ): Promise<UserData | boolean | ServiceError> {
     if (this.isAuthenticated()) {
       return autoLogin ? this._userData : true;
     }
 
     if (!userData || !userData.nickname || !passphrase) {
       // TODO: Check if passphrase is strong (validation in form so maybe no necessary)
-      return null;
+      // User name instead of nickname!!
+      return new ServiceError("invalid user data for registration", ErrorType.RegisterError);
     }
 
     const basePassphrase = `${userData.nickname}_${passphrase}`;
@@ -153,7 +162,7 @@ export class ApiService {
       return true;
     } catch (error) {
       logError(error);
-      return null;
+      return new ServiceError(error, ErrorType.RegisterError);
     }
   }
 
@@ -167,7 +176,15 @@ export class ApiService {
     return privateKey;
   }
 
-  public async getMemories(): Promise<UserMemory[]> {
+  public async getMemories(): Promise<UserMemory[] | ServiceError> {
+    try {
+      return await this._getMemories();
+    } catch (error) {
+      return error;
+    }
+  }
+
+  private async _getMemories(): Promise<UserMemory[]> {
     if (this._cachedMemories) {
       return [... this._cachedMemories];
     }
@@ -181,31 +198,37 @@ export class ApiService {
         }
       );
       if (!response || !response.data) {
-        this._cachedMemories = [];
-        return [];
+        throw new ServiceError(
+          "could not fetch memories: invalid client response",
+          ErrorType.FetchMemoriesError,
+        );
       }
 
       const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
       const memories = this._decryptUserMemories(storedEncryptedMemories.encryptedMemories);
-      if (!memories) {
-        console.log("something really bad happened, impossible to decrypt memories");
-        this._cachedMemories = [];
-        return [];
-      }
 
       this._cachedMemories = [...memories];
       return memories;
     } catch (error) {
       logError(error);
-      return [];
+      if (error instanceof ServiceError) throw error;
+      throw new ServiceError(
+        error,
+        ErrorType.FetchMemoriesError,
+      );
     }
   }
 
-  public async addMemory(file: File, text?: string, tags?: string, location?: string): Promise<boolean> {
+  public async addMemory(
+    file: File,
+    text?: string,
+    tags?: string,
+    location?: string,
+  ): Promise<void | ServiceError> {
     // TODO: const mimeType = file ? file.type : null;
     try {
       const skylink = await this.skynetClient.uploadFile(file);
-      const memories = await this.getMemories();
+      const memories = await this._getMemories();
 
       const tempMemory: UserMemory = {
         id: uuidv4(),
@@ -230,21 +253,21 @@ export class ApiService {
 
       memories.unshift(tempMemory);
 
-      if (await this._storeMemories(memories)) {
-        this._cachedMemories = memories;
-        return true;
-      } else {
-        return false;
-      }
+      await this._storeMemories(memories);
+      this._cachedMemories = memories;
     } catch (error) {
       logError(error);
-      return false;
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.AddMemoryError);
     }
   }
 
-  public async deleteMemory(skylink: string, id?: string): Promise<boolean> {
+  public async deleteMemory(
+    skylink: string, // TODO: use only the id!!!
+    id?: string,
+  ): Promise<void | ServiceError> {
     try {
-      let memories = await this.getMemories();
+      let memories = await this._getMemories();
       const foundIndex = memories.findIndex(
         (memory) => {
           if (id) {
@@ -255,32 +278,24 @@ export class ApiService {
         }
       );
 
-      if (foundIndex == -1) return true;
+      if (foundIndex == -1) return;
 
       memories = [
         ...memories.slice(0, foundIndex),
         ...memories.slice(foundIndex + 1),
       ];
 
-      if (await this._storeMemories(memories)) {
-        this._cachedMemories = memories;
-        return true;
-      } else {
-        return false;
-      }
+      await this._storeMemories(memories)
+      this._cachedMemories = memories;
     } catch (error) {
       logError(error);
-      return false;
+      if (error instanceof ServiceError) return error;
+      return new ServiceError(error, ErrorType.DeleteMemoryError);
     }
   }
 
-  private async _storeMemories(memories: UserMemory[]): Promise<boolean> {
+  private async _storeMemories(memories: UserMemory[]): Promise<void> {
     const encryptedMemories = this._encryptUserMemories(memories);
-    if (!encryptedMemories) {
-      console.log("could not encrypt memories");
-      return false;
-    }
-
     const encryptedMemoriesToStore: UserMemoriesEncrypted = {
       encryptedMemories: encryptedMemories,
       encryptionType: EncryptionType.KeyPairFromSeed
@@ -296,14 +311,22 @@ export class ApiService {
           timeout: 10000,
         }
       );
-      return true;
     } catch (error) {
       logError(error);
-      return false;
+      if (error instanceof ServiceError) throw error;
+      throw new ServiceError(error, ErrorType.StoreMemoryError);
     }
   }
 
-  public async getPublicMemories(): Promise<UserPublicMemory[]> {
+  public async getPublicMemories(): Promise<UserPublicMemory[] | ServiceError> {
+    try {
+      return await this._getPublicMemories();
+    } catch (error) {
+      return error;
+    }
+  }
+
+  private async _getPublicMemories(): Promise<UserPublicMemory[]> {
     if (this._cachedPublicMemories) {
       return [... this._cachedPublicMemories];
     }
@@ -317,33 +340,36 @@ export class ApiService {
         },
       );
       if (!response || !response.data) {
-        return [];
+        throw new ServiceError(
+          "could not fetch public memories: invalid client response",
+          ErrorType.FetchPublicMemoriesError,
+        );
       }
 
       const userPublicMemories = response.data as UserPublicMemory[];
 
-      this._cachedPublicMemories = [... userPublicMemories];
+      this._cachedPublicMemories = [...userPublicMemories];
       return userPublicMemories;
     } catch (error) {
       logError(error);
-      return [];
+      throw new ServiceError(
+        error,
+        ErrorType.FetchPublicMemoriesError,
+      );
     }
   }
 
-  public async publicMemory(id: string): Promise<boolean> {
+  public async publicMemory(id: string): Promise<void | ServiceError> {
     try {
-      const memories = await this.getMemories();
+      const memories = await this._getMemories();
       const found = memories.find((memory) => memory.id && memory.id.search(id) > -1);
       if (!found) {
-        console.log("memory not found")
-        return false;
+        return new ServiceError("could not find memory to make public", ErrorType.AddPublicMemoryError);
       }
 
-      const publicMemories = await this.getPublicMemories();
+      const publicMemories = await this._getPublicMemories();
       const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
-      if (foundIndex > -1) {
-        return true;
-      }
+      if (foundIndex > -1) return; // already public
 
       const tempPublicMemory: UserPublicMemory = {
         publicAt: new Date(Date.now()),
@@ -362,21 +388,19 @@ export class ApiService {
         },
       );
 
-      this._cachedPublicMemories = [... publicMemories];
-      return true;
+      this._cachedPublicMemories = [...publicMemories];
     } catch (error) {
       logError(error);
-      return false;
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.AddPublicMemoryError);
     }
   }
 
-  public async removePublicMemory(id: string): Promise<boolean> {
+  public async removePublicMemory(id: string): Promise<void | ServiceError> {
     try {
-      let publicMemories = await this.getPublicMemories();
+      let publicMemories = await this._getPublicMemories();
       const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
-      if (foundIndex == -1) {
-        return true;
-      }
+      if (foundIndex == -1) return; // already deleted
 
       if (foundIndex > -1) {
         publicMemories = [
@@ -394,17 +418,24 @@ export class ApiService {
           },
         );
 
-        this._cachedPublicMemories = [... publicMemories];
+        this._cachedPublicMemories = [...publicMemories];
       }
-
-      return true;
     } catch (error) {
       logError(error);
-      return false;
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.DeletePublicMemoryError);
     }
   }
 
-  public async getFollowedUsers(): Promise<FollowedUser[]> {
+  public async getFollowedUsers(): Promise<FollowedUser[] | ServiceError> {
+    try {
+      return await this._getFollowedUsers();
+    } catch (error) {
+      return error;
+    }
+  }
+
+  private async _getFollowedUsers(): Promise<FollowedUser[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
         this._publicKeyFromSeed,
@@ -414,25 +445,29 @@ export class ApiService {
         },
       );
       if (!response || !response.data) {
-        return [];
+        throw new ServiceError(
+          "could not fetch followed users: invalid client response",
+          ErrorType.FetchFollowedUsersError,
+        );
       }
 
       return response.data as FollowedUser[];
     } catch (error) {
       logError(error);
-      return [];
+      throw new ServiceError(
+        error,
+        ErrorType.FetchFollowedUsersError,
+      );
     }
   }
 
-  public async followUserByPublicKey(followedUserPublicKey: string): Promise<void> {
+  public async followUserByPublicKey(followedUserPublicKey: string): Promise<void | ServiceError> {
     // TODO: check public key length
 
     try {
-      const followedUsers = await this.getFollowedUsers();
+      const followedUsers = await this._getFollowedUsers();
       const found = followedUsers.find((u) => u.publicKey.search(followedUserPublicKey) > -1);
-      if (found) {
-        return;
-      }
+      if (found) return; // already followed
 
       const tempFollowedUser: FollowedUser = {
         startedAt: new Date(Date.now()),
@@ -450,23 +485,20 @@ export class ApiService {
           timeout: 10000,
         },
       );
-
-      return;
     } catch (error) {
       logError(error);
-      return;
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.FollowUserError);
     }
   }
 
-  public async unfollowUserByPublicKey(followedUserPublicKey: string): Promise<void> {
+  public async unfollowUserByPublicKey(followedUserPublicKey: string): Promise<void | ServiceError> {
     // TODO: check public key length
 
     try {
-      let followedUsers = await this.getFollowedUsers();
+      let followedUsers = await this._getFollowedUsers();
       const foundIndex = followedUsers.findIndex((u) => u.publicKey.search(followedUserPublicKey) > -1);
-      if (foundIndex == -1) {
-        return;
-      }
+      if (foundIndex == -1) return; // already unfollowed
 
       if (foundIndex > -1) {
         followedUsers = [
@@ -484,15 +516,26 @@ export class ApiService {
           },
         );
       }
-
-      return;
     } catch (error) {
       logError(error);
-      return;
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.UnfollowUserError);
     }
   }
 
-  public async getPublicMemoriesByFollowedUserPublicKey(followedUserPublicKey: string): Promise<UserPublicMemory[]> {
+  public async getPublicMemoriesOfFollowedUserByPublicKey(
+    followedUserPublicKey: string,
+  ): Promise<UserPublicMemory[] | ServiceError> {
+    try {
+      return await this._getPublicMemoriesOfFollowedUserByPublicKey(followedUserPublicKey);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  private async _getPublicMemoriesOfFollowedUserByPublicKey(
+    followedUserPublicKey: string,
+  ): Promise<UserPublicMemory[]> {
     try {
       const response = await this.skynetClient.db.getJSON(
         followedUserPublicKey,
@@ -502,29 +545,48 @@ export class ApiService {
         },
       );
       if (!response || !response.data) {
-        return [];
+        throw new ServiceError(
+          "could not fetch public memories of user by public key: invalid client response",
+          ErrorType.FetchPublicMemoriesOfFollowedUserByPublicKeyError,
+        );
       }
 
       return response.data as UserPublicMemory[];
     } catch (error) {
       logError(error);
-      return [];
+      throw new ServiceError(
+        error,
+        ErrorType.FetchPublicMemoriesOfFollowedUserByPublicKeyError,
+      );
     }
   }
 
-  public async getPublicMemoriesOfFollowedUsers(): Promise<UsersPublicMemories> {
+  public async getPublicMemoriesOfFollowedUsers(): Promise<UsersPublicMemories | ServiceError> {
     const followedUsersMemories: UsersPublicMemories = {};
 
-    const followedUsers = await this.getFollowedUsers();
-    followedUsers.forEach(async (fu) => {
-      const followedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemoriesByFollowedUserPublicKey(fu.publicKey);
-      followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
-    });
+    try {
+      const followedUsers = await this._getFollowedUsers();
+      followedUsers.forEach(async (fu) => {
+        const followedUserPublicMemories: UserPublicMemory[] = await this._getPublicMemoriesOfFollowedUserByPublicKey(fu.publicKey);
+        followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
+      });
 
-    return followedUsersMemories;
+      return followedUsersMemories;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.UnfollowUserError);
+    }
   }
 
-  public async getSharedMemories(publicKey?: string): Promise<UserSharedMemory[]> {
+  public async getSharedMemories(publicKey?: string): Promise<UserSharedMemory[] | ServiceError> {
+    try {
+      return await this._getSharedMemories(publicKey);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  private async _getSharedMemories(publicKey?: string): Promise<UserSharedMemory[]> {
     const pubKey = publicKey ? publicKey : this._publicKeyFromSeed;
     try {
       const response = await this.skynetClient.db.getJSON(
@@ -535,30 +597,33 @@ export class ApiService {
         },
       );
       if (!response || !response.data) {
-        return [];
+        throw new ServiceError(
+          "could not fetch shared memories of user: invalid client response",
+          ErrorType.FetchSharedMemoriesError,
+        );
       }
 
       return response.data as UserSharedMemory[];
     } catch (error) {
       logError(error);
-      return [];
+      throw new ServiceError(
+        error,
+        ErrorType.FetchSharedMemoriesError,
+      );
     }
   }
 
-  public async shareMemory(id: string): Promise<string | null> {
+  public async shareMemory(id: string): Promise<string | ServiceError> {
     if (!this._publicKeyFromSeed) {
-      return null;
+      return new ServiceError("could not share memory: no user public key generated", ErrorType.ShareMemoryError);
     }
 
     try {
-      const memories = await this.getMemories();
+      const memories = await this._getMemories();
       const found = memories.find((memory) => memory.id && memory.id.search(id) > -1);
-      if (!found) {
-        console.log("memory not found")
-        return null;
-      }
+      if (!found) return new ServiceError("memory to share not found", ErrorType.ShareMemoryError);
 
-      const sharedMemories = await this.getSharedMemories();
+      const sharedMemories = await this._getSharedMemories();
       const { privateKey } = genKeyPairAndSeed();
       const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), privateKey);
 
@@ -590,42 +655,53 @@ export class ApiService {
       return btoa(JSON.stringify(tempSharedMemoryLink));
     } catch (error) {
       logError(error);
-      return null;
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.ShareMemoryError);
     }
   }
 
-  public async resolveMemoryFromBase64(base64Data: string): Promise<UserMemory> {
-    const decodedBase64 = atob(base64Data)
-    const memoryLink = JSON.parse(decodedBase64) as UserSharedMemoryLink;
-    const sharedMemories = await this.getSharedMemories(memoryLink.publicKey);
+  public async resolveMemoryFromBase64(base64Data: string): Promise<UserMemory | ServiceError> {
+    try {
+      const decodedBase64 = atob(base64Data)
+      const memoryLink = JSON.parse(decodedBase64) as UserSharedMemoryLink;
+      const sharedMemories = await this._getSharedMemories(memoryLink.publicKey);
 
-    const found = sharedMemories.find((memory) => memory.sharedId && memory.sharedId.search(memoryLink.sharedId) > -1);
-    if (!found) {
-      console.log("shared memory not found")
-      return {} as UserMemory;
+      const found = sharedMemories.find((m) => m.sharedId && m.sharedId.search(memoryLink.sharedId) > -1);
+      if (!found) return new ServiceError("shared memory not found", ErrorType.ResolveSharedMemoryError);
+
+      const decryptedMemory = cryptoJS.AES.decrypt(found.encryptedMemory, memoryLink.encryptionKey).toString(cryptoJS.enc.Utf8);
+      const parsedDecryptedMemory = JSON.parse(decryptedMemory);
+      return parsedDecryptedMemory;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.ResolveSharedMemoryError);
     }
-
-    const decryptedMemory = cryptoJS.AES.decrypt(found.encryptedMemory, memoryLink.encryptionKey).toString(cryptoJS.enc.Utf8);
-    const parsedDecryptedMemory = JSON.parse(decryptedMemory);
-    return parsedDecryptedMemory;
   }
 
-  private _encryptUserMemories(memories: UserMemory[]): string | null {
-    if (!this._userMemoriesEncryptionKey) {
-      console.log("something really bad happened, no _userMemoriesEncryptionKey")
-      return null;
-    }
+  private _encryptUserMemories(memories: UserMemory[]): string {
+    if (!this._userMemoriesEncryptionKey) throw new ServiceError(
+      "something really bad happened, no _userMemoriesEncryptionKey", ErrorType.EncryptionError);
 
-    return cryptoJS.AES.encrypt(JSON.stringify(memories), this._userMemoriesEncryptionKey).toString();
+    try {
+      return cryptoJS.AES.encrypt(JSON.stringify(memories), this._userMemoriesEncryptionKey).toString();
+    } catch (error) {
+      throw new ServiceError(error, ErrorType.EncryptionError);
+    }
   }
 
-  private _decryptUserMemories(encryptedMemories: string): UserMemory[] | null {
-    if (!this._userMemoriesEncryptionKey) {
-      return null;
-    }
+  private _decryptUserMemories(encryptedMemories: string): UserMemory[] {
+    if (!this._userMemoriesEncryptionKey) throw new ServiceError(
+      "something really bad happened, no _userMemoriesEncryptionKey", ErrorType.EncryptionError);
 
-    const decryptedMemories = cryptoJS.AES.decrypt(encryptedMemories, this._userMemoriesEncryptionKey).toString(cryptoJS.enc.Utf8);
-    const parsedDecrypted = JSON.parse(decryptedMemories);
-    return parsedDecrypted;
+    try {
+      const decryptedMemories = cryptoJS.AES.decrypt(
+        encryptedMemories,
+        this._userMemoriesEncryptionKey,
+      ).toString(cryptoJS.enc.Utf8);
+      const parsedDecrypted = JSON.parse(decryptedMemories);
+      return parsedDecrypted;
+    } catch (error) {
+      throw new ServiceError(error, ErrorType.EncryptionError);
+    }
   }
 }
