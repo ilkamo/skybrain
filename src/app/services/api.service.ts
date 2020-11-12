@@ -57,14 +57,14 @@ export class ApiService {
     passphrase: string,
   ): Promise<UserData | ServiceError> {
     if (this.isAuthenticated()) {
-      return this._userData; // Check if there is a nickname, otherwise show a new page to fill this info.
+      return this._userData; // Check if there is a nickname (rename it to name because it is not unique), otherwise show a new page to fill this info.
     }
 
     if (!nickname || !passphrase) {
       return new ServiceError("invalid passphrase", ErrorType.LoginError);
     }
 
-    const basePassphrase = `${nickname}_${passphrase}`; // TODO: user olny the passphrase to generate keys
+    const basePassphrase = `${nickname}_${passphrase}`; // TODO: use only the passphrase to generate keys
     const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
 
     try {
@@ -131,7 +131,7 @@ export class ApiService {
 
     if (!userData || !userData.nickname || !passphrase) {
       // TODO: Check if passphrase is strong (validation in form so maybe no necessary)
-      // User name instead of nickname!!
+      // Use name instead of nickname!!
       return new ServiceError("invalid user data for registration", ErrorType.RegisterError);
     }
 
