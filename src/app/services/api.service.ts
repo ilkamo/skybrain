@@ -22,11 +22,6 @@ export class ApiService {
   private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
-  private _cachedMemories: UserMemory[] | null = null;
-  private _cachedPublicMemories: UserPublicMemory[] | null = null;
-  // TODO: implement cache in order to avoid additional calls to Skydb
-  private _cachedFollowedUsers: FollowedUser[] | null = null;
-
   constructor(
     private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
@@ -150,10 +145,6 @@ export class ApiService {
   }
 
   public async getMemories(): Promise<UserMemory[]> {
-    if (this._cachedMemories) {
-      return [... this._cachedMemories];
-    }
-
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
@@ -174,10 +165,7 @@ export class ApiService {
     }
 
     const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
-    const memories = this.decryptUserMemories(storedEncryptedMemories.encryptedMemories);
-
-    this._cachedMemories = [...memories];
-    return memories;
+    return this.decryptUserMemories(storedEncryptedMemories.encryptedMemories);
   }
 
   public async addMemory(
@@ -219,7 +207,6 @@ export class ApiService {
     memories.unshift(tempMemory);
 
     await this.storeMemories(memories);
-    this._cachedMemories = memories;
   }
 
   public async deleteMemory(
@@ -247,7 +234,6 @@ export class ApiService {
     ];
 
     await this.storeMemories(memories);
-    this._cachedMemories = memories;
   }
 
   private async storeMemories(memories: UserMemory[]): Promise<void> {
@@ -273,10 +259,6 @@ export class ApiService {
   }
 
   private async getPublicMemories(): Promise<UserPublicMemory[]> {
-    if (this._cachedPublicMemories) {
-      return [... this._cachedPublicMemories];
-    }
-
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
@@ -295,10 +277,7 @@ export class ApiService {
       );
     }
 
-    const userPublicMemories = response.data as UserPublicMemory[];
-
-    this._cachedPublicMemories = [...userPublicMemories];
-    return userPublicMemories;
+    return response.data as UserPublicMemory[];
   }
 
   public async publicMemory(id: string): Promise<void> {
@@ -332,7 +311,6 @@ export class ApiService {
         },
       );
 
-      this._cachedPublicMemories = [...publicMemories];
     } catch (error) {
       throw new Error('Could not public memories');
     }
@@ -364,8 +342,6 @@ export class ApiService {
       } catch (error) {
         throw new Error('Could not remove memories from public domain');
       }
-
-      this._cachedPublicMemories = [...publicMemories];
     }
   }
 
