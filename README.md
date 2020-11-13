@@ -1,21 +1,23 @@
 # Skybrain
 
+![Skybrain logo](https://siasky.net/KAAuqcLCyG-KW1JiQYDDZHxn8AXzCQhD-gKe9mZChfoqFg)
+
 ## Mission
 Skybrain wants to be the core of the entire "Sia sky" ecosystem, the place where magic happens and all memories and emotions are stored, like in the human brain. Sign up and start sharing your memories. Photos, videos, audio notes, text. Store all you want in the Skybrain.
 
 All your memories are private by default. With one click, you can share them with the public (**public memory**) or a good friend (**shared memory by link**). Choose which content is public or simply share a content with a single person. It is like in the real life. You can talk in public or share a secret with your best friend. 
 
 ## Vision
-Sharing your public key, other users can follow your memories. At the same time, satellite Skybrain apps can access your public and shared memories. Imagine something like Skyprint. You paste your public key and bom! You are able to list all your public/shared photos from Skybrain, create an album and order an online print of it. Or even better! Imagine to use something like Skyeditor. Select your favorites memories and create a happy birthday movie for a person you love. It's like a magic. And these are just a few of the infinite ideas you can build up on Skybrain. 
+Sharing your public key, other users can follow your **public memories**. At the same time, satellite Skybrain apps can access your public and shared memories. Imagine something like *Skyprint*. You paste your public key and bom! You are able to list all your public/shared photos from Skybrain, create an album and order an online print of it. Or even better! Imagine to use something like *Skyeditor*. Select your favorites memories and create a happy birthday movie for a person you love. It's like a magic. And these are just a **few of the infinite ideas you can build up on Skybrain**. 
 
 ## Skybrain architecture
 ![Skydb architecture](https://siasky.net/vAB_ei6xU1JbeoEhyoSz08aAuwbK8UqgzchNFRXuOFX4XA)
 
 Miro board link: [Skybrain architecture](https://miro.com/app/board/o9J_kgIoX7E=/)
 
-This architecture was created for the purposes of the hackathon with just a few iterations. Feel free to challenge it in order to improve Skybrain security.
+This architecture was created for the purposes of the hackathon with just a few iterations. Feel free to challenge it in order to improve Skybrain security and functionalities. Your comments, opinions and suggestions are welcome.
 
-# Project
+## Project
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.2.0.
 
