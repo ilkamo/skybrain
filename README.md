@@ -11,6 +11,10 @@ Sharing your public key, other users can follow your memories. At the same time,
 ## Skybrain architecture
 ![Skydb architecture](https://siasky.net/vAB_ei6xU1JbeoEhyoSz08aAuwbK8UqgzchNFRXuOFX4XA)
 
+Miro board link: [Skybrain architecture](https://miro.com/app/board/o9J_kgIoX7E=/)
+
+This architecture was created for the purposes of the hackathon with just a few iterations. Feel free to challenge it in order to improve Skybrain security.
+
 # Project
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.2.0.
