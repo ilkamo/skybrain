@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons';
-import { faCommentMedical } from '@fortawesome/free-solid-svg-icons';
+import { faCommentMedical, faLink } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, from, Observable } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 import { UserData } from 'src/app/models/user-data';
@@ -24,7 +24,7 @@ export class WallComponent implements OnInit {
   reloadMemories$ = new BehaviorSubject(null);
 
   constructor(private apiService: ApiService, private formBuilder: FormBuilder, library: FaIconLibrary) {
-    library.addIcons(faCommentDots, faCommentMedical);
+    library.addIcons(faCommentDots, faCommentMedical, faLink);
     this.userData = this.apiService.userData;
     this.memories$ = this.reloadMemories$.asObservable().pipe(
       switchMap(_ => this.apiService.getMemories())

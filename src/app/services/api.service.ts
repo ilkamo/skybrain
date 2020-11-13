@@ -1,7 +1,7 @@
 import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
-import { UserData, USER_DATA_KEY } from '../models/user-data';
+import { UserData, UserKeys, USER_DATA_KEY } from '../models/user-data';
 import { UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 import { v4 as uuidv4 } from 'uuid';
 import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
@@ -14,6 +14,7 @@ import { EncryptionType } from '../models/encryption';
   providedIn: 'root'
 })
 export class ApiService {
+  private skydbTimeout = 5000;
   private _userData: UserData = {};
   private _authenticated = false;
   private _publicKeyFromSeed: string | null = null;
@@ -41,6 +42,184 @@ export class ApiService {
     }
     this.skynetClient = new SkynetClient(this.portal);
   }
+
+  // [ Redux approach ] //////////////////////////////////////////////
+
+  public generateUserKeys(passphrase: string): UserKeys {
+    const { publicKey, privateKey } = genKeyPairFromSeed(passphrase);
+    const memoriesEncryptionKey = this.generateUserMemoriesEncryptionKey(passphrase);
+    const memoriesSkydbKey = this.generateUserMemoriesKey(passphrase);
+
+    return { publicKey, privateKey, memoriesEncryptionKey, memoriesSkydbKey };
+  }
+
+  public async authenticateUser( { publicKey }: Partial<UserKeys> ): Promise<UserData> {
+    if (!publicKey) {
+      throw new Error('No publicKey');
+    }
+
+    // TODO: Repeatable try ... getJSON
+    try {
+      const { data } = await this.skynetClient.db.getJSON(
+        publicKey,
+        this.userDataKey,
+        {
+          timeout: this.skydbTimeout,
+        },
+      ) || {};
+      if (data) {
+        return data as UserData;
+      }
+    } catch (error) {}
+
+    throw new Error('Could not get user data');
+  }
+
+  private encryptUserMemories({ memories, memoriesEncryptionKey }: { memories: UserMemory[] } & Partial<UserKeys>): string {
+    console.log(arguments);
+
+    if (!memoriesEncryptionKey) {
+      throw new Error('No memories encryption key');
+    }
+
+    return cryptoJS.AES.encrypt(
+      JSON.stringify(memories),
+      memoriesEncryptionKey
+    ).toString();
+  }
+
+  public async updateUserData( { user, privateKey }: { user?: UserData } & Partial<UserKeys>): Promise<UserData> {
+    if (!privateKey) {
+      throw new Error('No privateKey');
+    }
+
+    user = user || { nickname: '' };
+
+    try {
+      await this.skynetClient.db.setJSON(
+        privateKey,
+        this.userDataKey,
+        user,
+        undefined,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+    } catch (error) {
+      throw new Error('Could not update user data');
+    }
+
+    return user;
+  }
+
+  private async storeMemories(
+    { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
+    const encryptedMemories = this.encryptUserMemories( { memories, memoriesEncryptionKey });
+    const encryptedMemoriesToStore: UserMemoriesEncrypted = {
+      encryptedMemories,
+      encryptionType: EncryptionType.KeyPairFromSeed
+    };
+
+    if (!memoriesSkydbKey) {
+      throw new Error('No memoriesSkydbKey');
+    }
+
+    if (!privateKey) {
+      throw new Error('No privateKey');
+    }
+
+    try {
+      await this.skynetClient.db.setJSON(
+        privateKey,
+        memoriesSkydbKey,
+        encryptedMemoriesToStore,
+        undefined,
+        {
+          timeout: 10000,
+        }
+      );
+    } catch (error) {
+      throw new Error('Memories could not be saved');
+    }
+  }
+
+  private async initUserData(
+    { user, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { user?: UserData } & Partial<UserKeys>): Promise<UserData> {
+    if (!privateKey) {
+      throw new Error('No privateKey');
+    }
+
+    user = user || { nickname: '' };
+    await this.updateUserData( { user, privateKey } );
+    await this.storeMemories( { memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey} );
+
+    try {
+      await this.skynetClient.db.setJSON(
+        privateKey,
+        this.userPublicMemoriesSkydbKey,
+        [] as UserPublicMemory[],
+        undefined,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+
+      await this.skynetClient.db.setJSON(
+        privateKey,
+        this.userFollowedUsersSkydbKey,
+        [] as FollowedUser[],
+        undefined,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+
+      await this.skynetClient.db.setJSON(
+        privateKey,
+        this.userSharedMemoriesSkydbKey,
+        [] as UserSharedMemory[],
+        undefined,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+
+    } catch (error) {
+      throw new Error('The user database could not be initialized');
+    }
+
+    return user;
+  }
+
+  public async registerUser(
+    { ...keys }: Partial<UserKeys>
+  ): Promise<UserData> {
+    if (!keys.publicKey) {
+      throw new Error('No publicKey');
+    }
+
+    // Check if exists
+    let userExists;
+    try {
+      userExists = await this.skynetClient.db.getJSON(
+        keys.publicKey,
+        this.userDataKey,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+    } catch (error) { }
+
+    if (userExists) {
+      return userExists.data as UserData;
+    }
+
+    return await this.initUserData( { ...keys });
+  }
+
+  ////////////////////////////////////////////////
 
   public isAuthenticated(): boolean {
     return this._authenticated;
@@ -218,7 +397,7 @@ export class ApiService {
 
     memories.unshift(tempMemory);
 
-    await this.storeMemories(memories);
+    await this.storeMemories({ memories });
     this._cachedMemories = memories;
   }
 
@@ -246,30 +425,8 @@ export class ApiService {
       ...memories.slice(foundIndex + 1),
     ];
 
-    await this.storeMemories(memories);
+    await this.storeMemories( { memories } );
     this._cachedMemories = memories;
-  }
-
-  private async storeMemories(memories: UserMemory[]): Promise<void> {
-    const encryptedMemories = this.encryptUserMemories(memories);
-    const encryptedMemoriesToStore: UserMemoriesEncrypted = {
-      encryptedMemories,
-      encryptionType: EncryptionType.KeyPairFromSeed
-    };
-
-    try {
-      await this.skynetClient.db.setJSON(
-        this._privateKeyFromSeed,
-        this._userMemoriesSkydbKey,
-        encryptedMemoriesToStore,
-        undefined,
-        {
-          timeout: 10000,
-        }
-      );
-    } catch (error) {
-      throw new Error('Memories could not be saved');
-    }
   }
 
   private async getPublicMemories(): Promise<UserPublicMemory[]> {
@@ -588,11 +745,11 @@ export class ApiService {
         userData,
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
 
-      await this.storeMemories([]);
+      await this.storeMemories({ memories: [] });
 
       await this.skynetClient.db.setJSON(
         this._privateKeyFromSeed,
@@ -600,7 +757,7 @@ export class ApiService {
         [] as UserPublicMemory[],
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
 
@@ -610,7 +767,7 @@ export class ApiService {
         [] as FollowedUser[],
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
 
@@ -620,7 +777,7 @@ export class ApiService {
         [] as UserSharedMemory[],
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
     } catch (error) {
@@ -636,17 +793,6 @@ export class ApiService {
   private generateUserMemoriesEncryptionKey(basePassphrase: string): string {
     const { privateKey } = genKeyPairFromSeed(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`);
     return privateKey;
-  }
-
-  private encryptUserMemories(memories: UserMemory[]): string {
-    if (!this._userMemoriesEncryptionKey) {
-      throw new Error('No memories encryption key');
-    }
-
-    return cryptoJS.AES.encrypt(
-      JSON.stringify(memories),
-      this._userMemoriesEncryptionKey as string
-    ).toString();
   }
 
   private decryptUserMemories(encryptedMemories: string): UserMemory[] {

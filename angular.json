@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "yarn"
+    "packageManager": "yarn",
+    "defaultCollection": "@ngrx/schematics"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -24,7 +25,8 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "allowedCommonJsDependencies": [
-              "skynet-js"
+              "skynet-js",
+              "crypto-js"
             ],
             "outputPath": "dist/sia",
             "index": "src/index.html",
@@ -132,6 +134,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "sia"
 }

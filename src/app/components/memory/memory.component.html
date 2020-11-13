@@ -7,9 +7,19 @@
     <p class="text-lead">{{ memory?.text }}</p>
   </div>
   <div class="card-footer text-muted">
-    <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
-      <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
-      Forget
-    </a>
+    <div class="buton-group">
+      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
+        Forget
+      </a>
+      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
+        Make public
+      </a>
+      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['far', 'link']"></fa-icon>
+        Get share link
+      </a>
+    </div>
   </div>
 </ng-container>

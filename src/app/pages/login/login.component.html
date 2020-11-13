@@ -2,18 +2,17 @@
   <div class="card login-card mt-3 text-left">
     <img class="card-img-top" src="https://siasky.net/CAA4f8Z4YdfINcXK_bdDJH4lU4t0Bs07WgWjA5YHELUHYA" alt="Skybrain" />
     <div class="card-body">
+      <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <h5 class="card-title">Login with passphrase</h5>
       <p class="card-text">Use your passphrase to login into your account.</p>
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-            <label for="nickname">Nickname</label>
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">@</span>
-              </div>
-              <input type="text"  class="form-control" formControlName="nickname" />
-            </div>
+      <ng-template #loading>
+        <div class="d-flex justify-content-center">
+          <div class="spinner-grow text-primary m-3" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
         </div>
+      </ng-template>
+      <form *ngIf="!(isLoading$ | async) else loading" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
             <label for="passphrase">Passphrase</label>
             <div class="input-group">
@@ -27,7 +26,7 @@
         </div>
         <div>
             <p>
-              <button type="submit" [disabled]="loading || !loginForm.valid" class="btn btn-primary btn-block">
+              <button type="submit" [disabled]="!loginForm.valid" class="btn btn-primary btn-block">
                   Login
               </button>
             </p>

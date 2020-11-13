@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
-import { from } from 'rxjs';
-import { first } from 'rxjs/operators';
-import { ApiService } from 'src/app/services/api.service';
-import { logError } from 'src/app/utils';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { State as RootState } from '../../reducers';
+import { Store, select } from '@ngrx/store';
+import * as UserSelectors from '../../reducers/user/user.selectors';
+import * as UserActions from '../../reducers/user/user.actions';
 
 @Component({
   selector: 'app-register',
@@ -14,23 +11,18 @@ import { logError } from 'src/app/utils';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
-  registerForm: FormGroup;
-  loading = false;
-  submitted = false;
   showPassword = false;
+
+  isLoading$ = this.store.pipe(select(UserSelectors.selectIsLoading));
+  error$ = this.store.pipe(select(UserSelectors.selectError));
+  registerForm = this.formBuilder.group({
+    passphrase: ['', [Validators.required, Validators.minLength(4)]]
+  });
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router,
-    private apiService: ApiService,
-    library: FaIconLibrary
+    private store: Store<RootState>
   ) {
-    library.addIcons(faEye, faEyeSlash);
-
-    this.registerForm = this.formBuilder.group({
-      nickname: ['', Validators.required],
-      passphrase: ['', [Validators.required, Validators.minLength(4)]]
-    });
   }
 
   ngOnInit(): void {
@@ -43,32 +35,19 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.submitted = true;
-
     // stop here if form is invalid
     if (this.registerForm.invalid) {
         return;
     }
 
-    this.loading = true;
-
     // TODO: Autologin checkbox?
 
-    from(this.apiService.register({ nickname: this.form.nickname.value }, this.form.passphrase.value, true))
-      .pipe(first())
-      .subscribe(
-          userData => {
-            this.loading = false;
-            this.submitted = false;
-            this.registerForm.reset();
-            if (userData) {
-              this.router.navigate(['/']);
-            }
-          },
-          error => {
-              logError(error);
-              this.loading = false;
-          });
-  }
+    this.store.dispatch(
+      UserActions.registerUser({
+        passphrase: this.form.passphrase.value
+      })
+    );
 
+    this.registerForm.reset();
+  }
 }

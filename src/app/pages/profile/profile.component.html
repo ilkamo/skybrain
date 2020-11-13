@@ -1,0 +1,29 @@
+<div class="d-flex justify-content-center">
+  <div class="card register-card mt-3">
+    <div class="card-body">
+      <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
+      <div *ngIf="!validProfile$" class="alert alert-warning">Please update your profile</div>
+      <h1 class="text-center">Profile</h1>
+      <ng-template #loading>
+        <div class="d-flex justify-content-center">
+          <div class="spinner-grow text-primary m-3" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </ng-template>
+      <form *ngIf="!(isLoading$ | async) else loading" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="nickname">Nickname</label>
+            <input type="text"  class="form-control" formControlName="nickname" />
+        </div>
+        <div>
+            <p>
+              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary btn-block">
+                  Update
+              </button>
+            </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

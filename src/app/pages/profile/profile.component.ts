@@ -4,26 +4,25 @@ import { State as RootState } from '../../reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
+import { UserData } from 'src/app/models/user-data';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss']
 })
-export class LoginComponent implements OnInit {
-  showPassword = false;
-
+export class ProfileComponent implements OnInit {
   isLoading$ = this.store.pipe(select(UserSelectors.selectIsLoading));
+  validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));
-  loginForm = this.formBuilder.group({
-    passphrase: ['', Validators.required]
+  profileForm = this.formBuilder.group({
+    nickname: ['', [Validators.required, Validators.minLength(4)]]
   });
 
   constructor(
     private formBuilder: FormBuilder,
     private store: Store<RootState>
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
   }
@@ -31,18 +30,20 @@ export class LoginComponent implements OnInit {
   get form(): {
     [key: string]: AbstractControl;
   } {
-    return this.loginForm.controls;
+    return this.profileForm.controls;
   }
 
   onSubmit(): void {
-    if (this.loginForm.invalid) {
+    // stop here if form is invalid
+    if (this.profileForm.invalid) {
         return;
     }
 
     this.store.dispatch(
-      UserActions.authenticateUser({ passphrase: this.form.passphrase.value })
+      UserActions.updateUserData({
+        user: this.form.value as UserData
+      })
     );
-
-    this.loginForm.reset();
   }
+
 }
