@@ -16,6 +16,7 @@ export enum ErrorType {
     ShareMemoryError,
     ResolveSharedMemoryError,
     EncryptionError,
+    InitUserSkyDBError,
 }
 
 export class ServiceError extends Error {

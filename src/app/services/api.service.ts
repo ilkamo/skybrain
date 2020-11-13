@@ -65,11 +65,11 @@ export class ApiService {
     }
 
     const basePassphrase = `${nickname}_${passphrase}`; // TODO: use only the passphrase to generate keys
-    const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
+    this._initUserKeys(basePassphrase);
 
     try {
       const { data } = await this.skynetClient.db.getJSON(
-        publicKey,
+        this._publicKeyFromSeed,
         this.userDataKey,
         {
           timeout: 10000,
@@ -78,13 +78,7 @@ export class ApiService {
 
       if (data && 'nickname' in data && data.nickname === nickname) {
         this._userData = data as UserData;
-        this._publicKeyFromSeed = publicKey;
-        this._privateKeyFromSeed = privateKey;
-        this._userMemoriesSkydbKey = this.generateUserMemoriesKey(basePassphrase);
-        this._userMemoriesEncryptionKey = this.generateUserMemoriesEncryptionKey(basePassphrase);
         this._authenticated = true;
-
-        // this.logTestData();
 
         return this._userData;
       } else {
@@ -94,30 +88,6 @@ export class ApiService {
       logError(error);
       return new ServiceError(error, ErrorType.LoginError);
     }
-  }
-
-  public async logTestData() {
-    const m = await this._getMemories()
-    console.log(m);
-
-    if (m.length > 0) {
-      // await this.publicMemory(m[0].id);
-      // console.log(await this.getPublicMemories());
-      // await this.removePublicMemory(m[0].id);
-      // console.log(await this.getPublicMemories());
-
-      await this.followUserByPublicKey("f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295"); // INFO: public key of user test2:test2
-      console.log(await this._getFollowedUsers());
-      console.log(await this.getPublicMemoriesOfFollowedUsers());
-      console.log(await this._getSharedMemories());
-      const base64Link = await this.shareMemory(m[0].id)
-      if (base64Link) {
-        console.log('resolving')
-        // console.log(await this.resolveMemoryFromBase64("eyJwdWJsaWNLZXkiOiIyZmZlOGUxYjA5MWVjN2Q3M2I5ZTg5NDczMDYzMmM1ZTEyYzI4OWRjOTQzMjYwMzdlMjNmMzNkNTRmOTVhYWQ4Iiwic2hhcmVkSWQiOiIyYjY2OGFjZC1hYzMwLTRhNzYtYmMxMi01ODgwOWM2NTkxMTAiLCJlbmNyeXB0aW9uS2V5IjoiZWQxMzI4YTljMWE5ZDE1NTVmNzhiYzJjYmZiMjY4NzExM2E3NzIzNjdjNTA0YTU5ZTY4OTM3MGViZGM0NzJhNSJ9"));
-        // console.log(await this.resolveMemoryFromBase64(base64Link));
-      }
-    }
-
   }
 
   public async register(
@@ -136,13 +106,52 @@ export class ApiService {
     }
 
     const basePassphrase = `${userData.nickname}_${passphrase}`;
-    const { publicKey, privateKey } = genKeyPairFromSeed(basePassphrase);
+    this._initUserKeys(basePassphrase);
 
-    // TODO: Check if user exists
+    // TODO: add loader
+    // TODO: Check if user exists (try to get user data and check localstorage)
+    let userExists = false;
+    try {
+      await this.skynetClient.db.getJSON(
+        this._publicKeyFromSeed,
+        this.userDataKey,
+        {
+          timeout: 10000,
+        },
+      );
+      userExists = true;
+    } catch (error) { }
+
+    try {
+      if (!userExists) await this._initUserSkyDB(userData);
+      if (autoLogin) {
+        this._userData = userData;
+        this._authenticated = true;
+        return this._userData;
+      }
+      return true;
+    } catch (error) {
+      logError(error);
+      if (error instanceof ServiceError) throw error;
+      return new ServiceError(error, ErrorType.RegisterError);
+    }
+  }
+
+  private _initUserKeys(passphrase: string) {
+    const { publicKey, privateKey } = genKeyPairFromSeed(passphrase);
+    this._publicKeyFromSeed = publicKey;
+    this._privateKeyFromSeed = privateKey;
+    this._userMemoriesSkydbKey = this._generateUserMemoriesKey(passphrase);
+    this._userMemoriesEncryptionKey = this._generateUserMemoriesEncryptionKey(passphrase);
+  }
+
+  private async _initUserSkyDB(userData: UserData) {
+    if (!this._privateKeyFromSeed) throw new ServiceError(
+      "privateKey should be generated before call _initUserSkyDB", ErrorType.InitUserSkyDBError);
 
     try {
       await this.skynetClient.db.setJSON(
-        privateKey,
+        this._privateKeyFromSeed,
         this.userDataKey,
         userData,
         undefined,
@@ -150,28 +159,50 @@ export class ApiService {
           timeout: 10000,
         },
       );
-      if (autoLogin) {
-        this._userData = userData;
-        this._publicKeyFromSeed = publicKey;
-        this._privateKeyFromSeed = privateKey;
-        this._userMemoriesSkydbKey = this.generateUserMemoriesKey(basePassphrase);
-        this._userMemoriesEncryptionKey = this.generateUserMemoriesEncryptionKey(basePassphrase);
-        this._authenticated = true;
-        return this._userData;
-      }
-      return true;
+
+      await this._storeMemories([]);
+
+      await this.skynetClient.db.setJSON(
+        this._privateKeyFromSeed,
+        this.userPublicMemoriesSkydbKey,
+        [] as UserPublicMemory[],
+        undefined,
+        {
+          timeout: 10000,
+        },
+      );
+
+      await this.skynetClient.db.setJSON(
+        this._privateKeyFromSeed,
+        this.userFollowedUsersSkydbKey,
+        [] as FollowedUser[],
+        undefined,
+        {
+          timeout: 10000,
+        },
+      );
+
+      await this.skynetClient.db.setJSON(
+        this._privateKeyFromSeed,
+        this.userSharedMemoriesSkydbKey,
+        [] as UserSharedMemory[],
+        undefined,
+        {
+          timeout: 10000,
+        },
+      );
     } catch (error) {
-      logError(error);
-      return new ServiceError(error, ErrorType.RegisterError);
+      if (error instanceof ServiceError) throw error;
+      throw new ServiceError(error, ErrorType.InitUserSkyDBError)
     }
   }
 
-  private generateUserMemoriesKey(basePassphrase: string): string {
+  private _generateUserMemoriesKey(basePassphrase: string): string {
     const userMemoriesKeySuffix = cryptoJS.SHA256(`${basePassphrase}_USER_MEMORIES`).toString();
     return `${this._userMemoriesSkydbKeyPrefix}_${userMemoriesKeySuffix}`;
   }
 
-  private generateUserMemoriesEncryptionKey(basePassphrase: string): string {
+  private _generateUserMemoriesEncryptionKey(basePassphrase: string): string {
     const { privateKey } = genKeyPairFromSeed(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`);
     return privateKey;
   }
@@ -703,5 +734,29 @@ export class ApiService {
     } catch (error) {
       throw new ServiceError(error, ErrorType.EncryptionError);
     }
+  }
+
+  public async logTestData() {
+    const m = await this._getMemories()
+    console.log(m);
+
+    if (m.length > 0) {
+      // await this.publicMemory(m[0].id);
+      // console.log(await this.getPublicMemories());
+      // await this.removePublicMemory(m[0].id);
+      // console.log(await this.getPublicMemories());
+
+      await this.followUserByPublicKey("f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295"); // INFO: public key of user test2:test2
+      console.log(await this._getFollowedUsers());
+      console.log(await this.getPublicMemoriesOfFollowedUsers());
+      console.log(await this._getSharedMemories());
+      const base64Link = await this.shareMemory(m[0].id)
+      if (base64Link) {
+        console.log('resolving')
+        // console.log(await this.resolveMemoryFromBase64("eyJwdWJsaWNLZXkiOiIyZmZlOGUxYjA5MWVjN2Q3M2I5ZTg5NDczMDYzMmM1ZTEyYzI4OWRjOTQzMjYwMzdlMjNmMzNkNTRmOTVhYWQ4Iiwic2hhcmVkSWQiOiIyYjY2OGFjZC1hYzMwLTRhNzYtYmMxMi01ODgwOWM2NTkxMTAiLCJlbmNyeXB0aW9uS2V5IjoiZWQxMzI4YTljMWE5ZDE1NTVmNzhiYzJjYmZiMjY4NzExM2E3NzIzNjdjNTA0YTU5ZTY4OTM3MGViZGM0NzJhNSJ9"));
+        // console.log(await this.resolveMemoryFromBase64(base64Link));
+      }
+    }
+
   }
 }
