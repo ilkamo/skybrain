@@ -1,14 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons';
 import { faCommentMedical, faLink } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject, from, Observable } from 'rxjs';
-import { first, switchMap } from 'rxjs/operators';
+import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { UserData } from 'src/app/models/user-data';
-import { UserMemory } from 'src/app/models/user-memory';
+import { BaseMemory, UserMemory } from 'src/app/models/user-memory';
 import { ApiService } from 'src/app/services/api.service';
 import { logError } from 'src/app/utils';
+import { Store, select } from '@ngrx/store';
+import { State as RootState } from '../../reducers';
+import * as MemomrySelectors from '../../reducers/memory/memory.selectors';
+import * as MemomryActions from '../../reducers/memory/memory.actions';
+import { Memory } from 'src/app/reducers/memory/memory.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-wall',
@@ -16,19 +22,12 @@ import { logError } from 'src/app/utils';
   styleUrls: ['./wall.component.scss']
 })
 export class WallComponent implements OnInit {
-  userData: UserData|null;
-  memories$: Observable<UserMemory[]>;
+  memories$ = this.store.pipe(select(MemomrySelectors.selectMemories));
+  isLoading$ = this.store.pipe(select(MemomrySelectors.selectIsLoading), shareReplay(1));
+  error$ = this.store.pipe(select(MemomrySelectors.selectError));
   uploadForm: FormGroup;
-  loading = false;
-  submitted = false;
-  reloadMemories$ = new BehaviorSubject(null);
 
-  constructor(private apiService: ApiService, private formBuilder: FormBuilder, library: FaIconLibrary) {
-    library.addIcons(faCommentDots, faCommentMedical, faLink);
-    this.userData = this.apiService.userData;
-    this.memories$ = this.reloadMemories$.asObservable().pipe(
-      switchMap(_ => this.apiService.getMemories())
-    );
+  constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
     this.uploadForm =  this.formBuilder.group({
       file: [''],
       text: [''],
@@ -38,7 +37,7 @@ export class WallComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.reloadMemories$.next(null);
+    this.store.dispatch(MemomryActions.getMemories());
   }
 
   get form(): {
@@ -48,32 +47,24 @@ export class WallComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.submitted = true;
-
     // stop here if form is invalid
     if (this.uploadForm.invalid) {
         return;
     }
 
-    this.loading = true;
+    const memory: BaseMemory = {
+      id: uuidv4(),
+      added: new Date(Date.now()),
+      location: this.form.location.value,
+      tags: this.form.tags.value.split(',').map((item: string) => item.trim()),
+      text: this.form.text.value,
+    };
 
-    from(this.apiService.addMemory(this.form.file.value, this.form.text.value, this.form.tags.value, this.form.location.value))
-      .pipe(first())
-      .subscribe(
-          _ => {
-            this.loading = false;
-            this.submitted = false;
-            this.uploadForm.reset();
-            this.reloadMemories$.next(null);
-          },
-          error => {
-              logError(error);
-              this.loading = false;
-          });
+    this.store.dispatch(MemomryActions.newMemory({ memory, file: this.form.file.value }));
   }
 
   forgetMemory(memory: UserMemory): void {
-    if (!memory || !memory.skylink) {
+    /* if (!memory || !memory.skylink) {
       return;
     }
     from(this.apiService.deleteMemory(memory.skylink))
@@ -85,10 +76,10 @@ export class WallComponent implements OnInit {
           error => {
               logError(error);
               this.reloadMemories$.next(null);
-          });
+          }); */
   }
 
-  trackMemory(index: number, image: UserMemory): string {
-    return (image.skylink || image.text) as string;
+  trackMemory(index: number, memory: Memory): string {
+    return memory.id;
   }
 }

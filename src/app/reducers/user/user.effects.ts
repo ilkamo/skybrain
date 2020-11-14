@@ -3,10 +3,10 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { switchMap, catchError, withLatestFrom, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
-import { State as RootState } from '../../reducers';
+import { State as RootState } from '../';
 import { Store } from '@ngrx/store';
-import * as UserSelectors from '../../reducers/user/user.selectors';
-import * as UserActions from '../../reducers/user/user.actions';
+import * as UserSelectors from './user.selectors';
+import * as UserActions from './user.actions';
 import { Router } from '@angular/router';
 
 @Injectable()

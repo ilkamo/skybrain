@@ -3,6 +3,37 @@ import { Update } from '@ngrx/entity';
 
 import { Memory } from './memory.model';
 
+import { BaseMemory, UserMemory } from '../../models/user-memory';
+
+export const getMemories = createAction(
+  '[Memory] Get Memories'
+);
+
+export const getMemoriesSuccess = createAction(
+  '[Memory] Get Memories Success',
+  props<{ memories: UserMemory[] }>()
+);
+
+export const getMemoriesFailure = createAction(
+  '[Memory] Get Memories Failure',
+  props<{ error: string }>()
+);
+
+export const newMemory = createAction(
+  '[Memory] New Memory',
+  props<{ memory: BaseMemory, file?: File }>()
+);
+
+export const newMemorySuccess = createAction(
+  '[Memory] New Memory Success',
+  props<{ memory: UserMemory }>()
+);
+
+export const newMemoryFailure = createAction(
+  '[Memory] New Memory Failure',
+  props<{ error: string }>()
+);
+
 export const loadMemories = createAction(
   '[Memory/API] Load Memories',
   props<{ memories: Memory[] }>()

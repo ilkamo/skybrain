@@ -28,6 +28,7 @@ import { reducers, metaReducers } from './reducers';
 import { UserEffects } from './reducers/user/user.effects';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ConnectFormDirective } from './directives/connect-form.directive';
+import { MemoryEffects } from './reducers/memory/memory.effects';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,7 @@ import { ConnectFormDirective } from './directives/connect-form.directive';
     AppRoutingModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    EffectsModule.forRoot([UserEffects]),
+    EffectsModule.forRoot([UserEffects, MemoryEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : []

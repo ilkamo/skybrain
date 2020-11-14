@@ -2,9 +2,20 @@
   <div class="memories d-flex flex-column">
 
     <div class="card memories-card my-3">
-      <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()">
-        <div class="card-body">
-          <h1>My Memories</h1>
+      <div class="card-body">
+        <h1>My Memories</h1>
+
+        <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
+
+        <ng-template #loading>
+          <div class="d-flex justify-content-center">
+            <div class="spinner-grow text-primary m-3" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </ng-template>
+
+        <form *ngIf="!(isLoading$ | async) else loading" [formGroup]="uploadForm">
           <div class="form-group">
             <label for="text">Text</label>
             <textarea class="form-control" formControlName="text"></textarea>
@@ -19,28 +30,35 @@
           </div>
           <div class="form-group required form-file-group">
             <app-upload
-              [ngClass]="{ 'is-invalid': submitted && form.file.errors }"
+              [ngClass]="{ 'is-invalid': form.file.dirty && form.file.errors }"
               accept="image/x-png,image/gif,image/jpeg,video/mp4,audio/mpeg,audio/webm,video/webm"
               formControlName="file"
-              [valid]="!submitted || !form.file.errors"
+              [valid]="form.file.dirty && !form.file.errors"
             ></app-upload>
           </div>
-        </div>
-        <div class="card-footer">
-          <button [disabled]="loading" class="btn btn-primary btn-block">
-            <fa-icon [icon]="['fas', 'comment-medical']"></fa-icon>
-            Remember
-          </button>
-        </div>
-      </form>
+        </form>
+
+      </div>
+
+      <div *ngIf="!(isLoading$ | async)" class="card-footer">
+        <button [disabled]="!uploadForm.valid" (click)="onSubmit()" class="btn btn-primary btn-block">
+          <fa-icon [icon]="['fas', 'comment-medical']"></fa-icon>
+          Remember
+        </button>
+      </div>
+
     </div>
 
-    <app-memory
-      *ngFor="let memory of memories$ | async; trackBy:trackMemory"
-      [memory]="memory"
-      (forget)="forgetMemory($event)"
-      class="mb-3">
-    </app-memory>
+    <ng-container *ngIf="(memories$ | async) as memories">
+
+      <app-memory
+        *ngFor="let memory of memories; trackBy:trackMemory"
+        [memory]="memory"
+        (forget)="forgetMemory($event)"
+        class="mb-3">
+      </app-memory>
+
+    </ng-container>
 
   </div>
 </div>

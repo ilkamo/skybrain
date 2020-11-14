@@ -2,7 +2,7 @@ import { Inject, Injectable, NgZone, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, UserKeys, USER_DATA_KEY } from '../models/user-data';
-import { UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
+import { BaseMemory, UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX } from '../models/user-memory';
 import { v4 as uuidv4 } from 'uuid';
 import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
 import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
@@ -15,8 +15,6 @@ import { EncryptionType } from '../models/encryption';
 })
 export class ApiService {
   private skydbTimeout = 5000;
-  private _userData: UserData = {};
-  private _authenticated = false;
   private _publicKeyFromSeed: string | null = null;
   private _privateKeyFromSeed: string | null = null;
   private _userMemoriesSkydbKey: string | null = null;
@@ -44,6 +42,16 @@ export class ApiService {
   }
 
   // [ Redux approach ] //////////////////////////////////////////////
+
+  private generateUserMemoriesKey(basePassphrase: string): string {
+    const userMemoriesKeySuffix = cryptoJS.SHA256(`${basePassphrase}_USER_MEMORIES`).toString();
+    return `${this._userMemoriesSkydbKeyPrefix}_${userMemoriesKeySuffix}`;
+  }
+
+  private generateUserMemoriesEncryptionKey(basePassphrase: string): string {
+    const { privateKey } = genKeyPairFromSeed(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`);
+    return privateKey;
+  }
 
   public generateUserKeys(passphrase: string): UserKeys {
     const { publicKey, privateKey } = genKeyPairFromSeed(passphrase);
@@ -76,8 +84,6 @@ export class ApiService {
   }
 
   private encryptUserMemories({ memories, memoriesEncryptionKey }: { memories: UserMemory[] } & Partial<UserKeys>): string {
-    console.log(arguments);
-
     if (!memoriesEncryptionKey) {
       throw new Error('No memories encryption key');
     }
@@ -112,7 +118,7 @@ export class ApiService {
     return user;
   }
 
-  private async storeMemories(
+  public async storeMemories(
     { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
     const encryptedMemories = this.encryptUserMemories( { memories, memoriesEncryptionKey });
@@ -122,7 +128,7 @@ export class ApiService {
     };
 
     if (!memoriesSkydbKey) {
-      throw new Error('No memoriesSkydbKey');
+      throw new Error('No memories Skydb key');
     }
 
     if (!privateKey) {
@@ -219,114 +225,74 @@ export class ApiService {
     return await this.initUserData( { ...keys });
   }
 
-  ////////////////////////////////////////////////
-
-  public isAuthenticated(): boolean {
-    return this._authenticated;
-  }
-
-  public get userData(): UserData | null {
-    return this._userData;
-  }
-
-  public async login(
-    nickname: string,
-    passphrase: string,
-  ): Promise<UserData> {
-    if (this.isAuthenticated()) {
-      /* Check if there is a nickname
-      (rename it to name because it is not unique),
-      otherwise show a new page to fill this info. */
-      return this._userData;
+  private decryptUserMemories(
+    { encryptedMemories, memoriesEncryptionKey }: { encryptedMemories: string } & Partial<UserKeys>
+  ): UserMemory[] {
+    if (!memoriesEncryptionKey) {
+      throw new Error('No memories encryption key');
     }
 
-    if (!nickname || !passphrase) {
-      throw new Error('Invalid passphrase');
+    const decryptedMemories = cryptoJS.AES.decrypt(
+      encryptedMemories,
+      memoriesEncryptionKey,
+    ).toString(cryptoJS.enc.Utf8);
+    const parsedDecrypted = JSON.parse(decryptedMemories);
+    return parsedDecrypted;
+  }
+
+  public async loadMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey}: Partial<UserKeys>): Promise<UserMemory[]> {
+
+    if (!publicKey) {
+      throw new Error('No publicKey');
     }
 
-    /* TODO:
-      use only the passphrase to generate keys
-    */
-    const basePassphrase = `${nickname}_${passphrase}`;
-    this.initUserKeys(basePassphrase);
+    if (!memoriesSkydbKey) {
+      throw new Error('No memories Skydb key');
+    }
 
     let response;
 
     try {
       response = await this.skynetClient.db.getJSON(
-        this._publicKeyFromSeed,
-        this.userDataKey,
+        publicKey,
+        memoriesSkydbKey,
         {
-          timeout: 10000,
-        },
-      ) || {};
-    } catch (error) {
-      throw new Error('Could not get user data');
-    }
-
-    if (response && 'data' in response && 'nickname' in response.data && response.data.nickname === nickname) {
-      this._userData = response.data as UserData;
-      this._authenticated = true;
-      return this._userData;
-    } else {
-      throw new Error('Nickname could not be empty');
-    }
-  }
-
-  public async register(
-    userData: UserData,
-    passphrase: string,
-    autoLogin = true,
-  ): Promise<UserData | boolean> {
-    if (this.isAuthenticated()) {
-      throw new Error('User already logged in');
-    }
-
-    if (!userData || !userData.nickname || !passphrase) {
-      // TODO: Check if passphrase is strong (validation in form so maybe no necessary)
-      // Use name instead of nickname!!
-      throw new Error('Invalid user data for registration');
-    }
-
-    const basePassphrase = `${userData.nickname}_${passphrase}`;
-    this.initUserKeys(basePassphrase);
-
-    // TODO: add loader
-    // TODO: Check if user exists (try to get user data and check localstorage)
-    let userExists = false;
-    try {
-      await this.skynetClient.db.getJSON(
-        this._publicKeyFromSeed,
-        this.userDataKey,
-        {
-          timeout: 10000,
-        },
+          timeout: this.skydbTimeout,
+        }
       );
-      userExists = true;
-    } catch (error) { }
+    } catch (error) {}
 
-    if (userExists) {
-      if (autoLogin) {
-        this._userData = userData;
-        this._authenticated = true;
-        return this._userData;
-      } else {
-        throw new Error('User already exists');
-      }
+    if (!response || !('data' in response)) {
+      throw new Error(
+        'Could not load memories',
+      );
     }
 
-    try {
-      await this.initUserSkyDB(userData);
-      if (autoLogin) {
-        this._userData = userData;
-        this._authenticated = true;
-        return this._userData;
-      }
-      return true;
-    } catch (error) {
-      throw new Error('Could not register new user');
-    }
+    const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
+    const memories = this.decryptUserMemories( { encryptedMemories: storedEncryptedMemories.encryptedMemories, memoriesEncryptionKey } );
+
+    return memories;
   }
+
+  public async newMemory({ memory, file }: { memory: BaseMemory, file?: File }
+  ): Promise<UserMemory> {
+
+    const newMemory = { ...memory } as UserMemory;
+
+    if (file && file instanceof File) {
+      try {
+        newMemory.skylink = await this.skynetClient.uploadFile(file);
+        newMemory.mimeType = file.type;
+      } catch (error) {
+        throw new Error('The file could not be sent');
+      }
+    }
+
+    return newMemory;
+  }
+
+  ////////////////////////////////////////////////
+
 
   public async getMemories(): Promise<UserMemory[]> {
     if (this._cachedMemories) {
@@ -352,53 +318,17 @@ export class ApiService {
       );
     }
 
+    // BC
+    const keys = { memoriesEncryptionKey: this._userMemoriesEncryptionKey } as Partial<UserKeys>;
+
     const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
-    const memories = this.decryptUserMemories(storedEncryptedMemories.encryptedMemories);
+    const memories = this.decryptUserMemories( {
+      encryptedMemories: storedEncryptedMemories.encryptedMemories,
+      ...keys
+    } );
 
     this._cachedMemories = [...memories];
     return memories;
-  }
-
-  public async addMemory(
-    file: File,
-    text?: string,
-    tags?: string,
-    location?: string,
-  ): Promise<void> {
-    // TODO: const mimeType = file ? file.type : null;
-    let skylink;
-    try {
-      skylink = await this.skynetClient.uploadFile(file);
-    } catch (error) {
-      throw new Error('The file could not be sent');
-    }
-    const memories = await this.getMemories();
-
-    const tempMemory: UserMemory = {
-      id: uuidv4(),
-      added: new Date(Date.now()),
-    };
-
-    if (text) {
-      tempMemory.text = text;
-    }
-
-    if (tags) {
-      tempMemory.tags = tags.split(',').map((item: string) => item.trim());
-    }
-
-    if (location) {
-      tempMemory.location = location;
-    }
-
-    if (skylink) {
-      tempMemory.skylink = skylink;
-    }
-
-    memories.unshift(tempMemory);
-
-    await this.storeMemories({ memories });
-    this._cachedMemories = memories;
   }
 
   public async deleteMemory(
@@ -783,29 +713,6 @@ export class ApiService {
     } catch (error) {
       throw new Error('The user database could not be initialized');
     }
-  }
-
-  private generateUserMemoriesKey(basePassphrase: string): string {
-    const userMemoriesKeySuffix = cryptoJS.SHA256(`${basePassphrase}_USER_MEMORIES`).toString();
-    return `${this._userMemoriesSkydbKeyPrefix}_${userMemoriesKeySuffix}`;
-  }
-
-  private generateUserMemoriesEncryptionKey(basePassphrase: string): string {
-    const { privateKey } = genKeyPairFromSeed(`${basePassphrase}_USER_MEMORIES_ENCRYPTION`);
-    return privateKey;
-  }
-
-  private decryptUserMemories(encryptedMemories: string): UserMemory[] {
-    if (!this._userMemoriesEncryptionKey) {
-      throw new Error('No memories encryption key');
-    }
-
-    const decryptedMemories = cryptoJS.AES.decrypt(
-      encryptedMemories,
-      this._userMemoriesEncryptionKey,
-    ).toString(cryptoJS.enc.Utf8);
-    const parsedDecrypted = JSON.parse(decryptedMemories);
-    return parsedDecrypted;
   }
 
   public async logTestData(): Promise<void> {
