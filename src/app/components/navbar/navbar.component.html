@@ -1,6 +1,17 @@
 <!-- Just an image -->
-<nav class="navbar navbar-light bg-light">
+<nav class="navbar navbar-expand-md navbar-light bg-light">
   <a class="navbar-brand" href="#">
     <img src="https://siasky.net/AAAz1sRCuUsGmt33jA5kWy3JaFA2WFcDQ2mKYd5J35ZW_A?fbclid=IwAR3Ym9-Q1G60xTtJ43Zd1a26-p9CBI4cU6u6ZUonX3FjgW0eHOXiyntv_x0" height="30" alt="" loading="lazy">
   </a>
+
+  <button class="navbar-toggler" type="button" (click)="opened = !opened">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse show" [ngClass]="{ show: opened }">
+    <ul class="nav navbar-nav">
+      <li class="nav-item" [routerLinkActive]="['active']"> <a [routerLink]="['/']" class="nav-link">Wall</a></li>
+      <li class="nav-item" [routerLinkActive]="['active']"> <a [routerLink]="['profile']" class="nav-link">Profile</a></li>
+    </ul>
+  </div>
 </nav>

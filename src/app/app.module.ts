@@ -27,6 +27,7 @@ import { environment } from '../environments/environment';
 import { reducers, metaReducers } from './reducers';
 import { UserEffects } from './reducers/user/user.effects';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ConnectFormDirective } from './directives/connect-form.directive';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { ProfileComponent } from './pages/profile/profile.component';
     UploadComponent,
     MemoryComponent,
     NavbarComponent,
-    ProfileComponent
+    ProfileComponent,
+    ConnectFormDirective
   ],
   imports: [
     BrowserModule,

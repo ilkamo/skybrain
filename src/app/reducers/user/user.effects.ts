@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap, catchError, withLatestFrom } from 'rxjs/operators';
+import { switchMap, catchError, withLatestFrom, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { State as RootState } from '../../reducers';
 import { Store } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class UserEffects {
@@ -41,9 +42,15 @@ export class UserEffects {
     catchError(error => of(UserActions.updateUserDataFailure({ error: error.message })))
   ));
 
+  loginSuccess$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.authenticateUserSuccess, UserActions.registerUserSuccess),
+    map(_ => this.router.navigate(['/']))
+  ), { dispatch: false } );
+
   constructor(
     private actions$: Actions,
     private api: ApiService,
-    private store: Store<RootState>
+    private store: Store<RootState>,
+    private router: Router
   ) {}
 }

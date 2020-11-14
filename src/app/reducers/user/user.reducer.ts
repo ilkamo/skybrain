@@ -35,5 +35,9 @@ export const reducer = createReducer(
   on(UserActions.registerUser, _ => ({ ...initialState, loading: true})),
   on(UserActions.registerUserFailure, (_, action) => ({ ...initialState, loading: false, error: action.error })),
   on(UserActions.registerUserSuccess, _ => ({ ...initialState, loading: false, error: undefined })),
+
+  on(UserActions.updateUserData, (state) => ({ ...state, loading: true, error: undefined })),
+  on(UserActions.updateUserDataSuccess, (state, action) => ({ ...state, user: action.user, loading: false, error: undefined })),
+  on(UserActions.updateUserDataFailure, (state, action) => ({ ...state, loading: false, error: action.error }))
 );
 

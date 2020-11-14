@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   isLoading$ = this.store.pipe(select(UserSelectors.selectIsLoading));
   error$ = this.store.pipe(select(UserSelectors.selectError));
   loginForm = this.formBuilder.group({
-    passphrase: ['', Validators.required]
+    passphrase: ['', [ Validators.required, Validators.minLength(4) ]]
   });
 
   constructor(

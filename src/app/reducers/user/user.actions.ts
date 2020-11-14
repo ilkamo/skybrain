@@ -31,16 +31,16 @@ export const registerUserFailure = createAction(
 );
 
 export const updateUserData = createAction(
-  '[Profile] Update user data',
+  '[Profile] Update User Data',
   props<{ user: UserData }>()
 );
 
 export const updateUserDataSuccess = createAction(
-  '[Profile] Update user data Success',
+  '[Profile] Update User Data Success',
   props<{ user: UserData }>()
 );
 
 export const updateUserDataFailure = createAction(
-  '[Profile] Update user data',
+  '[Profile] Update User Data Failure',
   props<{ error: string }>()
 );

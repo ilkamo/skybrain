@@ -1,4 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { isValidatorValid, validateUserData } from 'src/app/models/user-data';
 import { State as RootState } from '..';
 import { State as UserState, userFeatureKey } from './user.reducer';
 
@@ -32,5 +33,5 @@ export const isAuthenticated = createSelector(
 export const hasValidUserData = createSelector(
   selectFeature,
   selectUserData,
-  (_, data) => !!data && (data.nickname || '').length > 0
+  (_, data) => isValidatorValid(validateUserData(data))
 );

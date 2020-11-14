@@ -4,7 +4,7 @@ import { State as RootState } from '../../reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
-import { UserData } from 'src/app/models/user-data';
+import { UserData, userDataValidator } from '../../models/user-data';
 
 @Component({
   selector: 'app-profile',
@@ -13,11 +13,12 @@ import { UserData } from 'src/app/models/user-data';
 })
 export class ProfileComponent implements OnInit {
   isLoading$ = this.store.pipe(select(UserSelectors.selectIsLoading));
+  userData$ = this.store.pipe(select(UserSelectors.selectUserData));
   validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));
   profileForm = this.formBuilder.group({
-    nickname: ['', [Validators.required, Validators.minLength(4)]]
-  });
+    nickname: ['']
+  }, { validators: [ userDataValidator ] });
 
   constructor(
     private formBuilder: FormBuilder,
@@ -41,7 +42,7 @@ export class ProfileComponent implements OnInit {
 
     this.store.dispatch(
       UserActions.updateUserData({
-        user: this.form.value as UserData
+        user: this.profileForm.value as UserData
       })
     );
   }
