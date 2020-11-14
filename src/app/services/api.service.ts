@@ -638,6 +638,38 @@ export class ApiService {
     return btoa(JSON.stringify(tempSharedMemoryLink));
   }
 
+  public async unshareMemory(id: string): Promise<void> {
+    if (!this._publicKeyFromSeed) {
+      throw new Error('No user public key');
+    }
+
+    let sharedMemories = await this.getSharedMemories();
+    const foundIndex = sharedMemories.findIndex((m) => m.memoryId.search(id) > -1);
+    if (foundIndex === -1) {
+      return; // already unshared
+    }
+
+    if (foundIndex > -1) {
+      sharedMemories = [
+        ...sharedMemories.slice(0, foundIndex),
+        ...sharedMemories.slice(foundIndex + 1),
+      ];
+      try {
+        await this.skynetClient.db.setJSON(
+          this._privateKeyFromSeed,
+          this.userSharedMemoriesSkydbKey,
+          sharedMemories,
+          undefined,
+          {
+            timeout: 10000,
+          },
+        );
+      } catch (error) {
+        throw new Error('Could not unshare');
+      }
+    }
+  }
+
   public async resolveMemoryFromBase64(base64Data: string): Promise<UserMemory> {
     try {
       const decodedBase64 = atob(base64Data);
