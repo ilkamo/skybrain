@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { faCalendar, faCommentDots, faEye, faEyeSlash, faUser } from '@fortawesome/free-regular-svg-icons';
+import { faCalendar, faClipboard, faCommentDots, faEye, faEyeSlash, faUser } from '@fortawesome/free-regular-svg-icons';
 import { State as RootState } from './reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from './reducers/user/user.selectors';
@@ -31,7 +31,8 @@ export class AppComponent {
       faCommentSlash,
       faGlobe,
       faMapMarkerAlt,
-      faCalendar
+      faCalendar,
+      faClipboard
     );
 
     const routeLoading$ = router.events.pipe(

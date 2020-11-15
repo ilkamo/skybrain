@@ -9,6 +9,17 @@
     <p *ngIf="memory?.tags">
       <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
     </p>
+    <div *ngIf="memory?.shareLink" class="input-group mb-3">
+      <input #link type="text" readonly class="form-control" value="memory.shareLink">
+      <div class="input-group-append">
+        <button
+          class="btn btn-outline-secondary"
+          title="Copy to clipboard" type="button"
+          (click)="copyToClipboard(link)">
+          <fa-icon [icon]="['far', 'clipboard']"></fa-icon>
+        </button>
+      </div>
+    </div>
   </div>
   <div class="card-footer text-muted">
     <div class="btn-group w-100 justify-content-center">
@@ -20,7 +31,7 @@
         <fa-icon [icon]="['fas', 'globe']"></fa-icon>
         Make public
       </a>
-      <a href="#" class="btn btn-outline-primary" (click)="forgetMe($event)">
+      <a href="#" class="btn btn-outline-primary" (click)="shareMe($event)">
         <fa-icon [icon]="['fas', 'link']"></fa-icon>
         Get share link
       </a>

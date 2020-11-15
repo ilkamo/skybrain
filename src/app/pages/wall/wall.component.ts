@@ -53,17 +53,19 @@ export class WallComponent implements OnInit {
   }
 
   forgetMemory(memory: Memory): void {
-    if (!memory) {
-      return;
-    }
     this.store.dispatch(MemomryActions.forgetMemory( { id: memory.id } ));
   }
 
   publishMemory(memory: Memory): void {
-    if (!memory) {
+    this.store.dispatch(MemomryActions.makePublicMemory( { id: memory.id } ));
+  }
+
+  shareMemory(memory: Memory): void {
+    if (memory.shareLink) {
+      this.store.dispatch(MemomryActions.getShareMemoryLinkSuccess( { id: memory.id, link: memory.shareLink } ));
       return;
     }
-    this.store.dispatch(MemomryActions.makePublicMemory( { id: memory.id } ));
+    this.store.dispatch(MemomryActions.getShareMemoryLink( { id: memory.id } ));
   }
 
   trackMemory(index: number, memory: Memory): string {
