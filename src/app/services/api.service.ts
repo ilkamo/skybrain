@@ -362,7 +362,7 @@ export class ApiService {
         },
       );
     } catch (error) {
-      throw new Error('Could not unshare');
+      throw new Error('Could not delete from shared memories');
     }
   }
 
