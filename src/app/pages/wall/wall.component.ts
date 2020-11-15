@@ -14,7 +14,6 @@ import { State as RootState } from '../../reducers';
 import * as MemomrySelectors from '../../reducers/memory/memory.selectors';
 import * as MemomryActions from '../../reducers/memory/memory.actions';
 import { Memory } from 'src/app/reducers/memory/memory.model';
-import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-wall',
@@ -53,8 +52,6 @@ export class WallComponent implements OnInit {
     }
 
     const memory: BaseMemory = {
-      id: uuidv4(),
-      added: new Date(Date.now()),
       location: this.form.location.value,
       tags: this.form.tags.value.split(',').map((item: string) => item.trim()),
       text: this.form.text.value,

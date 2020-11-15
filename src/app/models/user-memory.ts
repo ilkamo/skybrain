@@ -3,8 +3,6 @@ import { EncryptionType } from './encryption';
 export const USER_MEMORIES_KEY_PREFIX = new InjectionToken('sia-user-memories-key-prefix');
 
 export interface BaseMemory {
-  id: string;
-  added: Date;
   text?: string;
   name?: string;
   tags?: string[];
@@ -12,6 +10,8 @@ export interface BaseMemory {
 }
 
 export interface UserMemory extends BaseMemory {
+  id: string;
+  added: Date;
   mimeType: string | null;
   skylink?: string;
 }

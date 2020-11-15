@@ -9,7 +9,13 @@ export const memoriesFeatureKey = 'memories';
 export interface State extends EntityState<Memory>, LoadingState {
 }
 
-export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>();
+export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
+  sortComparer: (a, b) => {
+    const ad = a.added instanceof Date ? a.added.getTime() : Date.parse(a.added);
+    const bd = b.added instanceof Date ? b.added.getTime() : Date.parse(b.added);
+    return bd - ad;
+  }
+});
 
 export const initialState: State = adapter.getInitialState({
   loading: false,
@@ -55,19 +61,12 @@ export const reducer = createReducer(
   on(MemoryActions.clearMemories,
     state => adapter.removeAll(state)
   ),
-  on(MemoryActions.newMemory,
+  on(MemoryActions.newMemorySuccess,
     (state, action) => adapter.addOne({
       ...action.memory,
       saved: false,
       loading: true,
-      error: undefined,
-      mimeType: null
+      error: undefined
     }, state)
   ),
-  on(MemoryActions.newMemorySuccess,
-    (state, action) => adapter.updateOne({
-      id: action.memory.id,
-      changes: action.memory
-    }, state)
-  )
 );

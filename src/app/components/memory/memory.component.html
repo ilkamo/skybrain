@@ -7,17 +7,17 @@
     <p class="text-lead">{{ memory?.text }}</p>
   </div>
   <div class="card-footer text-muted">
-    <div class="buton-group">
-      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+    <div class="btn-group w-100 justify-content-center">
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
         <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
         Forget
       </a>
-      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
         <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
         Make public
       </a>
-      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
-        <fa-icon [icon]="['far', 'link']"></fa-icon>
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['fas', 'link']"></fa-icon>
         Get share link
       </a>
     </div>

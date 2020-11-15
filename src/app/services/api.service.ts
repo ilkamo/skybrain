@@ -277,7 +277,11 @@ export class ApiService {
   public async newMemory({ memory, file }: { memory: BaseMemory, file?: File }
   ): Promise<UserMemory> {
 
-    const newMemory = { ...memory } as UserMemory;
+    const newMemory = {
+      id: uuidv4(),
+      added: new Date(Date.now()),
+      ...memory
+    } as UserMemory;
 
     if (file && file instanceof File) {
       try {
