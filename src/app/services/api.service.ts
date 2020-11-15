@@ -293,6 +293,35 @@ export class ApiService {
     return newMemory;
   }
 
+  private async deleteFromPublicMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
+    let publicMemories = await this.getPublicMemories({ publicKey });
+    const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
+    if (foundIndex === -1) {
+      return; // already deleted
+    }
+
+    if (foundIndex > -1) {
+      publicMemories = [
+        ...publicMemories.slice(0, foundIndex),
+        ...publicMemories.slice(foundIndex + 1),
+      ];
+
+      try {
+        await this.skynetClient.db.setJSON(
+          privateKey,
+          this.userPublicMemoriesSkydbKey,
+          publicMemories,
+          undefined,
+          {
+            timeout: this.skydbTimeout,
+          },
+        );
+      } catch (error) {
+        throw new Error('Could not remove memories from public domain');
+      }
+    }
+  }
+
   public async deleteMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
     const foundIndex = memories.findIndex(memory => memory.id === id);
@@ -375,35 +404,6 @@ export class ApiService {
 
     found.isPublic = true;
     this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
-  }
-
-  private async deleteFromPublicMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
-    let publicMemories = await this.getPublicMemories({ publicKey });
-    const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
-    if (foundIndex === -1) {
-      return; // already deleted
-    }
-
-    if (foundIndex > -1) {
-      publicMemories = [
-        ...publicMemories.slice(0, foundIndex),
-        ...publicMemories.slice(foundIndex + 1),
-      ];
-
-      try {
-        await this.skynetClient.db.setJSON(
-          privateKey,
-          this.userPublicMemoriesSkydbKey,
-          publicMemories,
-          undefined,
-          {
-            timeout: this.skydbTimeout,
-          },
-        );
-      } catch (error) {
-        throw new Error('Could not remove memories from public domain');
-      }
-    }
   }
 
   public async unpublicMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
