@@ -257,8 +257,6 @@ export class ApiService {
     const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
     const memories = this.decryptUserMemories({ encryptedMemories: storedEncryptedMemories.encryptedMemories, memoriesEncryptionKey });
 
-    console.log(memories);
-    console.log(await this.getPublicMemories({ publicKey }));
     return memories;
   }
 
@@ -498,39 +496,18 @@ export class ApiService {
     }
   }
 
-  private async getPublicMemoriesOfFollowedUserByPublicKey({ followedUserPublicKey }: { followedUserPublicKey: string },
-  ): Promise<UserPublicMemory[]> {
-    let response;
-    try {
-      response = await this.skynetClient.db.getJSON(
-        followedUserPublicKey,
-        this.userPublicMemoriesSkydbKey,
-        {
-          timeout: this.skydbTimeout,
-        },
-      );
-    } catch (error) { }
-
-    if (!response || !('data' in response)) {
-      throw new Error(
-        'Could not fetch public memories of user',
-      );
-    }
-    return response.data as UserPublicMemory[];
-  }
-
   public async getPublicMemoriesOfFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<UsersPublicMemories> {
     const followedUsersMemories: UsersPublicMemories = {};
     const followedUsers = await this.getFollowedUsers({ publicKey });
     followedUsers.forEach(async (fu) => {
       const followedUserPublicMemories: UserPublicMemory[] =
-        await this.getPublicMemoriesOfFollowedUserByPublicKey({ followedUserPublicKey: fu.publicKey });
+        await this.getPublicMemories({ publicKey: fu.publicKey });
       followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
     });
     return followedUsersMemories;
   }
 
-  public async getSharedMemories({ publicKey }: Partial<UserKeys>): Promise<UserSharedMemory[]> {
+  private async getSharedMemories({ publicKey }: Partial<UserKeys>): Promise<UserSharedMemory[]> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
