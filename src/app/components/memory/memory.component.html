@@ -10,7 +10,7 @@
       <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
     </p>
     <div *ngIf="memory?.shareLink" class="input-group mb-3">
-      <input #link type="text" readonly class="form-control" value="memory.shareLink">
+      <input #link type="text" readonly class="form-control" [value]="memory?.shareLink">
       <div class="input-group-append">
         <button
           class="btn btn-outline-secondary"
