@@ -14,6 +14,8 @@ export interface UserMemory extends BaseMemory {
   added: Date;
   mimeType: string | null;
   skylink?: string;
+  isPublic: boolean;
+  isShared: boolean;
 }
 
 export interface UserMemoriesEncrypted {

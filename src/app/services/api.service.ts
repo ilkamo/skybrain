@@ -51,7 +51,7 @@ export class ApiService {
     return { publicKey, privateKey, memoriesEncryptionKey, memoriesSkydbKey };
   }
 
-  public async authenticateUser( { publicKey }: Partial<UserKeys> ): Promise<UserData> {
+  public async authenticateUser({ publicKey }: Partial<UserKeys>): Promise<UserData> {
     if (!publicKey) {
       throw new Error('No publicKey');
     }
@@ -68,7 +68,7 @@ export class ApiService {
       if (data) {
         return data as UserData;
       }
-    } catch (error) {}
+    } catch (error) { }
 
     throw new Error('Could not get user data');
   }
@@ -84,7 +84,7 @@ export class ApiService {
     ).toString();
   }
 
-  public async updateUserData( { user, privateKey }: { user?: UserData } & Partial<UserKeys>): Promise<UserData> {
+  public async updateUserData({ user, privateKey }: { user?: UserData } & Partial<UserKeys>): Promise<UserData> {
     if (!privateKey) {
       throw new Error('No privateKey');
     }
@@ -110,7 +110,7 @@ export class ApiService {
 
   public async storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
-    const encryptedMemories = this.encryptUserMemories( { memories, memoriesEncryptionKey });
+    const encryptedMemories = this.encryptUserMemories({ memories, memoriesEncryptionKey });
     const encryptedMemoriesToStore: UserMemoriesEncrypted = {
       encryptedMemories,
       encryptionType: EncryptionType.KeyPairFromSeed
@@ -146,8 +146,8 @@ export class ApiService {
     }
 
     user = user || { nickname: '' };
-    await this.updateUserData( { user, privateKey } );
-    await this.storeMemories( { memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
+    await this.updateUserData({ user, privateKey });
+    await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey });
 
     try {
       await this.skynetClient.db.setJSON(
@@ -208,11 +208,11 @@ export class ApiService {
       return userExists.data as UserData;
     }
 
-    return await this.initUserData( { ...keys });
+    return await this.initUserData({ ...keys });
   }
 
   private decryptUserMemories({ encryptedMemories, memoriesEncryptionKey }:
-  { encryptedMemories: string } & Partial<UserKeys>
+    { encryptedMemories: string } & Partial<UserKeys>
   ): UserMemory[] {
     if (!memoriesEncryptionKey) {
       throw new Error('No memories encryption key');
@@ -224,10 +224,10 @@ export class ApiService {
     ).toString(cryptoJS.enc.Utf8);
     const parsedDecrypted = JSON.parse(decryptedMemories);
     // tslint:disable-next-line: no-any
-    return parsedDecrypted.map((m: any) => ({ ...m, added: new Date(m.added)}));
+    return parsedDecrypted.map((m: any) => ({ ...m, added: new Date(m.added) }));
   }
 
-  public async getMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey}: Partial<UserKeys>): Promise<UserMemory[]> {
+  public async getMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey }: Partial<UserKeys>): Promise<UserMemory[]> {
 
     if (!publicKey) {
       throw new Error('No publicKey');
@@ -247,7 +247,7 @@ export class ApiService {
           timeout: this.skydbTimeout,
         }
       );
-    } catch (error) {}
+    } catch (error) { }
 
     if (!response || !('data' in response)) {
       throw new Error(
@@ -256,8 +256,10 @@ export class ApiService {
     }
 
     const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
-    const memories = this.decryptUserMemories( { encryptedMemories: storedEncryptedMemories.encryptedMemories, memoriesEncryptionKey } );
+    const memories = this.decryptUserMemories({ encryptedMemories: storedEncryptedMemories.encryptedMemories, memoriesEncryptionKey });
 
+    console.log(memories);
+    console.log(await this.getPublicMemories({ publicKey }));
     return memories;
   }
 
@@ -283,7 +285,7 @@ export class ApiService {
     memories.unshift(newMemory);
 
     try {
-      await this.storeMemories( { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
+      await this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
     } catch (error) {
       throw new Error('Could not add new memory');
     }
@@ -291,10 +293,9 @@ export class ApiService {
     return newMemory;
   }
 
-  public async deleteMemory({ id, memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
-    {id: string, memories: UserMemory[]} & Partial<UserKeys> ): Promise<void> {
+  public async deleteMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
     const foundIndex = memories.findIndex(memory => memory.id === id);
-
     if (foundIndex === -1) {
       throw new Error('Could not find memory to delete');
     }
@@ -305,13 +306,15 @@ export class ApiService {
     ];
 
     try {
-      await this.storeMemories( { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
+      await this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
     } catch (error) {
       throw new Error('Could not delete memory');
     }
+
+    await this.deleteFromPublicMemories({ id, publicKey, privateKey });
   }
 
-  private async getPublicMemories( { publicKey }: Partial<UserKeys> ): Promise<UserPublicMemory[]> {
+  private async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
@@ -335,8 +338,8 @@ export class ApiService {
     return userPublicMemories;
   }
 
-  public async publicMemory({ id, memories, privateKey, publicKey }:
-    { id: string, memories: UserMemory[] } & Partial<UserKeys> ): Promise<void> {
+  public async publicMemory({ id, memories, privateKey, publicKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
     const found = memories.find((memory) => memory.id && memory.id === id);
     if (!found) {
       throw new Error('Could not find memory to make them public');
@@ -369,10 +372,13 @@ export class ApiService {
     } catch (error) {
       throw new Error('Could not public memories');
     }
+
+    found.isPublic = true;
+    this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
   }
 
-  public async removePublicMemory({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
-    let publicMemories = await this.getPublicMemories( { publicKey } );
+  private async deleteFromPublicMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
+    let publicMemories = await this.getPublicMemories({ publicKey });
     const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
     if (foundIndex === -1) {
       return; // already deleted
@@ -400,6 +406,17 @@ export class ApiService {
     }
   }
 
+  public async unpublicMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
+    await this.deleteFromPublicMemories({ id, publicKey, privateKey });
+
+    const found = memories.find((memory) => memory.id && memory.id === id);
+    if (found) {
+      found.isPublic = false;
+      this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
+    }
+  }
+
   private async getFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<FollowedUser[]> {
     let response;
     try {
@@ -423,9 +440,9 @@ export class ApiService {
   }
 
   public async followUserByPublicKey({ followedUserPublicKey, publicKey, privateKey }:
-    { followedUserPublicKey: string } & Partial<UserKeys> ): Promise<void> {
+    { followedUserPublicKey: string } & Partial<UserKeys>): Promise<void> {
     // TODO: check public key length
-    const followedUsers = await this.getFollowedUsers( { publicKey } );
+    const followedUsers = await this.getFollowedUsers({ publicKey });
     const found = followedUsers.find((u) => u.publicKey === followedUserPublicKey);
     if (found) {
       return; // already followed
@@ -455,7 +472,7 @@ export class ApiService {
     { followedUserPublicKey: string } & Partial<UserKeys>): Promise<void> {
     // TODO: check public key length
 
-    let followedUsers = await this.getFollowedUsers( { publicKey } );
+    let followedUsers = await this.getFollowedUsers({ publicKey });
     const foundIndex = followedUsers.findIndex((u) => u.publicKey === followedUserPublicKey);
     if (foundIndex === -1) {
       return; // already unfollowed
@@ -486,7 +503,7 @@ export class ApiService {
   ): Promise<UserPublicMemory[]> {
     let response;
     try {
-       response = await this.skynetClient.db.getJSON(
+      response = await this.skynetClient.db.getJSON(
         followedUserPublicKey,
         this.userPublicMemoriesSkydbKey,
         {
@@ -503,12 +520,12 @@ export class ApiService {
     return response.data as UserPublicMemory[];
   }
 
-  public async getPublicMemoriesOfFollowedUsers( { publicKey }: Partial<UserKeys> ): Promise<UsersPublicMemories> {
+  public async getPublicMemoriesOfFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<UsersPublicMemories> {
     const followedUsersMemories: UsersPublicMemories = {};
-    const followedUsers = await this.getFollowedUsers( { publicKey } );
+    const followedUsers = await this.getFollowedUsers({ publicKey });
     followedUsers.forEach(async (fu) => {
       const followedUserPublicMemories: UserPublicMemory[] =
-        await this.getPublicMemoriesOfFollowedUserByPublicKey( { followedUserPublicKey: fu.publicKey });
+        await this.getPublicMemoriesOfFollowedUserByPublicKey({ followedUserPublicKey: fu.publicKey });
       followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
     });
     return followedUsersMemories;
@@ -542,7 +559,7 @@ export class ApiService {
       throw new Error('Memory to share not found');
     }
 
-    const sharedMemories = await this.getSharedMemories( { publicKey } );
+    const sharedMemories = await this.getSharedMemories({ publicKey });
     const { privateKey } = genKeyPairAndSeed();
     const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), privateKey);
 
@@ -585,7 +602,7 @@ export class ApiService {
     try {
       const decodedBase64 = atob(base64Data);
       const memoryLink = JSON.parse(decodedBase64) as UserSharedMemoryLink;
-      const sharedMemories = await this.getSharedMemories( { publicKey: memoryLink.publicKey });
+      const sharedMemories = await this.getSharedMemories({ publicKey: memoryLink.publicKey });
       const found = sharedMemories.find((m) => m.sharedId && m.sharedId.search(memoryLink.sharedId) > -1);
       if (!found) {
         throw new Error('Shared memory not found');
