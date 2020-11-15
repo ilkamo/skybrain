@@ -228,7 +228,6 @@ export class ApiService {
   }
 
   public async getMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey}: Partial<UserKeys>): Promise<UserMemory[]> {
-
     if (!publicKey) {
       throw new Error('No publicKey');
     }
@@ -264,7 +263,6 @@ export class ApiService {
   public async addMemory({ memory, file, memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { memories: UserMemory[], memory: BaseMemory, file?: File } & Partial<UserKeys>
   ): Promise<UserMemory> {
-
     const newMemory = {
       id: uuidv4(),
       added: new Date(Date.now()),
@@ -304,6 +302,8 @@ export class ApiService {
       ...memories.slice(foundIndex + 1),
     ];
 
+    // TODO: delete also from shared and public memories!
+
     try {
       await this.storeMemories( { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
     } catch (error) {
@@ -335,22 +335,22 @@ export class ApiService {
     return userPublicMemories;
   }
 
-  public async publicMemory({ id, memories, privateKey, publicKey }:
+  public async publicMemory({ id, memories, privateKey, publicKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { id: string, memories: UserMemory[] } & Partial<UserKeys> ): Promise<void> {
-    const found = memories.find((memory) => memory.id && memory.id === id);
-    if (!found) {
+    const foundMemoriesIndex = memories.findIndex((memory) => memory.id && memory.id === id);
+    if (foundMemoriesIndex === -1) {
       throw new Error('Could not find memory to make them public');
     }
 
     const publicMemories = await this.getPublicMemories({ publicKey });
-    const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
-    if (foundIndex > -1) {
+    const foundPublicMemoriesIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
+    if (foundPublicMemoriesIndex > -1) {
       return;
     }
 
     const tempPublicMemory: UserPublicMemory = {
       publicAt: new Date(Date.now()),
-      memory: found,
+      memory: memories[foundMemoriesIndex],
     };
 
     publicMemories.unshift(tempPublicMemory);
@@ -365,18 +365,21 @@ export class ApiService {
           timeout: this.skydbTimeout,
         },
       );
-
     } catch (error) {
       throw new Error('Could not public memories');
     }
+
+    memories[foundMemoriesIndex].isPublic = true;
+    this.storeMemories({memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey});
   }
 
-  ////////////////////////////////////////////////
+  //////////////////////////////////////////////
 
+  /*
 
-
-/*   public async removePublicMemory(id: string): Promise<void> {
-    let publicMemories = await this.getPublicMemories();
+  public async deletePublicMemory({ id, memories, privateKey, publicKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { id: string, memories: UserMemory[] } & Partial<UserKeys> ): Promise<void> {
+    let publicMemories = await this.getPublicMemories({ publicKey });
     const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
     if (foundIndex === -1) {
       return; // already deleted
@@ -390,7 +393,7 @@ export class ApiService {
 
       try {
         await this.skynetClient.db.setJSON(
-          this._privateKeyFromSeed,
+          privateKey,
           this.userPublicMemoriesSkydbKey,
           publicMemories,
           undefined,
@@ -401,9 +404,15 @@ export class ApiService {
       } catch (error) {
         throw new Error('Could not remove memories from public domain');
       }
-
-      this._cachedPublicMemories = [...publicMemories];
     }
+
+    const foundMemoriesIndex = memories.findIndex((memory) => memory.id && memory.id === id);
+    if (foundMemoriesIndex === -1) {
+      return;
+    }
+
+    memories[foundMemoriesIndex].isPublic = false;
+    this.storeMemories({memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey});
   }
 
   private async getFollowedUsers(): Promise<FollowedUser[]> {
