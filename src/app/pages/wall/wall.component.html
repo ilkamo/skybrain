@@ -47,6 +47,7 @@
         *ngFor="let memory of memories; trackBy:trackMemory"
         [memory]="memory"
         (forget)="forgetMemory($event)"
+        (publish)="publishMemory($event)"
         class="mb-3">
       </app-memory>
 

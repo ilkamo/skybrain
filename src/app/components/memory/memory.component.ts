@@ -7,10 +7,10 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
   styleUrls: ['./memory.component.scss']
 })
 export class MemoryComponent implements OnInit {
-  forgeting = false;
   @HostBinding('class') cardClass = 'card';
   @Input() memory?: Memory;
   @Output() forget = new EventEmitter<Memory>();
+  @Output() publish = new EventEmitter<Memory>();
 
   constructor() { }
 
@@ -18,11 +18,18 @@ export class MemoryComponent implements OnInit {
   }
 
   forgetMe(event: MouseEvent): void {
-    if (this.forgeting || !this.memory) {
+    if (!this.memory) {
       return;
     }
-    this.forgeting = true;
     event.preventDefault();
     this.forget.emit(this.memory);
+  }
+
+  makeMePublic(event: MouseEvent): void {
+    if (!this.memory) {
+      return;
+    }
+    event.preventDefault();
+    this.publish.emit(this.memory);
   }
 }

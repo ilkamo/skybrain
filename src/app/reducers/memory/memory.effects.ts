@@ -53,6 +53,19 @@ export class MemoryEffects {
     catchError(error => of(MemoryActions.forgetMemoryFailure({ error: error.message })))
   ));
 
+  makeBublic$ = createEffect(() => this.actions$.pipe(
+    ofType(MemoryActions.makePublicMemory),
+    withLatestFrom(
+      this.store.select(UserSelectors.selectUserKeys),
+      this.store.select(MemorySelectors.selectCache)
+    ),
+    switchMap(async ([action, keys, memories]) => {
+      await this.api.publicMemory( { id: action.id, memories, ...keys } );
+      return MemoryActions.makePublicMemorySuccess({ id: action.id });
+    }),
+    catchError(error => of(MemoryActions.makePublicMemoryFailure({ error: error.message })))
+  ));
+
   constructor(
     private actions$: Actions,
     private api: ApiService,

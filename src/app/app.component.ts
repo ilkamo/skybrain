@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { faCommentDots, faEye, faEyeSlash, faUser } from '@fortawesome/free-regular-svg-icons';
+import { faCalendar, faCommentDots, faEye, faEyeSlash, faUser } from '@fortawesome/free-regular-svg-icons';
 import { State as RootState } from './reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from './reducers/user/user.selectors';
 import * as MemorySelectors from './reducers/memory/memory.selectors';
-import { faCommentMedical, faLink } from '@fortawesome/free-solid-svg-icons';
+import { faCommentMedical, faCommentSlash, faGlobe, faLink, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { combineLatest, Observable } from 'rxjs';
 
 @Component({
@@ -21,7 +21,18 @@ export class AppComponent {
   isLoading$: Observable<boolean>;
 
   constructor(library: FaIconLibrary, private store: Store<RootState>, router: Router) {
-    library.addIcons(faEye, faEyeSlash, faUser, faCommentDots, faCommentMedical, faLink);
+    library.addIcons(
+      faEye,
+      faEyeSlash,
+      faUser,
+      faCommentDots,
+      faCommentMedical,
+      faLink,
+      faCommentSlash,
+      faGlobe,
+      faMapMarkerAlt,
+      faCalendar
+    );
 
     const routeLoading$ = router.events.pipe(
       filter(event => event instanceof NavigationStart || event instanceof NavigationEnd ),

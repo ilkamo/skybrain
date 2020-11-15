@@ -41,3 +41,16 @@ export const forgetMemoryFailure = createAction(
   '[Memory] Forget Memory Failure',
   props<{ error: string }>()
 );
+
+export const makePublicMemory = createAction(
+  '[Memory] Make Public Memory',
+  props<{ id: string }>()
+);
+export const makePublicMemorySuccess = createAction(
+  '[Memory] Make Public Memory Success',
+  props<{ id: string }>()
+);
+export const makePublicMemoryFailure = createAction(
+  '[Memory] Make Public Memory Failure',
+  props<{ error: string }>()
+);

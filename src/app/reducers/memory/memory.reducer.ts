@@ -54,4 +54,16 @@ export const reducer = createReducer(
   on(MemoryActions.forgetMemoryFailure,
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
+
+  on(MemoryActions.makePublicMemory,
+    (state) => ({ ...state, error: undefined, loading: true })
+  ),
+  on(MemoryActions.makePublicMemorySuccess,
+    (state, action) => adapter.updateOne({
+      id: action.id, changes: { /* isPublic: true */ }
+    }, { ...state, error: undefined, loading: false })
+  ),
+  on(MemoryActions.makePublicMemoryFailure,
+    (state, action) => ({ ...state, loading: false, error: action.error })
+  ),
 );
