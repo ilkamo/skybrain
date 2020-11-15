@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap, catchError, withLatestFrom, filter, tap, first } from 'rxjs/operators';
+import { switchMap, catchError, withLatestFrom, filter, tap, first, map } from 'rxjs/operators';
 import { EMPTY, NEVER, of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { State as RootState } from '../';
@@ -10,13 +10,13 @@ import * as MemorySelectors from '../memory/memory.selectors';
 import * as MemoryActions from './memory.actions';
 import { mapMemoryToSky, mapSkyToMemory, Memory } from './memory.model';
 import { Update } from '@ngrx/entity';
+import { UserMemory } from 'src/app/models/user-memory';
 
 @Injectable()
 export class MemoryEffects {
 
   getMemories$ = createEffect(() => this.actions$.pipe(
     ofType(MemoryActions.getMemories),
-    first(),
     withLatestFrom(
       this.store.select(UserSelectors.selectUserKeys)
     ),
@@ -52,22 +52,38 @@ export class MemoryEffects {
 
   saveMemories$ = createEffect(() => this.actions$.pipe(
     ofType(
-      MemoryActions.newMemorySuccess
+      MemoryActions.newMemorySuccess,
+      MemoryActions.forgetMemory
     ),
     withLatestFrom(
       this.store.select(UserSelectors.selectUserKeys),
       this.store.select(MemorySelectors.selectMemories),
     ),
-    switchMap(async ([_, keys, storeMemories]) => {
-      const memories = storeMemories.map(mapMemoryToSky);
+    switchMap(async ([action, keys, storeMemories]) => {
+      const memories = storeMemories.map(mapMemoryToSky).filter(m => m !== null) as UserMemory[];
       try{
         await this.api.storeMemories( { memories, ...keys } );
-        return MemoryActions.upsertMemories({ memories: memories.map(mapSkyToMemory) });
+        return MemoryActions.loadMemories({ memories: memories.map(mapSkyToMemory) });
       } catch (error) {
-        const errored = storeMemories
-          .filter(m => m.loading)
-          .map(m => ({ id: m.id, changes: { error: error.message, loading: false } } as Update<Memory>));
-        return MemoryActions.updateMemories({ memories: errored });
+        switch (action.type) {
+          case MemoryActions.forgetMemory.type:
+            return MemoryActions.updateMemory({ memory: {
+              id: action.id,
+              changes: {
+                loading: false,
+                deleted: undefined,
+                error: error.message
+              }
+            } });
+          case MemoryActions.newMemorySuccess.type:
+            return MemoryActions.updateMemory({ memory: {
+              id: action.memory.id,
+              changes: {
+                loading: false,
+                error: error.message,
+              }
+            } });
+        }
       }
     })
   ));

@@ -1,4 +1,4 @@
-import { Action, createReducer, on } from '@ngrx/store';
+import { createReducer, on } from '@ngrx/store';
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 import { Memory } from './memory.model';
 import * as MemoryActions from './memory.actions';
@@ -7,6 +7,7 @@ import { LoadingState } from 'src/app/models/loading-state';
 export const memoriesFeatureKey = 'memories';
 
 export interface State extends EntityState<Memory>, LoadingState {
+  initialized: boolean;
 }
 
 export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
@@ -16,6 +17,7 @@ export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
 });
 
 export const initialState: State = adapter.getInitialState({
+  initialized: false,
   loading: false,
   error: undefined
 });
@@ -54,10 +56,13 @@ export const reducer = createReducer(
     (state, action) => adapter.removeMany(action.ids, state)
   ),
   on(MemoryActions.loadMemories,
-    (state, action) => adapter.setAll(action.memories, { ...state, loading: false, error: undefined })
+    (state, action) => adapter.setAll(action.memories, { ...state, loading: false, error: undefined, initialized: true })
   ),
   on(MemoryActions.clearMemories,
     state => adapter.removeAll(state)
+  ),
+  on(MemoryActions.newMemory,
+    (state) => ({ ...state, error: undefined, loading: true })
   ),
   on(MemoryActions.newMemorySuccess,
     (state, action) => adapter.addOne({
@@ -65,6 +70,18 @@ export const reducer = createReducer(
       saved: false,
       loading: true,
       error: undefined
-    }, state)
+    }, { ...state, loading: false, error: undefined })
   ),
+  on(MemoryActions.newMemoryFailure,
+    (state, action) => ({ ...state, loading: false, error: action.error })
+  ),
+  on(MemoryActions.forgetMemory,
+    (state, action) => adapter.updateOne({
+      id: action.id,
+      changes: {
+        deleted: true,
+        loading: true
+      }
+    }, state)
+  )
 );

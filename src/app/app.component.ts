@@ -5,6 +5,8 @@ import { State as RootState } from './reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from './reducers/user/user.selectors';
 import { faCommentMedical, faLink } from '@fortawesome/free-solid-svg-icons';
+import {NavigationEnd, NavigationStart, Router} from '@angular/router';
+import { filter, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +15,12 @@ import { faCommentMedical, faLink } from '@fortawesome/free-solid-svg-icons';
 })
 export class AppComponent {
   isAuthenticated$ = this.store.pipe(select(UserSelectors.isAuthenticated));
-  constructor(library: FaIconLibrary, private store: Store<RootState>) {
+  isRouteLoading$ = this.router.events.pipe(
+    filter(event => event instanceof NavigationStart || event instanceof NavigationEnd ),
+    map(event => event instanceof NavigationStart)
+  );
+
+  constructor(library: FaIconLibrary, private store: Store<RootState>, private router: Router) {
     library.addIcons(faEye, faEyeSlash, faUser, faCommentDots, faCommentMedical, faLink);
   }
 }

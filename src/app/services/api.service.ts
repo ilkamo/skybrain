@@ -298,6 +298,33 @@ export class ApiService {
 
   ////////////////////////////////////////////////
 
+  public async deleteMemory(
+    skylink: string, // TODO: use only the id!!!
+    id?: string,
+  ): Promise<void> {
+    let memories = await this.getMemories();
+    const foundIndex = memories.findIndex(
+      (memory) => {
+        if (id) {
+          return memory.id && memory.id.search(id) > -1;
+        } else {
+          return memory.skylink && memory.skylink.search(skylink) > -1;  // TODO: use only id
+        }
+      }
+    );
+
+    if (foundIndex === -1) {
+      return;
+    }
+
+    memories = [
+      ...memories.slice(0, foundIndex),
+      ...memories.slice(foundIndex + 1),
+    ];
+
+    await this.storeMemories( { memories } );
+    this._cachedMemories = memories;
+  }
 
   public async getMemories(): Promise<UserMemory[]> {
     if (this._cachedMemories) {
@@ -334,34 +361,6 @@ export class ApiService {
 
     this._cachedMemories = [...memories];
     return memories;
-  }
-
-  public async deleteMemory(
-    skylink: string, // TODO: use only the id!!!
-    id?: string,
-  ): Promise<void> {
-    let memories = await this.getMemories();
-    const foundIndex = memories.findIndex(
-      (memory) => {
-        if (id) {
-          return memory.id && memory.id.search(id) > -1;
-        } else {
-          return memory.skylink && memory.skylink.search(skylink) > -1;  // TODO: use only id
-        }
-      }
-    );
-
-    if (foundIndex === -1) {
-      return;
-    }
-
-    memories = [
-      ...memories.slice(0, foundIndex),
-      ...memories.slice(foundIndex + 1),
-    ];
-
-    await this.storeMemories( { memories } );
-    this._cachedMemories = memories;
   }
 
   private async getPublicMemories(): Promise<UserPublicMemory[]> {

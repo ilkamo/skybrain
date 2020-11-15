@@ -17,6 +17,11 @@ export const selectIsLoading = createSelector(
   (state: MemoryState) => state.loading
 );
 
+export const selectIsInitialized = createSelector(
+  selectFeature,
+  (state: MemoryState) => state.initialized
+);
+
 export const selectError = createSelector(
   selectFeature,
   (state: MemoryState) => state.error

@@ -34,6 +34,11 @@ export const newMemoryFailure = createAction(
   props<{ error: string }>()
 );
 
+export const forgetMemory = createAction(
+  '[Memory] Forget Memory',
+  props<{ id: string }>()
+);
+
 export const loadMemories = createAction(
   '[Memory/API] Load Memories',
   props<{ memories: Memory[] }>()
