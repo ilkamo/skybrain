@@ -290,6 +290,30 @@ export class ApiService {
     return newMemory;
   }
 
+  private async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {
+    let response;
+    try {
+      response = await this.skynetClient.db.getJSON(
+        publicKey,
+        this.userPublicMemoriesSkydbKey,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+    } catch (error) {
+    }
+
+    if (!response || !('data' in response)) {
+      throw new Error(
+        'Could not fetch public memories'
+      );
+    }
+
+    const userPublicMemories = response.data as UserPublicMemory[];
+
+    return userPublicMemories;
+  }
+
   private async deleteFromPublicMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
     let publicMemories = await this.getPublicMemories({ publicKey });
     const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
@@ -319,6 +343,29 @@ export class ApiService {
     }
   }
 
+  private async deleteFromSharedMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
+    const sharedMemories = await this.getSharedMemories({ publicKey });
+    const filteredSharedMemories = sharedMemories.filter((m) => m.memoryId.search(id) === -1);
+
+    if (filteredSharedMemories.length === sharedMemories.length) {
+      return; // no elements to unshare
+    }
+
+    try {
+      await this.skynetClient.db.setJSON(
+        privateKey,
+        this.userSharedMemoriesSkydbKey,
+        sharedMemories,
+        undefined,
+        {
+          timeout: 10000,
+        },
+      );
+    } catch (error) {
+      throw new Error('Could not unshare');
+    }
+  }
+
   public async deleteMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
     const foundIndex = memories.findIndex(memory => memory.id === id);
@@ -338,30 +385,7 @@ export class ApiService {
     }
 
     await this.deleteFromPublicMemories({ id, publicKey, privateKey });
-  }
-
-  private async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {
-    let response;
-    try {
-      response = await this.skynetClient.db.getJSON(
-        publicKey,
-        this.userPublicMemoriesSkydbKey,
-        {
-          timeout: this.skydbTimeout,
-        },
-      );
-    } catch (error) {
-    }
-
-    if (!response || !('data' in response)) {
-      throw new Error(
-        'Could not fetch public memories'
-      );
-    }
-
-    const userPublicMemories = response.data as UserPublicMemory[];
-
-    return userPublicMemories;
+    await this.deleteFromSharedMemories({ id, publicKey, privateKey });
   }
 
   public async publicMemory({ id, memories, privateKey, publicKey, memoriesSkydbKey, memoriesEncryptionKey }:
@@ -528,7 +552,7 @@ export class ApiService {
     return response.data as UserSharedMemory[];
   }
 
-  public async shareMemory({ id, memories, publicKey, privateKey: privateKeyFromSeed }:
+  public async shareMemory({ id, memories, publicKey, privateKey: privateKeyFromSeed, memoriesSkydbKey, memoriesEncryptionKey }:
     { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<string> {
     const found = memories.find((memory) => memory.id && memory.id === id);
     if (!found) {
@@ -563,6 +587,9 @@ export class ApiService {
       throw new Error('Could not share memory');
     }
 
+    found.isShared = true;
+    await this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
+
     const tempSharedMemoryLink: UserSharedMemoryLink = {
       publicKey: publicKey as string,
       sharedId: tempSharedMemory.sharedId,
@@ -570,6 +597,17 @@ export class ApiService {
     };
 
     return btoa(JSON.stringify(tempSharedMemoryLink));
+  }
+
+  public async unshareMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
+    this.deleteFromSharedMemories({ id, publicKey, privateKey });
+
+    const found = memories.find((memory) => memory.id && memory.id === id);
+    if (found) {
+      found.isShared = false;
+      this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
+    }
   }
 
   ////////////////////////////////////////////////
