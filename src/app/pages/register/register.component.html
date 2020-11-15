@@ -1,13 +1,10 @@
 <div class="d-flex justify-content-center">
-  <div class="card register-card mt-3">
+  <div class="card register-card border-0 mt-3">
     <div class="card-body">
+      <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <h1 class="text-center">Register</h1>
       <p class="text-center">Hello! Register an account with your nickname.</p>
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-            <label for="nickname">Nickname</label>
-            <input type="text"  class="form-control" formControlName="nickname" />
-        </div>
         <div class="form-group">
             <label for="passphrase">Passphrase</label>
             <div class="input-group">
@@ -21,7 +18,7 @@
         </div>
         <div>
             <p>
-              <button type="submit" [disabled]="loading || !registerForm.valid" class="btn btn-primary btn-block">
+              <button type="submit" [disabled]="!registerForm.valid" class="btn btn-primary btn-block">
                   Register
               </button>
             </p>

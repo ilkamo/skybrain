@@ -19,6 +19,16 @@ import { UploadComponent } from './components/upload/upload.component';
 import { MemoryComponent } from './components/memory/memory.component';
 
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
+import { reducers, metaReducers } from './reducers';
+import { UserEffects } from './reducers/user/user.effects';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { ConnectFormDirective } from './directives/connect-form.directive';
+import { MemoryEffects } from './reducers/memory/memory.effects';
 
 @NgModule({
   declarations: [
@@ -29,13 +39,20 @@ import { LocationStrategy, HashLocationStrategy } from '@angular/common';
     ErrorComponent,
     SiaUrlPipe,
     UploadComponent,
-    MemoryComponent
+    MemoryComponent,
+    NavbarComponent,
+    ProfileComponent,
+    ConnectFormDirective
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    EffectsModule.forRoot([UserEffects, MemoryEffects]),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+    StoreModule.forRoot(reducers, { metaReducers }),
+    !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },

@@ -1,0 +1,25 @@
+<div class="d-flex justify-content-center">
+  <div class="card profile-card border-0 mt-3">
+    <div class="card-body">
+      <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
+      <div *ngIf="!(validProfile$ | async)" class="alert alert-warning">Please update your profile</div>
+      <h1 class="text-center">Profile</h1>
+      <form [formGroup]="profileForm" [appConnectForm]="userData$ | async" (ngSubmit)="onSubmit()">
+        <div class="form-group required">
+            <label for="nickname">Nickname</label>
+            <input type="text" class="form-control" formControlName="nickname" [ngClass]="{ 'is-invalid': form.nickname.touched && form.nickname.errors }"/>
+            <div *ngIf="form.nickname.errors as error" class="invalid-feedback">
+              {{ error.invalid }}
+            </div>
+        </div>
+        <div>
+            <p>
+              <button type="submit" [disabled]="!profileForm.valid" class="btn btn-primary btn-block">
+                  Update
+              </button>
+            </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

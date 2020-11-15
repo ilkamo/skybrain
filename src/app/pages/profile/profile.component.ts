@@ -4,25 +4,25 @@ import { State as RootState } from '../../reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
+import { UserData, userDataValidator } from '../../models/user-data';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss']
 })
-export class RegisterComponent implements OnInit {
-  showPassword = false;
-
+export class ProfileComponent implements OnInit {
+  userData$ = this.store.pipe(select(UserSelectors.selectUserData));
+  validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));
-  registerForm = this.formBuilder.group({
-    passphrase: ['', [Validators.required, Validators.minLength(4)]]
-  });
+  profileForm = this.formBuilder.group({
+    nickname: ['']
+  }, { validators: [ userDataValidator ] });
 
   constructor(
     private formBuilder: FormBuilder,
     private store: Store<RootState>
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
   }
@@ -30,23 +30,20 @@ export class RegisterComponent implements OnInit {
   get form(): {
     [key: string]: AbstractControl;
   } {
-    return this.registerForm.controls;
+    return this.profileForm.controls;
   }
 
   onSubmit(): void {
     // stop here if form is invalid
-    if (this.registerForm.invalid) {
+    if (this.profileForm.invalid) {
         return;
     }
 
-    // TODO: Autologin checkbox?
-
     this.store.dispatch(
-      UserActions.registerUser({
-        passphrase: this.form.passphrase.value
+      UserActions.updateUserData({
+        user: this.profileForm.value as UserData
       })
     );
-
-    this.registerForm.reset();
   }
+
 }
