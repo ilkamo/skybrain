@@ -4,9 +4,11 @@ import { faCommentDots, faEye, faEyeSlash, faUser } from '@fortawesome/free-regu
 import { State as RootState } from './reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from './reducers/user/user.selectors';
+import * as MemorySelectors from './reducers/memory/memory.selectors';
 import { faCommentMedical, faLink } from '@fortawesome/free-solid-svg-icons';
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import { filter, map, tap } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -15,12 +17,23 @@ import { filter, map, tap } from 'rxjs/operators';
 })
 export class AppComponent {
   isAuthenticated$ = this.store.pipe(select(UserSelectors.isAuthenticated));
-  isRouteLoading$ = this.router.events.pipe(
-    filter(event => event instanceof NavigationStart || event instanceof NavigationEnd ),
-    map(event => event instanceof NavigationStart)
-  );
 
-  constructor(library: FaIconLibrary, private store: Store<RootState>, private router: Router) {
+  isLoading$: Observable<boolean>;
+
+  constructor(library: FaIconLibrary, private store: Store<RootState>, router: Router) {
     library.addIcons(faEye, faEyeSlash, faUser, faCommentDots, faCommentMedical, faLink);
+
+    const routeLoading$ = router.events.pipe(
+      filter(event => event instanceof NavigationStart || event instanceof NavigationEnd ),
+      map(event => event instanceof NavigationStart)
+    );
+
+    this.isLoading$ = combineLatest([
+        routeLoading$,
+        this.store.select(UserSelectors.selectIsLoading),
+        this.store.select(MemorySelectors.selectIsLoading),
+    ]).pipe(
+      map(([route, user, memory]) => route || user || memory),
+    );
   }
 }

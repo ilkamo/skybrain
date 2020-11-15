@@ -12,7 +12,6 @@ import { UserData, userDataValidator } from '../../models/user-data';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-  isLoading$ = this.store.pipe(select(UserSelectors.selectIsLoading));
   userData$ = this.store.pipe(select(UserSelectors.selectUserData));
   validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));

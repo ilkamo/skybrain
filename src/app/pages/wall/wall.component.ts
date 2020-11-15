@@ -15,7 +15,6 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
 })
 export class WallComponent implements OnInit {
   memories$ = this.store.pipe(select(MemomrySelectors.selectMemories));
-  isLoading$ = this.store.pipe(select(MemomrySelectors.selectIsLoading), shareReplay(1));
   error$ = this.store.pipe(select(MemomrySelectors.selectError));
   uploadForm: FormGroup;
 
@@ -50,10 +49,11 @@ export class WallComponent implements OnInit {
     };
 
     this.store.dispatch(MemomryActions.newMemory({ memory, file: this.form.file.value }));
+    this.uploadForm.reset();
   }
 
   forgetMemory(memory: Memory): void {
-    if (!memory || memory.loading) {
+    if (!memory) {
       return;
     }
     this.store.dispatch(MemomryActions.forgetMemory( { id: memory.id } ));

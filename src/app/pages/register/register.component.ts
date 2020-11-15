@@ -13,7 +13,6 @@ import * as UserActions from '../../reducers/user/user.actions';
 export class RegisterComponent implements OnInit {
   showPassword = false;
 
-  isLoading$ = this.store.pipe(select(UserSelectors.selectIsLoading));
   error$ = this.store.pipe(select(UserSelectors.selectError));
   registerForm = this.formBuilder.group({
     passphrase: ['', [Validators.required, Validators.minLength(4)]]

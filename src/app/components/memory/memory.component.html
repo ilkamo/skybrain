@@ -1,38 +1,29 @@
 <ng-container *ngIf="memory">
-  <ng-container *ngIf="!memory.deleted && !memory.loading; else loading">
-    <div class="card-header d-flex justify-content-between">
-      <span>{{memory?.added | date }}</span>
-      <span>{{memory?.location}}</span>
+  <div class="card-header d-flex justify-content-between">
+    <span>{{memory?.added | date }}</span>
+    <span>{{memory?.location}}</span>
+  </div>
+  <img *ngIf="memory?.skylink" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
+  <div class="card-body">
+    <p *ngIf="memory?.text" class="text-lead">{{ memory?.text }}</p>
+    <p *ngIf="memory?.tags">
+      <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
+    </p>
+  </div>
+  <div class="card-footer text-muted">
+    <div class="btn-group w-100 justify-content-center">
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
+        Forget
+      </a>
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
+        Make public
+      </a>
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['fas', 'link']"></fa-icon>
+        Get share link
+      </a>
     </div>
-    <img *ngIf="memory?.skylink" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
-    <div class="card-body">
-      <p *ngIf="memory?.text" class="text-lead">{{ memory?.text }}</p>
-      <p *ngIf="memory?.tags">
-        <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
-      </p>
-    </div>
-    <div class="card-footer text-muted">
-      <div class="btn-group w-100 justify-content-center">
-        <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
-          <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
-          Forget
-        </a>
-        <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
-          <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
-          Make public
-        </a>
-        <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
-          <fa-icon [icon]="['fas', 'link']"></fa-icon>
-          Get share link
-        </a>
-      </div>
-    </div>
-  </ng-container>
-  <ng-template #loading>
-    <div class="d-flex justify-content-center">
-      <div class="spinner-grow text-primary m-3" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-    </div>
-  </ng-template>
+  </div>
 </ng-container>

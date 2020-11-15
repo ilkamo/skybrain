@@ -31,57 +31,27 @@ export const reducer = createReducer(
   on(MemoryActions.getMemoriesFailure,
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
-  on(MemoryActions.addMemory,
-    (state, action) => adapter.addOne(action.memory, state)
-  ),
-  on(MemoryActions.upsertMemory,
-    (state, action) => adapter.upsertOne(action.memory, state)
-  ),
-  on(MemoryActions.addMemories,
-    (state, action) => adapter.addMany(action.memories, state)
-  ),
-  on(MemoryActions.upsertMemories,
-    (state, action) => adapter.upsertMany(action.memories, state)
-  ),
-  on(MemoryActions.updateMemory,
-    (state, action) => adapter.updateOne(action.memory, state)
-  ),
-  on(MemoryActions.updateMemories,
-    (state, action) => adapter.updateMany(action.memories, state)
-  ),
-  on(MemoryActions.deleteMemory,
-    (state, action) => adapter.removeOne(action.id, state)
-  ),
-  on(MemoryActions.deleteMemories,
-    (state, action) => adapter.removeMany(action.ids, state)
-  ),
-  on(MemoryActions.loadMemories,
+  on(MemoryActions.getMemoriesSuccess,
     (state, action) => adapter.setAll(action.memories, { ...state, loading: false, error: undefined, initialized: true })
   ),
-  on(MemoryActions.clearMemories,
-    state => adapter.removeAll(state)
-  ),
+
   on(MemoryActions.newMemory,
     (state) => ({ ...state, error: undefined, loading: true })
   ),
   on(MemoryActions.newMemorySuccess,
-    (state, action) => adapter.addOne({
-      ...action.memory,
-      saved: false,
-      loading: true,
-      error: undefined
-    }, { ...state, loading: false, error: undefined })
+    (state, action) => adapter.addOne(action.memory, { ...state, loading: false, error: undefined })
   ),
   on(MemoryActions.newMemoryFailure,
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
+
   on(MemoryActions.forgetMemory,
-    (state, action) => adapter.updateOne({
-      id: action.id,
-      changes: {
-        deleted: true,
-        loading: true
-      }
-    }, state)
-  )
+    (state) => ({ ...state, error: undefined, loading: true })
+  ),
+  on(MemoryActions.forgetMemorySuccess,
+    (state, action) => adapter.removeOne(action.id, { ...state, error: undefined, loading: false })
+  ),
+  on(MemoryActions.forgetMemoryFailure,
+    (state, action) => ({ ...state, loading: false, error: action.error })
+  ),
 );

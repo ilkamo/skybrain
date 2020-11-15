@@ -1,4 +1,4 @@
-import { Inject, Injectable, NgZone, Optional } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
 import { UserData, UserKeys, USER_DATA_KEY } from '../models/user-data';
@@ -15,19 +15,9 @@ import { EncryptionType } from '../models/encryption';
 })
 export class ApiService {
   private skydbTimeout = 5000;
-  private _publicKeyFromSeed: string | null = null;
-  private _privateKeyFromSeed: string | null = null;
-  private _userMemoriesSkydbKey: string | null = null;
-  private _userMemoriesEncryptionKey: string | null = null;
   private skynetClient: SkynetClient;
 
-  private _cachedMemories: UserMemory[] | null = null;
-  private _cachedPublicMemories: UserPublicMemory[] | null = null;
-  // TODO: implement cache in order to avoid additional calls to Skydb
-  private _cachedFollowedUsers: FollowedUser[] | null = null;
-
   constructor(
-    private zone: NgZone,
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
     @Inject(USER_MEMORIES_KEY_PREFIX) private _userMemoriesSkydbKeyPrefix: string,
@@ -118,8 +108,7 @@ export class ApiService {
     return user;
   }
 
-  public async storeMemories(
-    { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+  public async storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
     const encryptedMemories = this.encryptUserMemories( { memories, memoriesEncryptionKey });
     const encryptedMemoriesToStore: UserMemoriesEncrypted = {
@@ -150,8 +139,7 @@ export class ApiService {
     }
   }
 
-  private async initUserData(
-    { user, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+  private async initUserData({ user, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { user?: UserData } & Partial<UserKeys>): Promise<UserData> {
     if (!privateKey) {
       throw new Error('No privateKey');
@@ -159,7 +147,7 @@ export class ApiService {
 
     user = user || { nickname: '' };
     await this.updateUserData( { user, privateKey } );
-    await this.storeMemories( { memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey} );
+    await this.storeMemories( { memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
 
     try {
       await this.skynetClient.db.setJSON(
@@ -199,9 +187,7 @@ export class ApiService {
     return user;
   }
 
-  public async registerUser(
-    { ...keys }: Partial<UserKeys>
-  ): Promise<UserData> {
+  public async registerUser({ ...keys }: Partial<UserKeys>): Promise<UserData> {
     if (!keys.publicKey) {
       throw new Error('No publicKey');
     }
@@ -225,8 +211,8 @@ export class ApiService {
     return await this.initUserData( { ...keys });
   }
 
-  private decryptUserMemories(
-    { encryptedMemories, memoriesEncryptionKey }: { encryptedMemories: string } & Partial<UserKeys>
+  private decryptUserMemories({ encryptedMemories, memoriesEncryptionKey }:
+  { encryptedMemories: string } & Partial<UserKeys>
   ): UserMemory[] {
     if (!memoriesEncryptionKey) {
       throw new Error('No memories encryption key');
@@ -241,7 +227,7 @@ export class ApiService {
     return parsedDecrypted.map((m: any) => ({ ...m, added: new Date(m.added)}));
   }
 
-  public async loadMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey}: Partial<UserKeys>): Promise<UserMemory[]> {
+  public async getMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey}: Partial<UserKeys>): Promise<UserMemory[]> {
 
     if (!publicKey) {
       throw new Error('No publicKey');
@@ -275,7 +261,8 @@ export class ApiService {
     return memories;
   }
 
-  public async newMemory({ memory, file }: { memory: BaseMemory, file?: File }
+  public async addMemory({ memory, file, memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    { memories: UserMemory[], memory: BaseMemory, file?: File } & Partial<UserKeys>
   ): Promise<UserMemory> {
 
     const newMemory = {
@@ -293,28 +280,23 @@ export class ApiService {
       }
     }
 
+    memories.unshift(newMemory);
+
+    try {
+      await this.storeMemories( { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
+    } catch (error) {
+      throw new Error('Could not add new memory');
+    }
+
     return newMemory;
   }
 
-  ////////////////////////////////////////////////
-
-  public async deleteMemory(
-    skylink: string, // TODO: use only the id!!!
-    id?: string,
-  ): Promise<void> {
-    let memories = await this.getMemories();
-    const foundIndex = memories.findIndex(
-      (memory) => {
-        if (id) {
-          return memory.id && memory.id.search(id) > -1;
-        } else {
-          return memory.skylink && memory.skylink.search(skylink) > -1;  // TODO: use only id
-        }
-      }
-    );
+  public async deleteMemory({ id, memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
+    {id: string, memories: UserMemory[]} & Partial<UserKeys> ): Promise<void> {
+    const foundIndex = memories.findIndex(memory => memory.id === id);
 
     if (foundIndex === -1) {
-      return;
+      throw new Error('Could not find memory to delete');
     }
 
     memories = [
@@ -322,59 +304,21 @@ export class ApiService {
       ...memories.slice(foundIndex + 1),
     ];
 
-    await this.storeMemories( { memories } );
-    this._cachedMemories = memories;
-  }
-
-  public async getMemories(): Promise<UserMemory[]> {
-    if (this._cachedMemories) {
-      return [... this._cachedMemories];
-    }
-
-    let response;
     try {
-      response = await this.skynetClient.db.getJSON(
-        this._publicKeyFromSeed,
-        this._userMemoriesSkydbKey,
-        {
-          timeout: 10000,
-        }
-      );
+      await this.storeMemories( { memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey } );
     } catch (error) {
-      response = null;
+      throw new Error('Could not delete memory');
     }
-
-    if (!response || !('data' in response)) {
-      throw new Error(
-        'Could not fetch memories',
-      );
-    }
-
-    // BC
-    const keys = { memoriesEncryptionKey: this._userMemoriesEncryptionKey } as Partial<UserKeys>;
-
-    const storedEncryptedMemories = response.data as UserMemoriesEncrypted;
-    const memories = this.decryptUserMemories( {
-      encryptedMemories: storedEncryptedMemories.encryptedMemories,
-      ...keys
-    } );
-
-    this._cachedMemories = [...memories];
-    return memories;
   }
 
-  private async getPublicMemories(): Promise<UserPublicMemory[]> {
-    if (this._cachedPublicMemories) {
-      return [... this._cachedPublicMemories];
-    }
-
+  private async getPublicMemories( { publicKey }: Partial<UserKeys> ): Promise<UserPublicMemory[]> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
-        this._publicKeyFromSeed,
+        publicKey,
         this.userPublicMemoriesSkydbKey,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
     } catch (error) {
@@ -388,21 +332,20 @@ export class ApiService {
 
     const userPublicMemories = response.data as UserPublicMemory[];
 
-    this._cachedPublicMemories = [...userPublicMemories];
     return userPublicMemories;
   }
 
-  public async publicMemory(id: string): Promise<void> {
-    const memories = await this.getMemories();
-    const found = memories.find((memory) => memory.id && memory.id.search(id) > -1);
+  public async publicMemory({ id, memories, privateKey, publicKey }:
+    { id: string, memories: UserMemory[] } & Partial<UserKeys> ): Promise<void> {
+    const found = memories.find((memory) => memory.id && memory.id === id);
     if (!found) {
       throw new Error('Could not find memory to make them public');
     }
 
-    const publicMemories = await this.getPublicMemories();
-    const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
+    const publicMemories = await this.getPublicMemories({ publicKey });
+    const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);
     if (foundIndex > -1) {
-      return; // already public
+      return;
     }
 
     const tempPublicMemory: UserPublicMemory = {
@@ -414,22 +357,25 @@ export class ApiService {
 
     try {
       await this.skynetClient.db.setJSON(
-        this._privateKeyFromSeed,
+        privateKey,
         this.userPublicMemoriesSkydbKey,
         publicMemories,
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
 
-      this._cachedPublicMemories = [...publicMemories];
     } catch (error) {
       throw new Error('Could not public memories');
     }
   }
 
-  public async removePublicMemory(id: string): Promise<void> {
+  ////////////////////////////////////////////////
+
+
+
+/*   public async removePublicMemory(id: string): Promise<void> {
     let publicMemories = await this.getPublicMemories();
     const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id.search(id) > -1);
     if (foundIndex === -1) {
@@ -744,5 +690,5 @@ export class ApiService {
       }
     }
 
-  }
+  } */
 }

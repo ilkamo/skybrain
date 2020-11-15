@@ -5,14 +5,7 @@
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <h5 class="card-title">Login with passphrase</h5>
       <p class="card-text">Use your passphrase to login into your account.</p>
-      <ng-template #loading>
-        <div class="d-flex justify-content-center">
-          <div class="spinner-grow text-primary m-3" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-        </div>
-      </ng-template>
-      <form *ngIf="!(isLoading$ | async) else loading" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
             <label for="passphrase">Passphrase</label>
             <div class="input-group">
