@@ -66,4 +66,16 @@ export const reducer = createReducer(
   on(MemoryActions.makePublicMemoryFailure,
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
+
+  on(MemoryActions.getShareMemoryLink,
+    (state) => ({ ...state, error: undefined, loading: true })
+  ),
+  on(MemoryActions.getShareMemoryLinkSuccess,
+    (state, action) => adapter.updateOne({
+      id: action.id, changes: {shareLink: action.link }
+    }, { ...state, error: undefined, loading: false })
+  ),
+  on(MemoryActions.getShareMemoryLinkFailure,
+    (state, action) => ({ ...state, loading: false, error: action.error })
+  ),
 );

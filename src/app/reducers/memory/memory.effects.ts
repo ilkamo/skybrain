@@ -66,6 +66,19 @@ export class MemoryEffects {
     catchError(error => of(MemoryActions.makePublicMemoryFailure({ error: error.message })))
   ));
 
+  getMemoryShareLink$ = createEffect(() => this.actions$.pipe(
+    ofType(MemoryActions.getShareMemoryLink),
+    withLatestFrom(
+      this.store.select(UserSelectors.selectUserKeys),
+      this.store.select(MemorySelectors.selectCache)
+    ),
+    switchMap(async ([action, keys, memories]) => {
+      const link = await this.api.shareMemory( { id: action.id, memories, ...keys } );
+      return MemoryActions.getShareMemoryLinkSuccess({ id: action.id, link });
+    }),
+    catchError(error => of(MemoryActions.getShareMemoryLinkFailure({ error: error.message })))
+  ));
+
   constructor(
     private actions$: Actions,
     private api: ApiService,

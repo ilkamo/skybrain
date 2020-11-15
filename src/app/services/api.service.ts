@@ -56,7 +56,6 @@ export class ApiService {
       throw new Error('No publicKey');
     }
 
-    // TODO: Repeatable try ... getJSON
     try {
       const { data } = await this.skynetClient.db.getJSON(
         publicKey,
@@ -131,7 +130,7 @@ export class ApiService {
         encryptedMemoriesToStore,
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         }
       );
     } catch (error) {
