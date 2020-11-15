@@ -1,23 +1,27 @@
 <ng-container *ngIf="memory">
-  <div class="card-header">
-    {{memory?.added | date }}
+  <div class="card-header d-flex justify-content-between">
+    <span>{{memory?.added | date }}</span>
+    <span>{{memory?.location}}</span>
   </div>
   <img *ngIf="memory?.skylink" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
-  <div *ngIf="memory?.text" class="card-body">
-    <p class="text-lead">{{ memory?.text }}</p>
+  <div class="card-body">
+    <p *ngIf="memory?.text" class="text-lead">{{ memory?.text }}</p>
+    <p *ngIf="memory?.tags">
+      <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
+    </p>
   </div>
   <div class="card-footer text-muted">
-    <div class="buton-group">
-      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+    <div class="btn-group w-100 justify-content-center">
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
         <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
         Forget
       </a>
-      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
         <fa-icon [icon]="['far', 'comment-dots']"></fa-icon>
         Make public
       </a>
-      <a href="#" class="btn btn-outline-primary btn-block" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
-        <fa-icon [icon]="['far', 'link']"></fa-icon>
+      <a href="#" class="btn btn-outline-primary" [ngClass]="{ disabled: forgeting}" (click)="forgetMe($event)">
+        <fa-icon [icon]="['fas', 'link']"></fa-icon>
         Get share link
       </a>
     </div>

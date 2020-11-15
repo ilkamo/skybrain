@@ -4,14 +4,7 @@
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <div *ngIf="!(validProfile$ | async)" class="alert alert-warning">Please update your profile</div>
       <h1 class="text-center">Profile</h1>
-      <ng-template #loading>
-        <div class="d-flex justify-content-center">
-          <div class="spinner-grow text-primary m-3" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-        </div>
-      </ng-template>
-      <form *ngIf="!(isLoading$ | async) else loading" [formGroup]="profileForm" [appConnectForm]="userData$ | async" (ngSubmit)="onSubmit()">
+      <form [formGroup]="profileForm" [appConnectForm]="userData$ | async" (ngSubmit)="onSubmit()">
         <div class="form-group required">
             <label for="nickname">Nickname</label>
             <input type="text" class="form-control" formControlName="nickname" [ngClass]="{ 'is-invalid': form.nickname.touched && form.nickname.errors }"/>

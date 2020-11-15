@@ -8,6 +8,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { WallComponent } from './pages/wall/wall.component';
+import { MemoriesInitializedService } from './services/memories-initialized.resolver';
 
 const routes: Routes = [
   {
@@ -29,6 +30,9 @@ const routes: Routes = [
     path: '',
     component: WallComponent,
     canActivate: [ AuthenticatedGuard, ValidProfileGuard ],
+    resolve: {
+      memoriesInitialized: MemoriesInitializedService
+    },
     pathMatch: 'full'
   },
   { path: '**', component: ErrorComponent },  // Wildcard route for a 404 page

@@ -1,36 +1,28 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap, catchError, withLatestFrom, filter, tap, first } from 'rxjs/operators';
-import { EMPTY, NEVER, of } from 'rxjs';
+import { switchMap, catchError, withLatestFrom } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { State as RootState } from '../';
 import { Store } from '@ngrx/store';
 import * as UserSelectors from '../user/user.selectors';
 import * as MemorySelectors from '../memory/memory.selectors';
 import * as MemoryActions from './memory.actions';
-import { mapMemoryToSky, mapSkyToMemory, Memory } from './memory.model';
-import { Update } from '@ngrx/entity';
+import { mapSkyToMemory } from './memory.model';
+import { UserKeys } from 'src/app/models/user-data';
 
 @Injectable()
 export class MemoryEffects {
 
   getMemories$ = createEffect(() => this.actions$.pipe(
     ofType(MemoryActions.getMemories),
-    first(),
     withLatestFrom(
-      this.store.select(UserSelectors.selectUserKeys)
+      this.store.select(UserSelectors.selectUserKeys),
     ),
     switchMap(async ([_, keys]) => {
-      if (!keys) {
-        throw new Error('No user keys');
-      }
-      const userMemories = await this.api.loadMemories(keys);
-      const memories = userMemories.map((m): Memory => ({
-        ...m,
-        loading: false,
-        saved: true
-      }));
-      return MemoryActions.loadMemories({ memories });
+      const userMemories = await this.api.getMemories(keys as UserKeys);
+      const memories = userMemories.map(mapSkyToMemory);
+      return MemoryActions.getMemoriesSuccess({ memories });
     }),
     catchError(error => of(MemoryActions.getMemoriesFailure({ error: error.message })))
   ));
@@ -38,38 +30,27 @@ export class MemoryEffects {
   newMemory$ = createEffect(() => this.actions$.pipe(
     ofType(MemoryActions.newMemory),
     withLatestFrom(
-      this.store.select(UserSelectors.selectUserKeys)
+      this.store.select(UserSelectors.selectUserKeys),
+      this.store.select(MemorySelectors.selectCache)
     ),
-    switchMap(async ([action, keys]) => {
-      if (!keys) {
-        throw new Error('No user keys');
-      }
-      const memory = await this.api.newMemory( { memory: action.memory, file: action.file } );
-      return MemoryActions.newMemorySuccess({ memory });
+    switchMap(async ([action, keys, memories]) => {
+      const memory = await this.api.addMemory( { memory: action.memory, file: action.file, memories, ...keys } );
+      return MemoryActions.newMemorySuccess({ memory: mapSkyToMemory(memory) });
     }),
     catchError(error => of(MemoryActions.newMemoryFailure({ error: error.message })))
   ));
 
-  saveMemories$ = createEffect(() => this.actions$.pipe(
-    ofType(
-      MemoryActions.newMemorySuccess
-    ),
+  forgetMemory$ = createEffect(() => this.actions$.pipe(
+    ofType(MemoryActions.forgetMemory),
     withLatestFrom(
       this.store.select(UserSelectors.selectUserKeys),
-      this.store.select(MemorySelectors.selectMemories),
+      this.store.select(MemorySelectors.selectCache)
     ),
-    switchMap(async ([_, keys, storeMemories]) => {
-      const memories = storeMemories.map(mapMemoryToSky);
-      try{
-        await this.api.storeMemories( { memories, ...keys } );
-        return MemoryActions.upsertMemories({ memories: memories.map(mapSkyToMemory) });
-      } catch (error) {
-        const errored = storeMemories
-          .filter(m => m.loading)
-          .map(m => ({ id: m.id, changes: { error: error.message, loading: false } } as Update<Memory>));
-        return MemoryActions.updateMemories({ memories: errored });
-      }
-    })
+    switchMap(async ([action, keys, memories]) => {
+      await this.api.deleteMemory( { id: action.id, memories, ...keys } );
+      return MemoryActions.forgetMemorySuccess({ id: action.id });
+    }),
+    catchError(error => of(MemoryActions.forgetMemoryFailure({ error: error.message })))
   ));
 
   constructor(
