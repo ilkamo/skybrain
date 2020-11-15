@@ -355,7 +355,7 @@ export class ApiService {
       await this.skynetClient.db.setJSON(
         privateKey,
         this.userSharedMemoriesSkydbKey,
-        sharedMemories,
+        filteredSharedMemories,
         undefined,
         {
           timeout: 10000,
