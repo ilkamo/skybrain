@@ -11,9 +11,7 @@ export interface State extends EntityState<Memory>, LoadingState {
 
 export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
   sortComparer: (a, b) => {
-    const ad = a.added instanceof Date ? a.added.getTime() : Date.parse(a.added);
-    const bd = b.added instanceof Date ? b.added.getTime() : Date.parse(b.added);
-    return bd - ad;
+    return b.added.getTime() - a.added.getTime();
   }
 });
 

@@ -237,7 +237,8 @@ export class ApiService {
       memoriesEncryptionKey,
     ).toString(cryptoJS.enc.Utf8);
     const parsedDecrypted = JSON.parse(decryptedMemories);
-    return parsedDecrypted;
+    // tslint:disable-next-line: no-any
+    return parsedDecrypted.map((m: any) => ({ ...m, added: new Date(m.added)}));
   }
 
   public async loadMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey}: Partial<UserKeys>): Promise<UserMemory[]> {
