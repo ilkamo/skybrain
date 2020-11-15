@@ -552,7 +552,7 @@ export class ApiService {
     return response.data as UserSharedMemory[];
   }
 
-  public async shareMemory({ id, memories, publicKey, privateKey: privateKeyFromSeed, memoriesSkydbKey, memoriesEncryptionKey }:
+  public async shareMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<string> {
     const found = memories.find((memory) => memory.id && memory.id === id);
     if (!found) {
@@ -560,8 +560,8 @@ export class ApiService {
     }
 
     const sharedMemories = await this.getSharedMemories({ publicKey });
-    const { privateKey } = genKeyPairAndSeed();
-    const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), privateKey);
+    const uniqueEncryptionKey = genKeyPairAndSeed().privateKey;
+    const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), uniqueEncryptionKey);
 
     const tempSharedMemory: UserSharedMemory = {
       memoryId: found.id,
@@ -575,7 +575,7 @@ export class ApiService {
 
     try {
       await this.skynetClient.db.setJSON(
-        privateKeyFromSeed,
+        privateKey,
         this.userSharedMemoriesSkydbKey,
         sharedMemories,
         undefined,
@@ -593,7 +593,7 @@ export class ApiService {
     const tempSharedMemoryLink: UserSharedMemoryLink = {
       publicKey: publicKey as string,
       sharedId: tempSharedMemory.sharedId,
-      encryptionKey: privateKey,
+      encryptionKey: uniqueEncryptionKey,
     };
 
     return btoa(JSON.stringify(tempSharedMemoryLink));
