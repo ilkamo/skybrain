@@ -42,8 +42,45 @@ export class UserEffects {
     catchError(error => of(UserActions.updateUserDataFailure({ error: error.message })))
   ));
 
-  loginSuccess$ = createEffect(() => this.actions$.pipe(
-    ofType(UserActions.authenticateUserSuccess, UserActions.registerUserSuccess),
+  getFollowedUsers$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.authenticateUserSuccess),
+    withLatestFrom(this.store.select(UserSelectors.selectUserKeys)),
+    switchMap(async ([_, keys]) => {
+      const users = await this.api.getFollowedUsers({ ...keys });
+      return UserActions.getFollowedUsersSuccess({ users });
+    }),
+    catchError(error => of(UserActions.getFollowedUsersFailure({ error: error.message })))
+  ));
+
+  followUser$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.followUser),
+    withLatestFrom(
+      this.store.select(UserSelectors.selectUserKeys),
+      this.store.select(UserSelectors.selectFollowedUsersCache),
+    ),
+    switchMap(async ([action, keys, followedUsers]) => {
+      const user = await this.api.followUserByPublicKey({ followedUserPublicKey: action.publicKey, followedUsers, ...keys });
+      console.log(user);
+      return UserActions.followUserSuccess({ user });
+    }),
+    catchError(error => of(UserActions.followUserFailure({ error: error.message })))
+  ));
+
+  unfollowUser$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.unfollowUser),
+    withLatestFrom(
+      this.store.select(UserSelectors.selectUserKeys),
+      this.store.select(UserSelectors.selectFollowedUsersCache),
+    ),
+    switchMap(async ([action, keys, followedUsers]) => {
+      this.api.unfollowUserByPublicKey({ followedUserPublicKey: action.publicKey, followedUsers, ...keys });
+      return UserActions.unfollowUserSuccess({ publicKey: action.publicKey });
+    }),
+    catchError(error => of(UserActions.unfollowUserFailure({ error: error.message })))
+  ));
+
+  redirect$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.getFollowedUsersSuccess, UserActions.getFollowedUsersFailure),
     map(_ => this.router.navigate(['/']))
   ), { dispatch: false } );
 

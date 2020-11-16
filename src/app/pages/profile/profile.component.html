@@ -4,9 +4,10 @@
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <div *ngIf="!(validProfile$ | async)" class="alert alert-warning">Please update your profile</div>
       <h1 class="text-center">Profile</h1>
+      <h3>User data</h3>
       <form [formGroup]="profileForm" [appConnectForm]="userData$ | async" (ngSubmit)="onSubmit()">
         <div class="form-group required">
-            <label for="nickname">Nickname</label>
+            <label>Nickname</label>
             <input type="text" class="form-control" formControlName="nickname" [ngClass]="{ 'is-invalid': form.nickname.touched && form.nickname.errors }"/>
             <div *ngIf="form.nickname.errors as error" class="invalid-feedback">
               {{ error.invalid }}
@@ -20,6 +21,29 @@
             </p>
         </div>
       </form>
+      <h3 class="mt-5">Followed users</h3>
+      <form [formGroup]="followedForm" (ngSubmit)="addFolower()">
+        <div class="form-group required">
+            <label>User public key</label>
+            <input type="text" class="form-control" formControlName="publicKey" [ngClass]="{ 'is-invalid': fform.publicKey.touched && fform.publicKey.errors }"/>
+            <div *ngIf="fform.publicKey.errors as error" class="invalid-feedback">
+              {{ error.invalid }}
+            </div>
+        </div>
+        <div>
+            <p>
+              <button type="submit" [disabled]="!followedForm.valid" class="btn btn-primary btn-block">
+                  Add followed user
+              </button>
+            </p>
+        </div>
+      </form>
+      <ul class="list-group mt-3">
+        <li *ngFor="let user of followedUsers$ | async" [attr.title]="user.startedAt | date" class="list-group-item d-flex justify-content-between align-items-center">
+          <small class="text-truncate mr-3">{{ user.publicKey }}</small>
+          <span (click)="unfollow(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

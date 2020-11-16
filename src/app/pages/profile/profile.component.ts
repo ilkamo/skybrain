@@ -13,11 +13,15 @@ import { UserData, userDataValidator } from '../../models/user-data';
 })
 export class ProfileComponent implements OnInit {
   userData$ = this.store.pipe(select(UserSelectors.selectUserData));
+  followedUsers$ = this.store.pipe(select(UserSelectors.selectFollowedUsers));
   validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));
   profileForm = this.formBuilder.group({
     nickname: ['']
   }, { validators: [ userDataValidator ] });
+  followedForm = this.formBuilder.group({
+    publicKey: ['', [Validators.required, Validators.minLength(10)] ]
+  });
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,6 +37,12 @@ export class ProfileComponent implements OnInit {
     return this.profileForm.controls;
   }
 
+  get fform(): {
+    [key: string]: AbstractControl;
+  } {
+    return this.followedForm.controls;
+  }
+
   onSubmit(): void {
     // stop here if form is invalid
     if (this.profileForm.invalid) {
@@ -44,6 +54,27 @@ export class ProfileComponent implements OnInit {
         user: this.profileForm.value as UserData
       })
     );
+  }
+
+  unfollow(publicKey: string): void {
+    this.store.dispatch(
+      UserActions.unfollowUser({
+        publicKey
+      })
+    );
+  }
+
+  addFolower(): void {
+    // stop here if form is invalid
+    if (this.followedForm.invalid) {
+        return;
+    }
+    this.store.dispatch(
+      UserActions.followUser({
+        publicKey: this.followedForm.controls.publicKey.value
+      })
+    );
+    this.followedForm.reset();
   }
 
 }

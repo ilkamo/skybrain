@@ -9,6 +9,7 @@ import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
+import { AnyARecord } from 'dns';
 
 @Injectable({
   providedIn: 'root'
@@ -438,7 +439,7 @@ export class ApiService {
     }
   }
 
-  private async getFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<FollowedUser[]> {
+  public async getFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<FollowedUser[]> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
@@ -457,23 +458,23 @@ export class ApiService {
       );
     }
 
-    return response.data as FollowedUser[];
+    // tslint:disable-next-line: no-any
+    return response.data.map((u: any) => ({ ...u, startedAt: new Date(u.startedAt)})) as FollowedUser[];
   }
 
-  public async followUserByPublicKey({ followedUserPublicKey, publicKey, privateKey }:
-    { followedUserPublicKey: string } & Partial<UserKeys>): Promise<void> {
+  public async followUserByPublicKey({ followedUserPublicKey, privateKey, followedUsers }:
+    { followedUserPublicKey: string, followedUsers: FollowedUser[] } & Partial<UserKeys>): Promise<FollowedUser> {
     // TODO: check public key length
-    const followedUsers = await this.getFollowedUsers({ publicKey });
     const found = followedUsers.find((u) => u.publicKey === followedUserPublicKey);
+
     if (found) {
-      return; // already followed
+      return found; // already followed
     }
     const tempFollowedUser: FollowedUser = {
       startedAt: new Date(Date.now()),
       publicKey: followedUserPublicKey,
     };
     followedUsers.unshift(tempFollowedUser);
-
     try {
       await this.skynetClient.db.setJSON(
         privateKey,
@@ -487,13 +488,14 @@ export class ApiService {
     } catch (error) {
       throw new Error('Could not follow');
     }
+
+    return tempFollowedUser;
   }
 
-  public async unfollowUserByPublicKey({ followedUserPublicKey, privateKey, publicKey }:
-    { followedUserPublicKey: string } & Partial<UserKeys>): Promise<void> {
+  public async unfollowUserByPublicKey({ followedUserPublicKey, privateKey, followedUsers }:
+    { followedUserPublicKey: string, followedUsers: FollowedUser[] } & Partial<UserKeys>): Promise<void> {
     // TODO: check public key length
 
-    let followedUsers = await this.getFollowedUsers({ publicKey });
     const foundIndex = followedUsers.findIndex((u) => u.publicKey === followedUserPublicKey);
     if (foundIndex === -1) {
       return; // already unfollowed
