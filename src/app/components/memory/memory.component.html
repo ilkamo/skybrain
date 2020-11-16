@@ -27,13 +27,13 @@
         <fa-icon [icon]="['fas', 'comment-slash']"></fa-icon>
         Forget
       </a>
-      <a href="#" class="btn btn-outline-primary" (click)="makeMePublic($event)">
+      <a href="#" class="btn btn-outline-primary" (click)="togglePublic($event)">
         <fa-icon [icon]="['fas', 'globe']"></fa-icon>
-        Make public
+        <span [innerHTML]="memory?.isPublic ? 'Make private' : 'Make public'"></span>
       </a>
-      <a href="#" class="btn btn-outline-primary" (click)="shareMe($event)">
+      <a href="#" class="btn btn-outline-primary" (click)="toggleShare($event)">
         <fa-icon [icon]="['fas', 'link']"></fa-icon>
-        Get share link
+        <span [innerHTML]="memory?.isShared ? 'Unshare' : 'Share'"></span>
       </a>
     </div>
   </div>

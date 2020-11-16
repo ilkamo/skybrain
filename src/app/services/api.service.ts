@@ -433,7 +433,7 @@ export class ApiService {
 
     const found = memories.find((memory) => memory.id && memory.id === id);
     if (found) {
-      found.isPublic = false;
+      delete found.isPublic;
       this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
     }
   }
@@ -559,6 +559,10 @@ export class ApiService {
       throw new Error('Memory to share not found');
     }
 
+    if (found.isShared && found.shareLink) {
+      return found.shareLink;
+    }
+
     const sharedMemories = await this.getSharedMemories({ publicKey });
     const uniqueEncryptionKey = genKeyPairAndSeed().privateKey;
     const encryptedMemory = cryptoJS.AES.encrypt(JSON.stringify(found), uniqueEncryptionKey);
@@ -588,15 +592,16 @@ export class ApiService {
     }
 
     found.isShared = true;
-    await this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
-
     const tempSharedMemoryLink: UserSharedMemoryLink = {
       publicKey: publicKey as string,
       sharedId: tempSharedMemory.sharedId,
       encryptionKey: uniqueEncryptionKey,
     };
+    found.shareLink = btoa(JSON.stringify(tempSharedMemoryLink));
 
-    return btoa(JSON.stringify(tempSharedMemoryLink));
+    await this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
+
+    return found.shareLink;
   }
 
   public async unshareMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
@@ -605,7 +610,8 @@ export class ApiService {
 
     const found = memories.find((memory) => memory.id && memory.id === id);
     if (found) {
-      found.isShared = false;
+      delete found.isShared;
+      delete found.shareLink;
       this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
     }
   }

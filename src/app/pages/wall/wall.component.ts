@@ -57,15 +57,13 @@ export class WallComponent implements OnInit {
   }
 
   publishMemory(memory: Memory): void {
-    this.store.dispatch(MemomryActions.makePublicMemory( { id: memory.id } ));
+    const toggle = !memory.isPublic;
+    this.store.dispatch(MemomryActions.makePublicMemory( { id: memory.id, toggle } ));
   }
 
   shareMemory(memory: Memory): void {
-    if (memory.shareLink) {
-      this.store.dispatch(MemomryActions.getShareMemoryLinkSuccess( { id: memory.id, link: memory.shareLink } ));
-      return;
-    }
-    this.store.dispatch(MemomryActions.getShareMemoryLink( { id: memory.id } ));
+    const toggle = !memory.isShared;
+    this.store.dispatch(MemomryActions.getShareMemoryLink( { id: memory.id, toggle } ));
   }
 
   trackMemory(index: number, memory: Memory): string {

@@ -44,11 +44,11 @@ export const forgetMemoryFailure = createAction(
 
 export const makePublicMemory = createAction(
   '[Memory] Make Public Memory',
-  props<{ id: string }>()
+  props<{ id: string, toggle: boolean }>()
 );
 export const makePublicMemorySuccess = createAction(
   '[Memory] Make Public Memory Success',
-  props<{ id: string }>()
+  props<{ id: string, isPublic?: true }>()
 );
 export const makePublicMemoryFailure = createAction(
   '[Memory] Make Public Memory Failure',
@@ -57,11 +57,11 @@ export const makePublicMemoryFailure = createAction(
 
 export const getShareMemoryLink = createAction(
   '[Memory] Get Share Memory Link',
-  props<{ id: string }>()
+  props<{ id: string, toggle: boolean }>()
 );
 export const getShareMemoryLinkSuccess = createAction(
   '[Memory] Get Share Memory Link Success',
-  props<{ id: string, link: string }>()
+  props<{ id: string, link?: string, isShared?: true }>()
 );
 export const getShareMemoryLinkFailure = createAction(
   '[Memory] Get Share Memory Link Failure',

@@ -27,7 +27,7 @@ export class MemoryComponent implements OnInit {
     this.forget.emit(this.memory);
   }
 
-  makeMePublic(event: MouseEvent): void {
+  togglePublic(event: MouseEvent): void {
     if (!this.memory) {
       return;
     }
@@ -35,7 +35,7 @@ export class MemoryComponent implements OnInit {
     this.publish.emit(this.memory);
   }
 
-  shareMe(event: MouseEvent): void {
+  toggleShare(event: MouseEvent): void {
     if (!this.memory) {
       return;
     }

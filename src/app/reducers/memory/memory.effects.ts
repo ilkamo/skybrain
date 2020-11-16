@@ -60,8 +60,12 @@ export class MemoryEffects {
       this.store.select(MemorySelectors.selectCache)
     ),
     switchMap(async ([action, keys, memories]) => {
-      await this.api.publicMemory( { id: action.id, memories, ...keys } );
-      return MemoryActions.makePublicMemorySuccess({ id: action.id });
+      if (action.toggle) {
+        await this.api.publicMemory( { id: action.id, memories, ...keys } );
+      } else {
+        await this.api.unpublicMemory( { id: action.id, memories, ...keys } );
+      }
+      return MemoryActions.makePublicMemorySuccess({ id: action.id, isPublic: action.toggle || undefined });
     }),
     catchError(error => of(MemoryActions.makePublicMemoryFailure({ error: error.message })))
   ));
@@ -73,8 +77,13 @@ export class MemoryEffects {
       this.store.select(MemorySelectors.selectCache)
     ),
     switchMap(async ([action, keys, memories]) => {
-      const link = await this.api.shareMemory( { id: action.id, memories, ...keys } );
-      return MemoryActions.getShareMemoryLinkSuccess({ id: action.id, link });
+      let link;
+      if (action.toggle) {
+        link = await this.api.shareMemory( { id: action.id, memories, ...keys } );
+      } else {
+        await this.api.unshareMemory( { id: action.id, memories, ...keys } );
+      }
+      return MemoryActions.getShareMemoryLinkSuccess({ id: action.id, link, isShared: action.toggle || undefined });
     }),
     catchError(error => of(MemoryActions.getShareMemoryLinkFailure({ error: error.message })))
   ));

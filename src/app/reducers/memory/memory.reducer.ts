@@ -60,7 +60,7 @@ export const reducer = createReducer(
   ),
   on(MemoryActions.makePublicMemorySuccess,
     (state, action) => adapter.updateOne({
-      id: action.id, changes: { /* isPublic: true */ }
+      id: action.id, changes: { isPublic: action.isPublic }
     }, { ...state, error: undefined, loading: false })
   ),
   on(MemoryActions.makePublicMemoryFailure,
@@ -72,7 +72,7 @@ export const reducer = createReducer(
   ),
   on(MemoryActions.getShareMemoryLinkSuccess,
     (state, action) => adapter.updateOne({
-      id: action.id, changes: {shareLink: action.link }
+      id: action.id, changes: {shareLink: action.link, isShared: action.isShared }
     }, { ...state, error: undefined, loading: false })
   ),
   on(MemoryActions.getShareMemoryLinkFailure,
