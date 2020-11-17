@@ -11,7 +11,7 @@ import { from, Observable } from 'rxjs';
 export class SharedComponent implements OnInit {
   base64Link: string;
   memory: UserMemory | null = null;
-  error$ = null;
+  error$: string | null = null;
 
   constructor(private apiService: ApiService, private route: ActivatedRoute, private router: Router) {
     this.base64Link = this.route.snapshot.queryParams.q || '';
@@ -27,6 +27,8 @@ export class SharedComponent implements OnInit {
         error => {
           this.error$ = error;
         });
+    } else {
+      this.error$ = 'no base link provided';
     }
   }
 }
