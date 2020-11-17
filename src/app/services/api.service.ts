@@ -146,7 +146,6 @@ export class ApiService {
     }
 
     user = user || { nickname: '' };
-    await this.updateUserData({ user, privateKey });
     await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey });
 
     try {
@@ -183,6 +182,9 @@ export class ApiService {
     } catch (error) {
       throw new Error('The user database could not be initialized');
     }
+
+    // This should be executed as the last one to ensure that all the other schemas are stored.
+    await this.updateUserData({ user, privateKey });
 
     return user;
   }
