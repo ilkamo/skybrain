@@ -228,7 +228,6 @@ export class ApiService {
   }
 
   public async getMemories({ publicKey, memoriesSkydbKey, memoriesEncryptionKey }: Partial<UserKeys>): Promise<UserMemory[]> {
-
     if (!publicKey) {
       throw new Error('No publicKey');
     }

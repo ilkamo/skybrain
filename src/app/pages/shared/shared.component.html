@@ -1,0 +1,11 @@
+<div class="d-flex justify-content-center">
+  <div *ngIf="error$" class="alert alert-danger">{{ error$ }}</div>
+
+  <div class="memories d-flex flex-column">
+    <ng-container *ngIf="memory">
+      <app-memory [memory]="memory" class="mb-3">
+      </app-memory>
+
+    </ng-container>
+  </div>
+</div>

@@ -1,3 +1,4 @@
+import { SharedComponent } from './pages/shared/shared.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
@@ -25,6 +26,11 @@ const routes: Routes = [
     path: 'profile',
     component: ProfileComponent,
     canActivate: [ AuthenticatedGuard ],
+  },
+  {
+    path: 'shared',
+    component: SharedComponent,
+    canActivate: [ NotAuthenticatedGuard ]
   },
   {
     path: '',
