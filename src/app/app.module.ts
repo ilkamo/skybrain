@@ -30,6 +30,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { ConnectFormDirective } from './directives/connect-form.directive';
 import { MemoryEffects } from './reducers/memory/memory.effects';
 import { SharedComponent } from './pages/shared/shared.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { SharedComponent } from './pages/shared/shared.component';
     ProfileComponent,
     ConnectFormDirective,
     SharedComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,
