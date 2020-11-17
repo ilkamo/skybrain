@@ -29,6 +29,8 @@ import { UserEffects } from './reducers/user/user.effects';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ConnectFormDirective } from './directives/connect-form.directive';
 import { MemoryEffects } from './reducers/memory/memory.effects';
+import { SharedComponent } from './pages/shared/shared.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,9 @@ import { MemoryEffects } from './reducers/memory/memory.effects';
     MemoryComponent,
     NavbarComponent,
     ProfileComponent,
-    ConnectFormDirective
+    ConnectFormDirective,
+    SharedComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,7 +69,7 @@ import { MemoryEffects } from './reducers/memory/memory.effects';
     { provide: USER_PUBLIC_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_PUBLIC_MEMORIES' },
     { provide: USER_SHARED_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_SHARED_MEMORIES' },
     { provide: USER_FOLLOWED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
-    { provide: LocationStrategy, useClass: HashLocationStrategy},
+    { provide: LocationStrategy, useClass: HashLocationStrategy },
   ],
   bootstrap: [AppComponent]
 })
