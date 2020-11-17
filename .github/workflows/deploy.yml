@@ -26,6 +26,6 @@ jobs:
       - name: "Deploy to Skynet"
         uses: kwypchlo/deploy-to-skynet-action@main
         with:
-          upload-dir: build
+          upload-dir: dist/sia
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # registry-seed: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.REGISTRY_SEED || '' }}
