@@ -309,6 +309,7 @@ export class ApiService {
     }
 
     const userPublicMemories = response.data as UserPublicMemory[];
+    userPublicMemories.forEach(m => m.memory.added = new Date(m.memory.added));
 
     return userPublicMemories;
   }

@@ -80,4 +80,15 @@ export const reducer = createReducer(
   on(MemoryActions.getShareMemoryLinkFailure,
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
+  on(MemoryActions.followedUsersMemoriesSuccess,
+    (state, action) => {
+      const populatedFollowedUsers = action.followedUsers
+        .filter(f => !state.populatedFollowedUsers.includes(f.publicKey))
+        .map(f => f.publicKey);
+      return adapter.addMany(
+        action.memories,
+        { ...state, populatedFollowedUsers: [ ...state.populatedFollowedUsers, ...populatedFollowedUsers] }
+      );
+    }
+  )
 );

@@ -3,6 +3,7 @@ import { createAction, props } from '@ngrx/store';
 import { Memory } from './memory.model';
 
 import { BaseMemory } from '../../models/user-memory';
+import { FollowedUser } from 'src/app/models/user-followed-users';
 
 export const getMemories = createAction(
   '[Memory] Get Memories'
@@ -66,4 +67,14 @@ export const getShareMemoryLinkSuccess = createAction(
 export const getShareMemoryLinkFailure = createAction(
   '[Memory] Get Share Memory Link Failure',
   props<{ error: string }>()
+);
+
+export const followedUsersMemoriesSuccess = createAction(
+  '[Memory] Followed Users Memories Success',
+  props<{ memories: Memory[], followedUsers: FollowedUser[] }>()
+);
+
+export const followedUsersMemoriesFailure = createAction(
+  '[Memory] Followed Users Memories Failure',
+  props<{ followedUsers: FollowedUser[], error: string }>()
 );

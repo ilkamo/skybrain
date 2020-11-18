@@ -95,22 +95,22 @@ export class MemoryEffects {
   followersMemories$ = createEffect(() => this.store.pipe(
     select(MemorySelectors.selectFollowedUsersToPopulate),
     filter(followedUsers => !!followedUsers .length),
-    tap(console.log),
     switchMap(followedUsers  => {
       return from(this.api.getPublicMemoriesOfFollowedUsers({ followedUsers })).pipe(
         map(userPublicMemories => {
           console.log(userPublicMemories);
           const users = Object.keys(userPublicMemories);
           return users.reduce((acc, followerId) => {
-            const userMemories: Memory[] = userPublicMemories[followerId].map(data => ({ ...data.memory, followerId }));
+            const userMemories: Memory[] = userPublicMemories[followerId].map(data => ({ ...mapSkyToMemory(data.memory), followerId }));
             return [ ...acc, ...userMemories];
           }, [] as Memory[]);
         }),
-        catchError(error => of(MemoryActions.getShareMemoryLinkFailure({ error: error.message })))
+        map(memories => MemoryActions.followedUsersMemoriesSuccess({ memories, followedUsers })),
+        catchError(error => of(MemoryActions.followedUsersMemoriesFailure({ followedUsers, error: error.message })))
       );
     }),
     tap(console.log)
-  ), { dispatch: false });
+  ));
 
   constructor(
     private actions$: Actions,
