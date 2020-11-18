@@ -31,6 +31,7 @@ import { ConnectFormDirective } from './directives/connect-form.directive';
 import { MemoryEffects } from './reducers/memory/memory.effects';
 import { SharedComponent } from './pages/shared/shared.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { FooterComponent } from './components/footer/footer.component';
     ConnectFormDirective,
     SharedComponent,
     FooterComponent,
+    AbsolutePathPipe,
   ],
   imports: [
     BrowserModule,

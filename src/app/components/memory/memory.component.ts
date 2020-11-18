@@ -45,13 +45,6 @@ export class MemoryComponent implements OnInit {
     this.share.emit(this.memory);
   }
 
-  getSharedLink(code?: string): string {
-    if (!code) {
-      return '';
-    }
-    return this.router.createUrlTree(['/shared', code]).toString();
-  }
-
   copyToClipboard(input: HTMLInputElement): void {
     input.select();
     input.setSelectionRange(0, 99999);

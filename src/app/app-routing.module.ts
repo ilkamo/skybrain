@@ -32,7 +32,7 @@ const routes: Routes = [
     path: 'shared/:code',
     component: SharedComponent,
     resolve: {
-      sharedData: SharedMemoryService
+      memory: SharedMemoryService
     }
   },
   {

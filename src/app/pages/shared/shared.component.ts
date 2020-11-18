@@ -7,11 +7,9 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
 })
 export class SharedComponent implements OnInit {
   memory: Memory | null = null;
-  isAuthenticated: boolean;
 
   constructor(route: ActivatedRoute) {
-    this.memory = route.snapshot.data.sharedData.memory;
-    this.isAuthenticated = route.snapshot.data.sharedData.auth;
+    this.memory = route.snapshot.data.memory;
   }
 
   ngOnInit(): void {
