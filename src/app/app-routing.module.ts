@@ -10,6 +10,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { WallComponent } from './pages/wall/wall.component';
 import { MemoriesInitializedService } from './services/memories-initialized.resolver';
+import { SharedMemoryService } from './services/shared-memory.resolver';
 
 const routes: Routes = [
   {
@@ -28,9 +29,11 @@ const routes: Routes = [
     canActivate: [ AuthenticatedGuard ],
   },
   {
-    path: 'shared',
+    path: 'shared/:code',
     component: SharedComponent,
-    canActivate: [ NotAuthenticatedGuard ]
+    resolve: {
+      memory: SharedMemoryService
+    }
   },
   {
     path: '',

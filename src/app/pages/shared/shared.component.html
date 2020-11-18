@@ -1,14 +1,15 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
+
     <div class="card memories-card my-3">
       <div class="card-body">
         <h4>Shared memory</h4>
-        <div *ngIf="error$" class="alert alert-danger">{{ error$ }}</div>
       </div>
     </div>
 
     <ng-container *ngIf="memory">
-      <app-memory [memory]="memory" class="mb-3"></app-memory>
+      <app-memory [memory]="memory" [simple]="true" class="mb-3"></app-memory>
     </ng-container>
+
   </div>
 </div>

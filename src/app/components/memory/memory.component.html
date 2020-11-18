@@ -10,7 +10,7 @@
       <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
     </p>
     <div *ngIf="memory?.shareLink" class="input-group mb-3">
-      <input #link type="text" readonly class="form-control" [value]="memory?.shareLink">
+      <input #link type="text" readonly class="form-control" [value]="['shared', memory?.shareLink] | absolutePath">
       <div class="input-group-append">
         <button
           class="btn btn-outline-secondary"
@@ -18,10 +18,16 @@
           (click)="copyToClipboard(link)">
           <fa-icon [icon]="['far', 'clipboard']"></fa-icon>
         </button>
+        <a
+          class="btn btn-outline-secondary"
+          title="View"
+          [routerLink]="['shared', memory?.shareLink]">
+          <fa-icon [icon]="['fas', 'link']"></fa-icon>
+        </a>
       </div>
     </div>
   </div>
-  <div class="card-footer text-muted">
+  <div *ngIf="!simple" class="card-footer text-muted">
     <div class="btn-group w-100 justify-content-center">
       <a href="#" class="btn btn-outline-primary" (click)="forgetMe($event)">
         <fa-icon [icon]="['fas', 'comment-slash']"></fa-icon>

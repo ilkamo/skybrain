@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, EventEmitter, HostBinding, Inject, Input, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 
 @Component({
@@ -10,11 +11,12 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
 export class MemoryComponent implements OnInit {
   @HostBinding('class') cardClass = 'card';
   @Input() memory?: Memory;
+  @Input() simple = false;
   @Output() forget = new EventEmitter<Memory>();
   @Output() publish = new EventEmitter<Memory>();
   @Output() share = new EventEmitter<Memory>();
 
-  constructor(@Inject(DOCUMENT) private document: Document) { }
+  constructor(@Inject(DOCUMENT) private document: Document, private router: Router) { }
 
   ngOnInit(): void {
   }
