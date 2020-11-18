@@ -19,7 +19,7 @@ jobs:
         run: yarn
 
       - name: Build
-        run: yarn build
+        run: yarn buildprod
         env:
           REACT_APP_GIT_SHA: ${{ github.sha }}
 
