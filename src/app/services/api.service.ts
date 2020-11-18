@@ -406,9 +406,16 @@ export class ApiService {
       return;
     }
 
+    const tempFound = { ... found };
+    /*
+     It should be shared only with the person you want to share the memory and never saved in public memories
+     because of the fact that user can decide to unpublic the memory without unshare.
+    */
+    delete tempFound.shareLink;
+
     const tempPublicMemory: UserPublicMemory = {
       publicAt: new Date(Date.now()),
-      memory: found,
+      memory: tempFound,
     };
 
     publicMemories.unshift(tempPublicMemory);
