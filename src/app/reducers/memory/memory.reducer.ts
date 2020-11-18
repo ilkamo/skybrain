@@ -8,6 +8,7 @@ export const memoriesFeatureKey = 'memories';
 
 export interface State extends EntityState<Memory>, LoadingState {
   initialized: boolean;
+  populatedFollowedUsers: string[];
 }
 
 export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
@@ -19,7 +20,8 @@ export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
 export const initialState: State = adapter.getInitialState({
   initialized: false,
   loading: false,
-  error: undefined
+  error: undefined,
+  populatedFollowedUsers: []
 });
 
 export const reducer = createReducer(

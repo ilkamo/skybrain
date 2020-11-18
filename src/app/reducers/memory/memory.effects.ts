@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap, catchError, withLatestFrom, map } from 'rxjs/operators';
+import { switchMap, catchError, withLatestFrom, map, tap, filter } from 'rxjs/operators';
 import { from, of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { State as RootState } from '../';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import * as UserSelectors from '../user/user.selectors';
 import * as MemorySelectors from '../memory/memory.selectors';
 import * as MemoryActions from './memory.actions';
-import { mapSkyToMemory } from './memory.model';
+import * as UserActions from '../user/user.actions';
+import { mapSkyToMemory, Memory } from './memory.model';
 import { UserKeys } from 'src/app/models/user-data';
 
 @Injectable()
@@ -90,6 +91,25 @@ export class MemoryEffects {
       );
     })
   ));
+
+  followersMemories$ = createEffect(() => this.store.pipe(
+    select(MemorySelectors.selectFollowedUsersToPopulate),
+    filter(followedUsers => !!followedUsers .length),
+    tap(console.log),
+    switchMap(followedUsers  => {
+      return from(this.api.getPublicMemoriesOfFollowedUsers({ followedUsers })).pipe(
+        map(userPublicMemories => {
+          const users = Object.keys(userPublicMemories);
+          return users.reduce((acc, followerId) => {
+            const userMemories: Memory[] = userPublicMemories[followerId].map(data => ({ ...data.memory, followerId }));
+            return [ ...acc, ...userMemories];
+          }, [] as Memory[]);
+        }),
+        catchError(error => of(MemoryActions.getShareMemoryLinkFailure({ error: error.message })))
+      );
+    }),
+    tap(console.log)
+  ), { dispatch: false });
 
   constructor(
     private actions$: Actions,

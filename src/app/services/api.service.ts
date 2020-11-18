@@ -9,7 +9,6 @@ import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from
 import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
-import { AnyARecord } from 'dns';
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +30,6 @@ export class ApiService {
     }
     this.skynetClient = new SkynetClient(this.portal);
   }
-
-  // [ Redux approach ] //////////////////////////////////////////////
 
   private generateUserMemoriesKey(basePassphrase: string): string {
     const userMemoriesKeySuffix = cryptoJS.SHA256(`${basePassphrase}_USER_MEMORIES`).toString();
@@ -523,9 +520,8 @@ export class ApiService {
     }
   }
 
-  public async getPublicMemoriesOfFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<UsersPublicMemories> {
+  public async getPublicMemoriesOfFollowedUsers({ followedUsers }: { followedUsers: FollowedUser[] }): Promise<UsersPublicMemories> {
     const followedUsersMemories: UsersPublicMemories = {};
-    const followedUsers = await this.getFollowedUsers({ publicKey });
     followedUsers.forEach(async (fu) => {
       const followedUserPublicMemories: UserPublicMemory[] =
         await this.getPublicMemories({ publicKey: fu.publicKey });
@@ -619,7 +615,6 @@ export class ApiService {
     }
   }
 
-  ////////////////////////////////////////////////
 
   public async resolveMemoryFromBase64(base64Data: string): Promise<UserMemory> {
     try {
