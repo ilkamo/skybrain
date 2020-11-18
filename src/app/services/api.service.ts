@@ -15,6 +15,7 @@ import { EncryptionType } from '../models/encryption';
 })
 export class ApiService {
   private skydbTimeout = 60000;
+  private registerUserSkydbTimeout = 7000;
   private skynetClient: SkynetClient;
 
   constructor(
@@ -81,7 +82,8 @@ export class ApiService {
     ).toString();
   }
 
-  public async updateUserData({ user, privateKey }: { user?: UserData } & Partial<UserKeys>): Promise<UserData> {
+  public async updateUserData({ user, privateKey, revision }: { user?: UserData, revision?: number }
+    & Partial<UserKeys>): Promise<UserData> {
     if (!privateKey) {
       throw new Error('No privateKey');
     }
@@ -93,7 +95,7 @@ export class ApiService {
         privateKey,
         this.userDataKey,
         user,
-        undefined,
+        revision,
         {
           timeout: this.skydbTimeout,
         },
@@ -105,8 +107,8 @@ export class ApiService {
     return user;
   }
 
-  public async storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
-    { memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
+  public async storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey, revision }:
+    { memories: UserMemory[], revision?: number } & Partial<UserKeys>): Promise<void> {
     const encryptedMemories = this.encryptUserMemories({ memories, memoriesEncryptionKey });
     const encryptedMemoriesToStore: UserMemoriesEncrypted = {
       encryptedMemories,
@@ -126,7 +128,7 @@ export class ApiService {
         privateKey,
         memoriesSkydbKey,
         encryptedMemoriesToStore,
-        undefined,
+        revision,
         {
           timeout: this.skydbTimeout,
         }
@@ -142,15 +144,18 @@ export class ApiService {
       throw new Error('No privateKey');
     }
 
+    const initialRevision = 0;
+
     user = user || { nickname: '' };
-    await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey });
+    await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey,
+      revision: initialRevision });
 
     try {
       await this.skynetClient.db.setJSON(
         privateKey,
         this.userPublicMemoriesSkydbKey,
         [] as UserPublicMemory[],
-        undefined,
+        initialRevision,
         {
           timeout: this.skydbTimeout,
         },
@@ -160,7 +165,7 @@ export class ApiService {
         privateKey,
         this.userFollowedUsersSkydbKey,
         [] as FollowedUser[],
-        undefined,
+        initialRevision,
         {
           timeout: this.skydbTimeout,
         },
@@ -170,7 +175,7 @@ export class ApiService {
         privateKey,
         this.userSharedMemoriesSkydbKey,
         [] as UserSharedMemory[],
-        undefined,
+        initialRevision,
         {
           timeout: this.skydbTimeout,
         },
@@ -181,7 +186,7 @@ export class ApiService {
     }
 
     // This should be executed as the last one to ensure that all the other schemas are stored.
-    await this.updateUserData({ user, privateKey });
+    await this.updateUserData({ user, privateKey, revision: initialRevision });
 
     return user;
   }
@@ -198,7 +203,7 @@ export class ApiService {
         keys.publicKey,
         this.userDataKey,
         {
-          timeout: this.skydbTimeout,
+          timeout: this.registerUserSkydbTimeout,
         },
       );
     } catch (error) { }
