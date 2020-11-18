@@ -20,7 +20,6 @@ export class AbsolutePathPipe implements PipeTransform {
     }
 
     try {
-      console.log(this.router);
       const tree = this.router.createUrlTree(commands, navigationExtras);
       let { host } = (this.document.defaultView as Window ).location;
       if (this.locationStrategy instanceof HashLocationStrategy) {
