@@ -28,7 +28,7 @@ export const reducer = createReducer(
   on(UserActions.authenticateUserFailure, (_, action) => ({ ...initialState, loading: false, error: action.error || 'Error' })),
   on(UserActions.authenticateUserSuccess, (_, action) => ({
     ...initialState,
-    loading: false,
+    loading: true,
     error: undefined,
     user: action.user,
     authenticated: true,
@@ -53,9 +53,7 @@ export const reducer = createReducer(
     if (index !== -1) {
       return state as State;
     }
-    const followedUsers = [ ...state.followedUsers ];
-    followedUsers.splice(index, 1);
-    followedUsers.push(action.user);
+    const followedUsers = [ ...state.followedUsers, action.user ];
     followedUsers.sort((a, b) => {
       return b.startedAt.getTime() - a.startedAt.getTime();
     });
@@ -71,9 +69,6 @@ export const reducer = createReducer(
     }
     const followedUsers = [ ...state.followedUsers ];
     followedUsers.splice(index, 1);
-    followedUsers.sort((a, b) => {
-      return b.startedAt.getTime() - a.startedAt.getTime();
-    });
     return { ...state, followedUsers, loading: false, error: undefined };
   }),
   on(UserActions.unfollowUserFailure, (state, action) => ({ ...state, loading: false, error: action.error }))

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { switchMap, catchError, withLatestFrom } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { switchMap, catchError, withLatestFrom, map } from 'rxjs/operators';
+import { from, of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { State as RootState } from '../';
 import { Store } from '@ngrx/store';
@@ -19,12 +19,13 @@ export class MemoryEffects {
     withLatestFrom(
       this.store.select(UserSelectors.selectUserKeys),
     ),
-    switchMap(async ([_, keys]) => {
-      const userMemories = await this.api.getMemories(keys as UserKeys);
-      const memories = userMemories.map(mapSkyToMemory);
-      return MemoryActions.getMemoriesSuccess({ memories });
+    switchMap(([_, keys]) => {
+      return from(this.api.getMemories(keys as UserKeys)).pipe(
+        map(userMemories => userMemories.map(mapSkyToMemory)),
+        map(memories => MemoryActions.getMemoriesSuccess({ memories })),
+        catchError(error => of(MemoryActions.getMemoriesFailure({ error: error.message })))
+      );
     }),
-    catchError(error => of(MemoryActions.getMemoriesFailure({ error: error.message })))
   ));
 
   newMemory$ = createEffect(() => this.actions$.pipe(
@@ -33,11 +34,12 @@ export class MemoryEffects {
       this.store.select(UserSelectors.selectUserKeys),
       this.store.select(MemorySelectors.selectCache)
     ),
-    switchMap(async ([action, keys, memories]) => {
-      const memory = await this.api.addMemory( { memory: action.memory, file: action.file, memories, ...keys } );
-      return MemoryActions.newMemorySuccess({ memory: mapSkyToMemory(memory) });
-    }),
-    catchError(error => of(MemoryActions.newMemoryFailure({ error: error.message })))
+    switchMap(([action, keys, memories]) => {
+      return from(this.api.addMemory( { memory: action.memory, file: action.file, memories, ...keys } )).pipe(
+        map(memory => MemoryActions.newMemorySuccess({ memory: mapSkyToMemory(memory) })),
+        catchError(error => of(MemoryActions.newMemoryFailure({ error: error.message })))
+      );
+    })
   ));
 
   forgetMemory$ = createEffect(() => this.actions$.pipe(
@@ -46,11 +48,12 @@ export class MemoryEffects {
       this.store.select(UserSelectors.selectUserKeys),
       this.store.select(MemorySelectors.selectCache)
     ),
-    switchMap(async ([action, keys, memories]) => {
-      await this.api.deleteMemory( { id: action.id, memories, ...keys } );
-      return MemoryActions.forgetMemorySuccess({ id: action.id });
-    }),
-    catchError(error => of(MemoryActions.forgetMemoryFailure({ error: error.message })))
+    switchMap(([action, keys, memories]) => {
+      return from(this.api.deleteMemory( { id: action.id, memories, ...keys } )).pipe(
+        map(_ => MemoryActions.forgetMemorySuccess({ id: action.id })),
+        catchError(error => of(MemoryActions.forgetMemoryFailure({ error: error.message })))
+      );
+    })
   ));
 
   makeBublic$ = createEffect(() => this.actions$.pipe(
@@ -59,15 +62,15 @@ export class MemoryEffects {
       this.store.select(UserSelectors.selectUserKeys),
       this.store.select(MemorySelectors.selectCache)
     ),
-    switchMap(async ([action, keys, memories]) => {
-      if (action.toggle) {
-        await this.api.publicMemory( { id: action.id, memories, ...keys } );
-      } else {
-        await this.api.unpublicMemory( { id: action.id, memories, ...keys } );
-      }
-      return MemoryActions.makePublicMemorySuccess({ id: action.id, isPublic: action.toggle || undefined });
-    }),
-    catchError(error => of(MemoryActions.makePublicMemoryFailure({ error: error.message })))
+    switchMap(([action, keys, memories]) => {
+      return from(
+        action.toggle ? this.api.publicMemory( { id: action.id, memories, ...keys } ) :
+        this.api.unpublicMemory( { id: action.id, memories, ...keys } )
+      ).pipe(
+        map(_ =>  MemoryActions.makePublicMemorySuccess({ id: action.id, isPublic: action.toggle || undefined })),
+        catchError(error => of(MemoryActions.makePublicMemoryFailure({ error: error.message })))
+      );
+    })
   ));
 
   getMemoryShareLink$ = createEffect(() => this.actions$.pipe(
@@ -76,16 +79,16 @@ export class MemoryEffects {
       this.store.select(UserSelectors.selectUserKeys),
       this.store.select(MemorySelectors.selectCache)
     ),
-    switchMap(async ([action, keys, memories]) => {
-      let link;
-      if (action.toggle) {
-        link = await this.api.shareMemory( { id: action.id, memories, ...keys } );
-      } else {
-        await this.api.unshareMemory( { id: action.id, memories, ...keys } );
-      }
-      return MemoryActions.getShareMemoryLinkSuccess({ id: action.id, link, isShared: action.toggle || undefined });
-    }),
-    catchError(error => of(MemoryActions.getShareMemoryLinkFailure({ error: error.message })))
+    switchMap(([action, keys, memories]) => {
+      return from(
+        action.toggle ? this.api.shareMemory( { id: action.id, memories, ...keys } ) :
+          this.api.unshareMemory( { id: action.id, memories, ...keys } )
+      ).pipe(
+        map(l => l || undefined),
+        map(link => MemoryActions.getShareMemoryLinkSuccess({ id: action.id, link, isShared: action.toggle || undefined })),
+        catchError(error => of(MemoryActions.getShareMemoryLinkFailure({ error: error.message })))
+      );
+    })
   ));
 
   constructor(
