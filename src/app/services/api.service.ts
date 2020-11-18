@@ -60,7 +60,7 @@ export class ApiService {
         publicKey,
         this.userDataKey,
         {
-          timeout: this.skydbTimeout,
+          timeout: this.registerUserSkydbTimeout,
         },
       ) || {};
       if (data) {
