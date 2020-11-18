@@ -15,7 +15,7 @@ import { AnyARecord } from 'dns';
   providedIn: 'root'
 })
 export class ApiService {
-  private skydbTimeout = 20000;
+  private skydbTimeout = 60000;
   private skynetClient: SkynetClient;
 
   constructor(
@@ -609,13 +609,13 @@ export class ApiService {
 
   public async unshareMemory({ id, memories, publicKey, privateKey, memoriesSkydbKey, memoriesEncryptionKey }:
     { id: string, memories: UserMemory[] } & Partial<UserKeys>): Promise<void> {
-    this.deleteFromSharedMemories({ id, publicKey, privateKey });
+    await this.deleteFromSharedMemories({ id, publicKey, privateKey });
 
     const found = memories.find((memory) => memory.id && memory.id === id);
     if (found) {
       delete found.isShared;
       delete found.shareLink;
-      this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
+      await this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
     }
   }
 
