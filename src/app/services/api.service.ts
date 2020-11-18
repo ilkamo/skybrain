@@ -15,7 +15,7 @@ import { AnyARecord } from 'dns';
   providedIn: 'root'
 })
 export class ApiService {
-  private skydbTimeout = 5000;
+  private skydbTimeout = 20000;
   private skynetClient: SkynetClient;
 
   constructor(
@@ -541,7 +541,7 @@ export class ApiService {
         publicKey,
         this.userSharedMemoriesSkydbKey,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
     } catch (error) {
@@ -587,7 +587,7 @@ export class ApiService {
         sharedMemories,
         undefined,
         {
-          timeout: 10000,
+          timeout: this.skydbTimeout,
         },
       );
     } catch (error) {
