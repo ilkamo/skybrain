@@ -522,11 +522,10 @@ export class ApiService {
 
   public async getPublicMemoriesOfFollowedUsers({ followedUsers }: { followedUsers: FollowedUser[] }): Promise<UsersPublicMemories> {
     const followedUsersMemories: UsersPublicMemories = {};
-    followedUsers.forEach(async (fu) => {
-      const followedUserPublicMemories: UserPublicMemory[] =
-        await this.getPublicMemories({ publicKey: fu.publicKey });
+    for (const fu of followedUsers) {
+      const followedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemories({ publicKey: fu.publicKey });
       followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
-    });
+    }
     return followedUsersMemories;
   }
 

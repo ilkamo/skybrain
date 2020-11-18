@@ -99,6 +99,7 @@ export class MemoryEffects {
     switchMap(followedUsers  => {
       return from(this.api.getPublicMemoriesOfFollowedUsers({ followedUsers })).pipe(
         map(userPublicMemories => {
+          console.log(userPublicMemories);
           const users = Object.keys(userPublicMemories);
           return users.reduce((acc, followerId) => {
             const userMemories: Memory[] = userPublicMemories[followerId].map(data => ({ ...data.memory, followerId }));
