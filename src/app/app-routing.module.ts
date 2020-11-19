@@ -38,7 +38,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'user/:code',
+    path: 'user/:publicKey',
     component: UserComponent,
     resolve: {
       memories: UserMemoriesService

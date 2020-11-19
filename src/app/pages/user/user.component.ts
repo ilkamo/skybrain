@@ -14,4 +14,8 @@ export class UserComponent implements OnInit {
 
   ngOnInit(): void {
   }
+
+  trackMemory(index: number, memory: Memory): string {
+    return memory.id;
+  }
 }

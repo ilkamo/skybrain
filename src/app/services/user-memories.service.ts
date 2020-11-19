@@ -9,16 +9,15 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class UserMemoriesService implements Resolve<Memory[]> {
-  constructor(private apiService: ApiService, private router: Router) { }
+  constructor(private apiService: ApiService, private router: Router) {}
 
   resolve(
     route: ActivatedRouteSnapshot,
     _: RouterStateSnapshot
   ): Observable<Memory[]> {
-    return from(this.apiService.getPublicMemories({ publicKey: route.params.code })).pipe(
+    return from(this.apiService.getPublicMemories({ publicKey: route.params.publicKey })).pipe(
       map(userPublicMemories => userPublicMemories.map(mapPublicSkyToMemory)),
       catchError(error => {
-        console.log(error);
         this.router.navigate(['/404'], { queryParams: { error: error.message } });
         return EMPTY;
       })
