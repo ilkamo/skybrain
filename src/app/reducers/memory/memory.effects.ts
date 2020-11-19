@@ -98,7 +98,6 @@ export class MemoryEffects {
     switchMap(followedUsers  => {
       return from(this.api.getPublicMemoriesOfFollowedUsers({ followedUsers })).pipe(
         map(userPublicMemories => {
-          console.log(userPublicMemories);
           const users = Object.keys(userPublicMemories);
           return users.reduce((acc, followerId) => {
             const userMemories: Memory[] = userPublicMemories[followerId].map(data => ({ ...mapSkyToMemory(data.memory), followerId }));
@@ -109,7 +108,6 @@ export class MemoryEffects {
         catchError(error => of(MemoryActions.followedUsersMemoriesFailure({ followedUsers, error: error.message })))
       );
     }),
-    tap(console.log)
   ));
 
   constructor(

@@ -32,6 +32,7 @@ import { MemoryEffects } from './reducers/memory/memory.effects';
 import { SharedComponent } from './pages/shared/shared.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
+import { MemoryMediaTypePipe } from './pipes/memory-media-type.pipe';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
     SharedComponent,
     FooterComponent,
     AbsolutePathPipe,
+    MemoryMediaTypePipe,
   ],
   imports: [
     BrowserModule,

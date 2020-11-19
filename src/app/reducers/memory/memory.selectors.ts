@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { adapter } from './memory.reducer';
 import { State as RootState } from '..';
 import { State as MemoryState, memoriesFeatureKey } from './memory.reducer';
-import { mapMemoryToSky } from './memory.model';
+import { mapMemoryToSky, Memory } from './memory.model';
 import { selectFollowedUsers } from '../user/user.selectors';
 
 export const selectFeature = createFeatureSelector<RootState, MemoryState>(memoriesFeatureKey);
@@ -36,7 +36,7 @@ export const selectMemories = createSelector(
 
 export const selectCache = createSelector(
   selectMemories,
-  (memories) => memories.map(mapMemoryToSky)
+  (memories) => memories.map(mapMemoryToSky).filter(m => !!m) as Memory[]
 );
 
 export const selectPopulatedFollowedUsers = createSelector(

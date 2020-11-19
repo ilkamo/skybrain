@@ -1,0 +1,7 @@
+.card-body + .card-body{
+  padding-top: 0;
+}
+
+[ng-reflect-ng-switch="audio"] + .card-body{
+  padding-top: 0;
+}

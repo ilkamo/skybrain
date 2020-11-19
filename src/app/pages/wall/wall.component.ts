@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { shareReplay } from 'rxjs/operators';
 import { BaseMemory } from 'src/app/models/user-memory';
 import { Store, select } from '@ngrx/store';
@@ -17,6 +17,7 @@ export class WallComponent implements OnInit {
   memories$ = this.store.pipe(select(MemomrySelectors.selectMemories));
   error$ = this.store.pipe(select(MemomrySelectors.selectError));
   uploadForm: FormGroup;
+  onlyMyMemoris = new FormControl();
 
   constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
     this.uploadForm =  this.formBuilder.group({
@@ -44,7 +45,9 @@ export class WallComponent implements OnInit {
 
     const memory: BaseMemory = {
       location: this.form.location.value,
-      tags: this.form.tags.value.split(',').map((item: string) => item.trim()),
+      tags: this.form.tags.value.split(',')
+        .map((item: string) => item.trim())
+        .filter((item: string) => item.length),
       text: this.form.text.value,
     };
 

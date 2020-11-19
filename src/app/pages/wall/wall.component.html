@@ -46,16 +46,23 @@
       </div>
     </div>
 
+    <div class="custom-control custom-switch mb-3">
+      <input type="checkbox" [formControl]="onlyMyMemoris" class="custom-control-input" id="customSwitch1">
+      <label class="custom-control-label" for="customSwitch1">Show only my memories</label>
+    </div>
+
     <ng-container *ngIf="(memories$ | async) as memories">
 
-      <app-memory
-        *ngFor="let memory of memories; trackBy:trackMemory"
-        [memory]="memory"
-        (forget)="forgetMemory($event)"
-        (publish)="publishMemory($event)"
-        (share)="shareMemory($event)"
-        class="mb-3">
-      </app-memory>
+      <ng-container *ngFor="let memory of memories; trackBy:trackMemory">
+        <app-memory
+          *ngIf="!onlyMyMemoris.value || !memory.followerId "
+          [memory]="memory"
+          (forget)="forgetMemory($event)"
+          (publish)="publishMemory($event)"
+          (share)="shareMemory($event)"
+          class="mb-3">
+        </app-memory>
+      </ng-container>
 
     </ng-container>
 

@@ -3,13 +3,29 @@
     <span><fa-icon [icon]="['far', 'calendar']"></fa-icon> {{memory?.added | date }}</span>
     <span><fa-icon [icon]="['fas', 'map-marker-alt']"></fa-icon> {{memory?.location}}</span>
   </div>
-  <img *ngIf="memory?.skylink" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
-  <div class="card-body">
-    <p *ngIf="memory?.text" class="text-lead">{{ memory?.text }}</p>
-    <p *ngIf="memory?.tags">
-      <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
-    </p>
-    <div *ngIf="memory?.shareLink" class="input-group mb-3">
+
+  <div [ngSwitch]="memory | memoryMediaType">
+    <img  *ngSwitchCase="'image'" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
+    <video *ngSwitchCase="'video'" class="card-img-top" controls>
+      <source src="{{ memory?.skylink | siaUrl }}">
+    </video>
+    <div *ngSwitchCase="'audio'" class="card-body">
+      <audio class="w-100" controls>
+        <source src="{{ memory?.skylink | siaUrl }}">
+      </audio>
+    </div>
+  </div>
+
+  <div class="card-body" *ngIf="memory?.text">
+    {{ memory?.text }}
+  </div>
+
+  <div class="card-body" *ngIf="memory?.tags?.length">
+    <span *ngFor="let tag of memory.tags" class="badge badge-pill badge-primary mx-1">{{ tag }}</span>
+  </div>
+
+  <div class="card-body" *ngIf="memory?.shareLink">
+    <div class="input-group mb-0">
       <input #link type="text" readonly class="form-control" [value]="['shared', memory?.shareLink] | absolutePath">
       <div class="input-group-append">
         <button
@@ -27,18 +43,19 @@
       </div>
     </div>
   </div>
-  <div *ngIf="!simple" class="card-footer text-muted">
+
+  <div *ngIf="!simple && !memory.followerId" class="card-footer text-muted">
     <div class="btn-group w-100 justify-content-center">
       <a href="#" class="btn btn-outline-primary" (click)="forgetMe($event)">
-        <fa-icon [icon]="['fas', 'comment-slash']"></fa-icon>
+        <fa-icon class="mr-2" [icon]="['fas', 'comment-slash']"></fa-icon>
         Forget
       </a>
       <a href="#" class="btn btn-outline-primary" (click)="togglePublic($event)">
-        <fa-icon [icon]="['fas', 'globe']"></fa-icon>
+        <fa-icon class="mr-2" [icon]="['fas', 'globe']"></fa-icon>
         <span [innerHTML]="memory?.isPublic ? 'Make private' : 'Make public'"></span>
       </a>
       <a href="#" class="btn btn-outline-primary" (click)="toggleShare($event)">
-        <fa-icon [icon]="['fas', 'link']"></fa-icon>
+        <fa-icon class="mr-2" [icon]="['fas', 'link']"></fa-icon>
         <span [innerHTML]="memory?.isShared ? 'Unshare' : 'Share'"></span>
       </a>
     </div>
