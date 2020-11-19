@@ -33,6 +33,7 @@ import { SharedComponent } from './pages/shared/shared.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
 import { MemoryMediaTypePipe } from './pipes/memory-media-type.pipe';
+import { UserComponent } from './pages/user/user.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import { MemoryMediaTypePipe } from './pipes/memory-media-type.pipe';
     FooterComponent,
     AbsolutePathPipe,
     MemoryMediaTypePipe,
+    UserComponent,
   ],
   imports: [
     BrowserModule,

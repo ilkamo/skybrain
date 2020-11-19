@@ -294,7 +294,7 @@ export class ApiService {
     return newMemory;
   }
 
-  private async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {
+  public async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
