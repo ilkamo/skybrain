@@ -62,9 +62,8 @@
   </div>
 
   <div class="card-footer justify-content-center" *ngIf="memory.followerId">
-    <button [routerLink]="['/user', memory.followerId]" class="btn btn-light btn-sm">
-      <!-- <fa-icon [icon]="['fas', 'fa-user']"></fa-icon> -->
-      Show user public memories
+    <button [routerLink]="['/user', memory.followerId]" class="btn btn-light btn-sm btn-block">
+      All public memories of this user <fa-icon [icon]="['fas', 'link']"></fa-icon>
     </button>
   </div>
 </ng-container>
