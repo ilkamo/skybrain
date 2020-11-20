@@ -33,7 +33,7 @@ export class AppComponent {
       faMapMarkerAlt,
       faCalendar,
       faClipboard,
-      faHeart
+      faHeart,
     );
 
     const routeLoading$ = router.events.pipe(

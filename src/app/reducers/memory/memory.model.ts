@@ -1,3 +1,4 @@
+import { UserPublicMemory } from './../../models/user-public-memories';
 import { UserMemory } from 'src/app/models/user-memory';
 
 // tslint:disable-next-line: no-empty-interface
@@ -16,5 +17,11 @@ export const mapMemoryToSky = (memory: Memory): UserMemory | undefined => {
   }
   const { added, id, mimeType, name, skylink, tags, text, location, isPublic, isShared, shareLink, ...rest } = memory;
   return { added, id, mimeType, name, skylink, tags, text, location, isPublic, isShared, shareLink };
+};
+
+export const mapPublicSkyToMemory = (publicMemory: UserPublicMemory): Memory => {
+  const memory = publicMemory.memory;
+  const tags = memory.tags && memory.tags.filter(tag => tag.length) || undefined;
+  return { ...memory, tags };
 };
 

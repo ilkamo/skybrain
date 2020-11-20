@@ -60,4 +60,13 @@
       </a>
     </div>
   </div>
+
+  <div class="card-footer text-right" *ngIf="memory?.followerId">
+    <button [attr.title]="'Memory public link'" [routerLink]="['/public', memory?.id]" class="btn btn-light pull-right">
+      <fa-icon [icon]="['fas', 'link']"></fa-icon>
+    </button>
+    <button [attr.title]="'User public memories'" [routerLink]="['/user', memory.followerId]" class="btn btn-light pull-right">
+      <fa-icon [icon]="['far', 'user']"></fa-icon>
+    </button>
+  </div>
 </ng-container>

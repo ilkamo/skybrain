@@ -40,7 +40,7 @@
       </form>
       <ul class="list-group mt-3">
         <li *ngFor="let user of followedUsers$ | async" [attr.title]="user.startedAt | date" class="list-group-item d-flex justify-content-between align-items-center">
-          <small class="text-truncate mr-3">{{ user.publicKey }}</small>
+          <small class="text-truncate mr-3"><a [routerLink]="['/user', user.publicKey]">{{ user.publicKey }}</a></small>
           <span (click)="unfollow(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
         </li>
       </ul>
