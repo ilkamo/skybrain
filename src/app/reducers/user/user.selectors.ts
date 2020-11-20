@@ -41,7 +41,11 @@ export const selectFollowedUsersCache = createSelector(
 );
 
 export const hasValidUserData = createSelector(
-  selectFeature,
   selectUserData,
-  (_, data) => isValidatorValid(validateUserData(data))
+  (data) => isValidatorValid(validateUserData(data))
+);
+
+export const selectUserPublicKey = createSelector(
+  selectUserKeys,
+  (keys) => keys && keys.publicKey || undefined
 );

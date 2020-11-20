@@ -13,6 +13,14 @@
       <li class="nav-item" [routerLinkActive]="['active']"> <a [routerLink]="['/']" class="nav-link">Wall</a></li>
     </ul>
     <ul class="nav navbar-nav">
+      <ng-container *ngIf="publicKey">
+        <span #key class="navbar-text text-truncate w-25 d-inline-block ml-auto">{{ publicKey }}</span>
+        <li class="nav-item">
+          <a href="#" (click)="copyToClipboard(key, $event)" class="nav-link">
+            <fa-icon [icon]="['far', 'clipboard']"></fa-icon>
+          </a>
+        </li>
+      </ng-container>
       <li class="nav-item" [routerLinkActive]="['active']">
         <a [routerLink]="['profile']" class="nav-link">
           <fa-icon [icon]="['far', 'user']"></fa-icon>
