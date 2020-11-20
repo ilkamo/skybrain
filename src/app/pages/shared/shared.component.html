@@ -1,31 +1,6 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
-
-    <div class="accordion">
-      <div class="card memories-card my-3">
-        <div class="card-header" id="headingOne">
-          <h2 class="mb-0">
-            <button class="btn btn-link btn-block text-center" type="button" (click)="accordionOpened = !accordionOpened">
-              Display brain connections
-            </button>
-          </h2>
-        </div>
-        <div class="collapse" [ngClass]="{ show: accordionOpened }">
-          <ul class="list-group list-group-flush" *ngIf="followedUsers">
-            <div class="card-body">
-              <ng-container *ngFor="let followedUser of followedUsers">
-                <ng-container *ngIf="followedUser">
-                  <li class="list-group-item text-center">
-                    <a [routerLink]="['/connection', followedUser.publicKey]" class="small">{{followedUser.publicKey}}</a>
-                  </li>
-                </ng-container>
-              </ng-container>
-            </div>
-          </ul>
-        </div>
-      </div>
-    </div>
-
+    <app-brain-connections *ngIf="followedUsers" [followedUsers]="followedUsers"></app-brain-connections>
     <ng-container *ngIf="memory">
       <app-memory [memory]="memory" [simple]="true" class="mb-3"></app-memory>
     </ng-container>
