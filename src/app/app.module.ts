@@ -57,7 +57,7 @@ import { BrainConnectionsComponent } from './components/brain-connections/brain-
     MemoryMediaTypePipe,
     FollowMeComponent,
     ConnectionComponent,
-    BrainConnectionsComponent,
+    BrainConnectionsComponent
   ],
   imports: [
     BrowserModule,

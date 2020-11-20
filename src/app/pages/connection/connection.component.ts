@@ -20,9 +20,9 @@ export class ConnectionComponent implements OnInit, OnDestroy {
 
   constructor(route: ActivatedRoute) {
     this.routeData$ = route.data.pipe(
-      map(data => data.publicData),
+      map(data => data.publicBrain),
       withLatestFrom(route.params),
-      map(([publicData, params]) => ({publicData, params}))
+      map(([publicBrain, params]) => ({publicBrain, params}))
     );
   }
 
@@ -33,8 +33,8 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription.add(
       this.routeData$.subscribe(data => {
-        this.followedUsers = data.publicData.followedUsers;
-        this.memories = data.publicData.memories;
+        this.followedUsers = data.publicBrain.followedUsers;
+        this.memories = data.publicBrain.memories;
         this.publicKey = data.params.publicKey;
       })
     );
