@@ -10,23 +10,18 @@
         <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
 
         <form [formGroup]="uploadForm">
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Text</span>
-            </div>
-            <textarea class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea>
+          <div class="form-group mb-3">
+            <textarea placeholder="What is your memory about?" class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea>
           </div>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Tags</span>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label class="col-form-label col-form-label-sm" for="tags">Tags</label>
+              <input placeholder="#smile, #love, #life" type="text" class="form-control" formControlName="tags" aria-describedby="inputGroup-sizing-sm">
             </div>
-            <input type="text" class="form-control" formControlName="tags" aria-describedby="inputGroup-sizing-sm">
-          </div>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Location</span>
+            <div class="form-group col-md-6">
+              <label class="col-form-label col-form-label-sm" for="location">Location</label>
+              <input type="text" placeholder="Where did it happen?" class="form-control" formControlName="location" aria-describedby="inputGroup-sizing-sm">
             </div>
-            <input type="text" class="form-control" formControlName="location" aria-describedby="inputGroup-sizing-sm">
           </div>
           <div class="form-group required form-file-group">
             <app-upload
