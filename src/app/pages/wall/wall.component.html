@@ -1,43 +1,54 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
-    <div class="card memories-card my-3">
-      <div class="card-body">
-        <div class="shadow-none p-3 mb-3 bg-light rounded">
-          <h5>
-            <small class="text-muted">Connect your neurons: store a new memory in the Skybrain</small>
-          </h5>
+    <div class="accordion">
+      <div class="card memories-card my-3">
+        <div class="card-header" id="headingOne">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block text-center" type="button" (click)="formOpened = !formOpened">
+              <fa-icon [icon]="['fas', 'photo-video']"></fa-icon> Add memory
+            </button>
+          </h2>
         </div>
-        <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
+        <div class="collapse" [ngClass]="{ show: formOpened }">
+          <div class="card-body">
+            <div class="shadow-none p-3 mb-3 bg-light rounded">
+              <h5>
+                <small class="text-muted">Connect your neurons: store a new memory in the Skybrain</small>
+              </h5>
+            </div>
+            <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
 
-        <form [formGroup]="uploadForm">
-          <div class="form-group mb-3">
-            <textarea placeholder="What is your memory about?" class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea>
+            <form [formGroup]="uploadForm">
+              <div class="form-group mb-3">
+                <textarea placeholder="What is your memory about?" class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label class="col-form-label col-form-label-sm" for="tags">Tags</label>
+                  <input placeholder="#smile, #love, #life" type="text" class="form-control" formControlName="tags" aria-describedby="inputGroup-sizing-sm">
+                </div>
+                <div class="form-group col-md-6">
+                  <label class="col-form-label col-form-label-sm" for="location">Location</label>
+                  <input type="text" placeholder="Where did it happen?" class="form-control" formControlName="location" aria-describedby="inputGroup-sizing-sm">
+                </div>
+              </div>
+              <div class="form-group required form-file-group">
+                <app-upload
+                  [ngClass]="{ 'is-invalid': form.file.dirty && form.file.errors }"
+                  accept="image/x-png,image/gif,image/jpeg,video/mp4,audio/mpeg,audio/webm,video/webm"
+                  formControlName="file"
+                  [valid]="form.file.dirty && !form.file.errors"
+                ></app-upload>
+              </div>
+            </form>
           </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label class="col-form-label col-form-label-sm" for="tags">Tags</label>
-              <input placeholder="#smile, #love, #life" type="text" class="form-control" formControlName="tags" aria-describedby="inputGroup-sizing-sm">
-            </div>
-            <div class="form-group col-md-6">
-              <label class="col-form-label col-form-label-sm" for="location">Location</label>
-              <input type="text" placeholder="Where did it happen?" class="form-control" formControlName="location" aria-describedby="inputGroup-sizing-sm">
-            </div>
+          <div class="card-footer">
+            <button [disabled]="!uploadForm.valid" (click)="onSubmit()" class="btn btn-primary btn-block">
+              <fa-icon [icon]="['fas', 'comment-medical']"></fa-icon>
+              Keep memory
+            </button>
           </div>
-          <div class="form-group required form-file-group">
-            <app-upload
-              [ngClass]="{ 'is-invalid': form.file.dirty && form.file.errors }"
-              accept="image/x-png,image/gif,image/jpeg,video/mp4,audio/mpeg,audio/webm,video/webm"
-              formControlName="file"
-              [valid]="form.file.dirty && !form.file.errors"
-            ></app-upload>
-          </div>
-        </form>
-      </div>
-      <div class="card-footer">
-        <button [disabled]="!uploadForm.valid" (click)="onSubmit()" class="btn btn-primary btn-block">
-          <fa-icon [icon]="['fas', 'comment-medical']"></fa-icon>
-          Keep memory
-        </button>
+        </div>
       </div>
     </div>
 
