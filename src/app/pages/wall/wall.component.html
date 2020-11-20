@@ -4,12 +4,12 @@
       <div class="card memories-card my-3">
         <div class="card-header" id="headingOne">
           <h2 class="mb-0">
-            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <button class="btn btn-link btn-block text-left" type="button" (click)="formOpened = !formOpened">
               Add memory
             </button>
           </h2>
         </div>
-        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+        <div class="collapse" [ngClass]="{ show: formOpened }">
           <div class="card-body">
             <div class="shadow-none p-3 mb-3 bg-light rounded">
               <h5>
