@@ -33,9 +33,10 @@ import { SharedComponent } from './pages/shared/shared.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
 import { MemoryMediaTypePipe } from './pipes/memory-media-type.pipe';
-import { UserComponent } from './pages/user/user.component';
+import { ConnectionComponent } from './pages/connection/connection.component';
 import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { FollowMeComponent } from './components/follow-me/follow-me.component';
+import { BrainConnectionsComponent } from './components/brain-connections/brain-connections.component';
 
 @NgModule({
   declarations: [
@@ -54,8 +55,9 @@ import { FollowMeComponent } from './components/follow-me/follow-me.component';
     FooterComponent,
     AbsolutePathPipe,
     MemoryMediaTypePipe,
-    UserComponent,
     FollowMeComponent,
+    ConnectionComponent,
+    BrainConnectionsComponent,
   ],
   imports: [
     BrowserModule,

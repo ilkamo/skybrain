@@ -14,7 +14,9 @@
     </ul>
     <ul class="nav navbar-nav">
       <ng-container *ngIf="publicKey">
-        <span #key class="navbar-text text-truncate w-25 d-inline-block ml-auto">{{ publicKey }}</span>
+        <span #key class="navbar-text text-truncate w-25 d-inline-block ml-auto">
+          <a [routerLink]="['/connection', publicKey]">{{ publicKey }}</a>
+        </span>
         <li class="nav-item">
           <a href="#" (click)="copyToClipboard(key, $event)" class="nav-link">
             <fa-icon [icon]="['far', 'clipboard']"></fa-icon>

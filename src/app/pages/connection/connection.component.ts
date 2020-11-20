@@ -5,10 +5,10 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
 import { map, withLatestFrom } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 @Component({
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.scss']
+  templateUrl: './connection.component.html',
+  styleUrls: ['./connection.component.scss']
 })
-export class UserComponent implements OnInit, OnDestroy {
+export class ConnectionComponent implements OnInit, OnDestroy {
   memories: Memory[] | null = null;
   followedUsers: FollowedUser[] | null = null;
   accordionOpened = false;

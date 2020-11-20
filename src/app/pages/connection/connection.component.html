@@ -1,0 +1,12 @@
+<div class="d-flex justify-content-center">
+  <div class="memories d-flex flex-column">
+    <app-brain-connections *ngIf="followedUsers" [followedUsers]="followedUsers"></app-brain-connections>
+    <ng-container *ngIf="memories">
+      <ng-container *ngFor="let memory of memories; trackBy:trackMemory">
+        <ng-container *ngIf="memory">
+          <app-memory [memory]="memory" [simple]="true" class="mb-3"></app-memory>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

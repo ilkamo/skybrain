@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { EMPTY, from, Observable, of, zip } from 'rxjs';
+import { EMPTY, from, Observable, zip } from 'rxjs';
 import { map, catchError, first } from 'rxjs/operators';
 import { mapPublicSkyToMemory, Memory } from '../reducers/memory/memory.model';
 import { ApiService } from './api.service';
@@ -9,7 +9,7 @@ import { FollowedUser } from '../models/user-followed-users';
 @Injectable({
   providedIn: 'root'
 })
-export class UserMemoriesResolver implements Resolve<{memories: Memory[], followedUsers: FollowedUser[]}> {
+export class PublicBrainResolver implements Resolve<{memories: Memory[], followedUsers: FollowedUser[]}> {
   constructor(private apiService: ApiService, private router: Router) {}
 
   resolve(
@@ -21,6 +21,7 @@ export class UserMemoriesResolver implements Resolve<{memories: Memory[], follow
       from(this.apiService.getFollowedUsers({ publicKey: route.params.publicKey }))
     )
     .pipe(
+      first(),
       map(([publicMemories, followedUsers]) => {
         const memories = publicMemories.map(mapPublicSkyToMemory);
         return { memories, followedUsers };

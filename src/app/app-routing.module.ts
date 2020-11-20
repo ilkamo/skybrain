@@ -1,5 +1,4 @@
-import { UserMemoriesResolver } from './services/user-memories.resolver';
-import { UserComponent } from './pages/user/user.component';
+import { ConnectionComponent } from './pages/connection/connection.component';
 import { SharedComponent } from './pages/shared/shared.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -13,6 +12,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { WallComponent } from './pages/wall/wall.component';
 import { MemoriesInitializedService } from './services/memories-initialized.resolver';
 import { SharedMemoryService } from './services/shared-memory.resolver';
+import { PublicBrainResolver } from './services/public-brain.resolver';
 
 const routes: Routes = [
   {
@@ -34,14 +34,14 @@ const routes: Routes = [
     path: 'shared/:code',
     component: SharedComponent,
     resolve: {
-      memory: SharedMemoryService
+      sharedData: SharedMemoryService
     }
   },
   {
-    path: 'user/:publicKey',
-    component: UserComponent,
+    path: 'connection/:publicKey',
+    component: ConnectionComponent,
     resolve: {
-      publicData: UserMemoriesResolver
+      publicBrain: PublicBrainResolver
     }
   },
   {
