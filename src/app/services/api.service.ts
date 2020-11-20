@@ -645,6 +645,16 @@ export class ApiService {
     }
   }
 
+  public resolvePublicKeyFromBase64(base64Data: string): string {
+    try {
+      const decodedBase64 = atob(base64Data);
+      const memoryLink = JSON.parse(decodedBase64) as UserSharedMemoryLink;
+      return memoryLink.publicKey;
+    } catch (error) {
+      throw new Error('PublicKey could not be resolved');
+    }
+  }
+
   /* public async logTestData(): Promise<void> {
     const m = await this.getMemories();
     console.log(m);

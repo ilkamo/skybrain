@@ -16,7 +16,7 @@
               <ng-container *ngFor="let followedUser of followedUsers">
                 <ng-container *ngIf="followedUser">
                   <li class="list-group-item text-center">
-                    <a [routerLink]="['/user', followedUser.publicKey]" class="small">{{followedUser.publicKey}}</a>
+                    <a [routerLink]="['/connection', followedUser.publicKey]" class="small">{{followedUser.publicKey}}</a>
                   </li>
                 </ng-container>
               </ng-container>
