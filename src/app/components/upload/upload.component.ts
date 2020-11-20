@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
   ]
 })
 export class UploadComponent implements ControlValueAccessor, OnDestroy {
-  @Input() label = 'Choose Files';
+  @Input() label = 'Attach an image, audio or video';
   @Input() disabled = false;
   @Input() accept?: string;
   @Input() formControlName?: string;
