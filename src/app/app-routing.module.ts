@@ -41,7 +41,7 @@ const routes: Routes = [
     path: 'user/:publicKey',
     component: UserComponent,
     resolve: {
-      memories: UserMemoriesResolver
+      publicData: UserMemoriesResolver
     }
   },
   {

@@ -34,7 +34,7 @@ export const reducer = createReducer(
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
   on(MemoryActions.getMemoriesSuccess,
-    (state, action) => adapter.setAll(action.memories, { ...state, loading: false, error: undefined, initialized: true })
+    (state, action) => adapter.addMany(action.memories, { ...state, loading: false, error: undefined, initialized: true })
   ),
 
   on(MemoryActions.newMemory,

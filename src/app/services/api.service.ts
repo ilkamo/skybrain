@@ -303,10 +303,9 @@ export class ApiService {
         {
           timeout: this.skydbTimeout,
         },
-      );
-    } catch (error) {
+        );
+      } catch (error) {
     }
-
     if (!response || !('data' in response)) {
       throw new Error(
         'Could not fetch public memories'

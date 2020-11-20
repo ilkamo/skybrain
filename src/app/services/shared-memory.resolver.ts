@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { EMPTY, from, Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, first } from 'rxjs/operators';
 import { mapSkyToMemory, Memory } from '../reducers/memory/memory.model';
 import { ApiService } from './api.service';
 
@@ -19,6 +19,7 @@ export class SharedMemoryService implements Resolve<Memory> {
     return from(this.apiService.resolveMemoryFromBase64(route.params.code))
       .pipe(
         map(mapSkyToMemory),
+        first(),
         catchError(error => {
           this.router.navigate(['/404'], { queryParams: { error: error.message } });
           return EMPTY;

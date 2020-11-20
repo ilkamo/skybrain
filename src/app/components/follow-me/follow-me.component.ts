@@ -1,9 +1,10 @@
 import { Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { filter, first } from 'rxjs/operators';
 import { State } from 'src/app/reducers';
 import { followUser } from 'src/app/reducers/user/user.actions';
-import { selectFollowedUsers } from 'src/app/reducers/user/user.selectors';
+import { isAuthenticated, selectFollowedUsers } from 'src/app/reducers/user/user.selectors';
 
 @Component({
   selector: 'app-follow-me',
@@ -12,19 +13,21 @@ import { selectFollowedUsers } from 'src/app/reducers/user/user.selectors';
 })
 export class FollowMeComponent implements OnInit {
   private _publicKey: string | undefined = undefined;
+  private _authenticated: boolean | undefined = undefined;
   private _followed = false;
   get followed(): boolean {
     return this._followed;
   }
   @HostBinding('class')
   get class(): string {
-    let classes = 'btn';
-    classes += this.followed ? ' btn-success' : ' btn-primary';
+    let classes = 'btn ' + this.cssClasses;
+    classes += this.followed ? ' btn-outline-success' : ' btn-outline-primary';
     if (this.followed || !this.publicKey) {
       classes += ' disabled';
     }
     return classes;
   }
+  @Input() cssClasses = '';
   @Input() label = 'Follow me';
   @Input() oklabel = 'Followed';
   @Input()
@@ -36,7 +39,11 @@ export class FollowMeComponent implements OnInit {
       filter(followed =>  followed.findIndex(f => f.publicKey === key) !== -1),
       first()
     );
+    const isAuthenticated$ = this.store.select(isAuthenticated).pipe(
+      first()
+    );
     followed$.forEach(_ => this._followed = true);
+    isAuthenticated$.forEach(auth => this._authenticated = auth);
     this._publicKey = key;
   }
   get publicKey(): string | undefined {
@@ -48,10 +55,14 @@ export class FollowMeComponent implements OnInit {
     if (!this.publicKey || this.followed) {
       return;
     }
+    if (!this._authenticated) {
+      this.router.navigateByUrl('/login');
+      return;
+    }
     this.store.dispatch(followUser({ publicKey: this.publicKey }));
   }
 
-  constructor(private store: Store<State>) {
+  constructor(private store: Store<State>, private router: Router) {
   }
 
   ngOnInit(): void {
