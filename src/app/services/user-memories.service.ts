@@ -35,6 +35,5 @@ export class UserMemoriesService implements Resolve<{memories: Memory[], followe
       map(([memories, followedUsers]) => ({memories, followedUsers})),
       first()
     );
-
   }
 }
