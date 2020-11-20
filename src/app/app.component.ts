@@ -18,6 +18,7 @@ import { selectVavbarIsVisible } from './reducers/router';
 })
 export class AppComponent {
   navbarIsVisible$ = this.store.pipe(select(selectVavbarIsVisible));
+  userPublicKey$ = this.store.pipe(select(UserSelectors.selectUserPublicKey));
 
   isLoading$: Observable<boolean>;
 

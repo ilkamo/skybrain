@@ -1,4 +1,6 @@
-<app-navbar *ngIf="navbarIsVisible$ | async"></app-navbar>
+<ng-container *ngIf="navbarIsVisible$ | async">
+  <app-navbar [publicKey]="userPublicKey$ | async"></app-navbar>
+</ng-container>
 
 <div class="container-fluid">
   <router-outlet></router-outlet>
