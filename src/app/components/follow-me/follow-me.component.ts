@@ -28,8 +28,8 @@ export class FollowMeComponent implements OnInit {
     return classes;
   }
   @Input() cssClasses = '';
-  @Input() label = 'Follow me';
-  @Input() oklabel = 'Followed';
+  @Input() label = 'Connect';
+  @Input() oklabel = 'Connected';
   @Input()
   set publicKey(key: string | undefined) {
     if (this._publicKey) {
