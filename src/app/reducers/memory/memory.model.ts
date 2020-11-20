@@ -20,8 +20,6 @@ export const mapMemoryToSky = (memory: Memory): UserMemory | undefined => {
 };
 
 export const mapPublicSkyToMemory = (publicMemory: UserPublicMemory): Memory => {
-  const memory = publicMemory.memory;
-  const tags = memory.tags && memory.tags.filter(tag => tag.length) || undefined;
-  return { ...memory, tags };
+  return mapSkyToMemory(publicMemory.memory);
 };
 

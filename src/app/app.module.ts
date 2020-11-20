@@ -35,6 +35,7 @@ import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
 import { MemoryMediaTypePipe } from './pipes/memory-media-type.pipe';
 import { UserComponent } from './pages/user/user.component';
 import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
+import { FollowMeComponent } from './components/follow-me/follow-me.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
     AbsolutePathPipe,
     MemoryMediaTypePipe,
     UserComponent,
+    FollowMeComponent,
   ],
   imports: [
     BrowserModule,

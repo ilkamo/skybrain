@@ -1,12 +1,18 @@
 import {
   ActionReducerMap,
-  MetaReducer
+  MetaReducer,
+  Store
 } from '@ngrx/store';
 import { environment } from '../../environments/environment';
 import * as fromMemory from './memory/memory.reducer';
 import * as fromUser from './user/user.reducer';
 import * as fromRouter from './router';
 import { MinimalRouterStateSnapshot, routerReducer, RouterReducerState } from '@ngrx/router-store';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { filter, map, withLatestFrom } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { isAuthenticated } from './user/user.selectors';
 
 
 export interface State {

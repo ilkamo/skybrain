@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
 @Injectable({
   providedIn: 'root'
 })
-export class UserMemoriesService implements Resolve<Memory[]> {
+export class UserMemoriesResolver implements Resolve<Memory[]> {
   constructor(private apiService: ApiService, private router: Router) {}
 
   resolve(

@@ -4,10 +4,11 @@
     <div class="card memories-card my-3">
       <div class="card-body">
         <h4>Public memories</h4>
+        <app-follow-me [publicKey]="publicKey"></app-follow-me>
       </div>
     </div>
 
-    <ng-container *ngIf="memories$ as memories">
+    <ng-container *ngIf="memories as memories">
       <ng-container *ngFor="let memory of memories; trackBy:trackMemory">
         <ng-container *ngIf="memory">
           <app-memory [memory]="memory" [simple]="true" class="mb-3"></app-memory>

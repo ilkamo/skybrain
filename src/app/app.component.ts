@@ -5,7 +5,15 @@ import { State as RootState } from './reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from './reducers/user/user.selectors';
 import * as MemorySelectors from './reducers/memory/memory.selectors';
-import { faCommentMedical, faCommentSlash, faGlobe, faLink, faMapMarkerAlt, faPhotoVideo } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheck,
+  faCommentMedical,
+  faCommentSlash,
+  faGlobe,
+  faLink,
+  faMapMarkerAlt,
+  faPhotoVideo
+} from '@fortawesome/free-solid-svg-icons';
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { combineLatest, Observable } from 'rxjs';
@@ -37,6 +45,7 @@ export class AppComponent {
       faClipboard,
       faHeart,
       faPhotoVideo,
+      faCheck
     );
 
     const routeLoading$ = router.events.pipe(

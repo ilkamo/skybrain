@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class UserEffects {
-
   authenticate$ = createEffect(() => this.actions$.pipe(
     ofType(UserActions.authenticateUser),
     switchMap(action => {
@@ -94,5 +93,6 @@ export class UserEffects {
     private api: ApiService,
     private store: Store<RootState>,
     private router: Router
-  ) {}
+  ) {
+  }
 }

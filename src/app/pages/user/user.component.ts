@@ -6,10 +6,12 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
   styleUrls: ['./user.component.scss']
 })
 export class UserComponent implements OnInit {
-  memories$: Memory[] | null = null;
+  memories: Memory[] | null = null;
+  publicKey: string;
 
   constructor(route: ActivatedRoute) {
-    this.memories$ = route.snapshot.data.memories;
+    this.memories = route.snapshot.data.memories;
+    this.publicKey = route.snapshot.params.publicKey;
   }
 
   ngOnInit(): void {

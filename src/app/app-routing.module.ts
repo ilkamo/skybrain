@@ -1,4 +1,4 @@
-import { UserMemoriesService } from './services/user-memories.service';
+import { UserMemoriesResolver } from './services/user-memories.resolver';
 import { UserComponent } from './pages/user/user.component';
 import { SharedComponent } from './pages/shared/shared.component';
 import { NgModule } from '@angular/core';
@@ -41,7 +41,7 @@ const routes: Routes = [
     path: 'user/:publicKey',
     component: UserComponent,
     resolve: {
-      memories: UserMemoriesService
+      memories: UserMemoriesResolver
     }
   },
   {
