@@ -1,7 +1,7 @@
 <ng-container *ngIf="memory">
   <div class="card-header d-flex justify-content-between">
     <span><fa-icon [icon]="['far', 'calendar']"></fa-icon> {{memory?.added | date }}</span>
-    <span><fa-icon [icon]="['fas', 'map-marker-alt']"></fa-icon> {{memory?.location}}</span>
+    <span *ngIf="memory.location"><fa-icon [icon]="['fas', 'map-marker-alt']"></fa-icon> {{memory.location}}</span>
   </div>
 
   <div [ngSwitch]="memory | memoryMediaType">

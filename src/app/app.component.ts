@@ -9,6 +9,7 @@ import { faCommentMedical, faCommentSlash, faGlobe, faLink, faMapMarkerAlt } fro
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { combineLatest, Observable } from 'rxjs';
+import { selectVavbarIsVisible } from './reducers/router';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,7 @@ import { combineLatest, Observable } from 'rxjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  isAuthenticated$ = this.store.pipe(select(UserSelectors.isAuthenticated));
+  navbarIsVisible$ = this.store.pipe(select(selectVavbarIsVisible));
 
   isLoading$: Observable<boolean>;
 

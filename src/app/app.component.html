@@ -1,4 +1,4 @@
-<app-navbar *ngIf="isAuthenticated$ | async"></app-navbar>
+<app-navbar *ngIf="navbarIsVisible$ | async"></app-navbar>
 
 <div class="container-fluid">
   <router-outlet></router-outlet>
