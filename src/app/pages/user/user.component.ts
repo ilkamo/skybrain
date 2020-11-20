@@ -1,3 +1,4 @@
+import { FollowedUser } from 'src/app/models/user-followed-users';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Memory } from 'src/app/reducers/memory/memory.model';
@@ -6,10 +7,14 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
   styleUrls: ['./user.component.scss']
 })
 export class UserComponent implements OnInit {
-  memories$: Memory[] | null = null;
+  memories: Memory[] | null = null;
+  followedUsers: FollowedUser[] | null = null;
+  accordionOpened = false;
 
   constructor(route: ActivatedRoute) {
-    this.memories$ = route.snapshot.data.memories;
+    const publicData = route.snapshot.data.publicData;
+    this.memories = publicData.memories;
+    this.followedUsers = publicData.followedUsers;
   }
 
   ngOnInit(): void {
