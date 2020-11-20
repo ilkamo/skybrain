@@ -3,19 +3,18 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 @Component({
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.scss']
+  templateUrl: './connection.component.html',
+  styleUrls: ['./connection.component.scss']
 })
-export class UserComponent implements OnInit {
+export class ConnectionComponent implements OnInit {
   memories: Memory[] | null = null;
   followedUsers: FollowedUser[] | null = null;
   accordionOpened = false;
 
   constructor(route: ActivatedRoute) {
     route.params.subscribe(_ => {
-      const publicData = route.snapshot.data.publicData;
-      this.memories = publicData.memories;
-      this.followedUsers = publicData.followedUsers;
+      this.memories = route.snapshot.data.publicMemories;
+      this.followedUsers = route.snapshot.data.followedUsers;
     });
   }
 
