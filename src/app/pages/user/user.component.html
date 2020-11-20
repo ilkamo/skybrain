@@ -7,7 +7,7 @@
       </div>
     </div>
 
-    <ng-container *ngIf="memories$ as memories">
+    <ng-container *ngIf="memories">
       <ng-container *ngFor="let memory of memories; trackBy:trackMemory">
         <ng-container *ngIf="memory">
           <app-memory [memory]="memory" [simple]="true" class="mb-3"></app-memory>
