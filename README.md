@@ -19,30 +19,21 @@ Miro board link: [Skybrain architecture](https://miro.com/app/board/o9J_kgIoX7E=
 
 This architecture was created for the purposes of the hackathon with just a few iterations. Feel free to challenge it in order to improve Skybrain security and functionalities. Your comments, opinions and suggestions are welcome.
 
-## Project
+## Main functionalities
+1. Add and keep memory
+2. Make memory public
+3. Share memory by link
+4. Unshare memory
+5. Forget memory
+6. Aggregated memories and connections
+7. Brain profile
+8. Navigation breadcrumbs
+9. Clean responsive design
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.2.0.
+Having a look at [these memories](https://skybrain.hns.siasky.net/#/connection/aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f) you can see how powerful is now Skybrain. You can also understand how much work and dedication it took us to develop a service like this.
+
+The hackathon was three weeks long so, from the beginning, we planned what to bring to the end and what to sacrifice in order to have a working product at the end. For this reason other cool features will be introduced after the hackathon. We first thought about the essentials needed to make Skybrain a working idea that people will love.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page. 
+Run `yarn install` & `yarn start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
