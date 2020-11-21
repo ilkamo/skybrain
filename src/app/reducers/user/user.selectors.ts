@@ -30,13 +30,13 @@ export const isAuthenticated = createSelector(
   (state: UserState) => state.authenticated
 );
 
-export const selectFollowedUsers = createSelector(
+export const selectConnectedUsers = createSelector(
   selectFeature,
-  (state: UserState) => state.followedUsers
+  (state: UserState) => state.connectedUsers
 );
 
-export const selectFollowedUsersCache = createSelector(
-  selectFollowedUsers,
+export const selectConnectedUsersCache = createSelector(
+  selectConnectedUsers,
   (users) => users.map(user => ({ ...user }))
 );
 

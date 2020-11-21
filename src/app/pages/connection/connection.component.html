@@ -3,7 +3,7 @@
     <div class="d-flex mt-3">
       <app-connect-me [publicKey]="publicKey" [cssClasses]="'ml-auto'"></app-connect-me>
     </div>
-    <app-brain-connections *ngIf="followedUsers" [followedUsers]="followedUsers"></app-brain-connections>
+    <app-brain-connections *ngIf="connectedUsers" [connectedUsers]="connectedUsers"></app-brain-connections>
     <ng-container *ngIf="memories">
       <app-memory *ngFor="let memory of memories; trackBy:trackMemory" [memory]="memory" [simple]="true" class="mb-3"></app-memory>
     </ng-container>

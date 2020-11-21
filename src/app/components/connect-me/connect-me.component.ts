@@ -4,8 +4,8 @@ import { faCheck, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { Action, Store } from '@ngrx/store';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { State } from 'src/app/reducers';
-import { followUser, unfollowUser } from 'src/app/reducers/user/user.actions';
-import { selectFollowedUsers, selectUserPublicKey } from 'src/app/reducers/user/user.selectors';
+import { connectUser, unconnectUser } from 'src/app/reducers/user/user.actions';
+import { selectConnectedUsers, selectUserPublicKey } from 'src/app/reducers/user/user.selectors';
 
 @Component({
   selector: 'app-connect-me',
@@ -58,22 +58,22 @@ export class ConnectMeComponent implements OnInit, OnDestroy {
       combineLatest([
         this.publicKey$,
         this.store.select(selectUserPublicKey),
-        this.store.select(selectFollowedUsers)
+        this.store.select(selectConnectedUsers)
       ]).subscribe(([k, m, f]) => {
-        const followed = !!k && f.findIndex(v => v.publicKey === k) !== -1;
+        const connected = !!k && f.findIndex(v => v.publicKey === k) !== -1;
         const isMyBrain = !!k && m === k;
 
-        this.icon = followed || isMyBrain ? faCheck : undefined;
+        this.icon = connected || isMyBrain ? faCheck : undefined;
 
         let classes = 'btn ' + this.cssClasses;
-        classes += isMyBrain ? ' btn-outline-success disabled' : (followed ? ' btn-outline-danger' : ' btn-outline-primary');
+        classes += isMyBrain ? ' btn-outline-success disabled' : (connected ? ' btn-outline-danger' : ' btn-outline-primary');
         this.class = classes;
 
-        this.btnLabel = isMyBrain ? this.myLabel : (followed ? this.unconnectLabel : this.connectLabel);
+        this.btnLabel = isMyBrain ? this.myLabel : (connected ? this.unconnectLabel : this.connectLabel);
 
-        this.btnAction = !m ? null : ( !k || isMyBrain ? undefined : ( followed ?
-          unfollowUser({ publicKey: k }) :
-          followUser({ publicKey: k })
+        this.btnAction = !m ? null : ( !k || isMyBrain ? undefined : ( connected ?
+          unconnectUser({ publicKey: k }) :
+          connectUser({ publicKey: k })
         ));
       })
     );

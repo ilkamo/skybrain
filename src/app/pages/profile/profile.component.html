@@ -25,7 +25,7 @@
       <h4 class="mt-5">Brain connections</h4>
       <h6 class="card-title"><p>In order to display connections* on your wall you have to connect with other brains.</p></h6>
       <h6 class="card-subtitle mb-2 text-muted small">Fill the input with the public key of the brain you want to connect with and add a new connection.</h6>
-      <form [formGroup]="followedForm" (ngSubmit)="addFolower()">
+      <form [formGroup]="connectedForm" (ngSubmit)="addFolower()">
         <div class="form-group required">
             <label>Public key</label>
             <input type="text" class="form-control" formControlName="publicKey" [ngClass]="{ 'is-invalid': fform.publicKey.touched && fform.publicKey.errors }"/>
@@ -35,16 +35,16 @@
         </div>
         <div>
             <p>
-              <button type="submit" [disabled]="!followedForm.valid" class="btn btn-primary btn-block">
+              <button type="submit" [disabled]="!connectedForm.valid" class="btn btn-primary btn-block">
                   Add connection
               </button>
             </p>
         </div>
       </form>
       <ul class="list-group mt-3">
-        <li *ngFor="let user of followedUsers$ | async" [attr.title]="user.startedAt | date" class="list-group-item d-flex justify-content-between align-items-center">
+        <li *ngFor="let user of connectedUsers$ | async" [attr.title]="user.startedAt | date" class="list-group-item d-flex justify-content-between align-items-center">
           <small class="text-truncate mr-3"><a [routerLink]="['/connection', user.publicKey]">{{ user.publicKey }}</a></small>
-          <span (click)="unfollow(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
+          <span (click)="unconnect(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
         </li>
       </ul>
       <p class="small" style="padding: 20px 0;">* As part of the registration process we created a connection with <a [routerLink]="['/connection', skybrainAccountPublicKey]">Skybrain brain</a>. You can remove it at any time.</p>

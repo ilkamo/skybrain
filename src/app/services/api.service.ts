@@ -6,7 +6,7 @@ import { BaseMemory, UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX
 import { v4 as uuidv4 } from 'uuid';
 import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
 import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
-import { FollowedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
+import { ConnectedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } from '../models/user-connected-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
 
@@ -24,7 +24,7 @@ export class ApiService {
     @Inject(USER_MEMORIES_KEY_PREFIX) private _userMemoriesSkydbKeyPrefix: string,
     @Inject(USER_PUBLIC_MEMORIES_KEY) private userPublicMemoriesSkydbKey: string,
     @Inject(USER_SHARED_MEMORIES_KEY) private userSharedMemoriesSkydbKey: string,
-    @Inject(USER_FOLLOWED_USERS_KEY) private userFollowedUsersSkydbKey: string,
+    @Inject(USER_CONNECTED_USERS_KEY) private userConnectedUsersSkydbKey: string,
     @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skybrainAccountPublicKey: string,
   ) {
     if (!portal) {
@@ -150,8 +150,8 @@ export class ApiService {
     // genratate random username
     user = user || { nickname: `skybrain-${Math.random().toString(36).substring(6)}` };
 
-    // init followed users with the Skybrain official publicKey
-    const followedUsers: FollowedUser[] = [{
+    // init connected users with the Skybrain official publicKey
+    const connectedUsers: ConnectedUser[] = [{
       publicKey: this.skybrainAccountPublicKey,
       startedAt: new Date(Date.now()),
     }];
@@ -169,8 +169,8 @@ export class ApiService {
 
       await this.skynetClient.db.setJSON(
         privateKey,
-        this.userFollowedUsersSkydbKey,
-        followedUsers,
+        this.userConnectedUsersSkydbKey,
+        connectedUsers,
         initialRevision,
         {
           timeout: this.skydbTimeout,
@@ -458,12 +458,12 @@ export class ApiService {
     }
   }
 
-  public async getFollowedUsers({ publicKey }: Partial<UserKeys>): Promise<FollowedUser[]> {
+  public async getConnectedUsers({ publicKey }: Partial<UserKeys>): Promise<ConnectedUser[]> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
         publicKey,
-        this.userFollowedUsersSkydbKey,
+        this.userConnectedUsersSkydbKey,
         {
           timeout: this.skydbTimeout,
         },
@@ -473,81 +473,81 @@ export class ApiService {
 
     if (!response || !('data' in response)) {
       throw new Error(
-        'Could not fetch followed users',
+        'Could not fetch connected users',
       );
     }
 
     // tslint:disable-next-line: no-any
-    return response.data.map((u: any) => ({ ...u, startedAt: new Date(u.startedAt)})) as FollowedUser[];
+    return response.data.map((u: any) => ({ ...u, startedAt: new Date(u.startedAt)})) as ConnectedUser[];
   }
 
-  public async followUserByPublicKey({ followedUserPublicKey, privateKey, followedUsers }:
-    { followedUserPublicKey: string, followedUsers: FollowedUser[] } & Partial<UserKeys>): Promise<FollowedUser> {
+  public async connectUserByPublicKey({ connectedUserPublicKey, privateKey, connectedUsers }:
+    { connectedUserPublicKey: string, connectedUsers: ConnectedUser[] } & Partial<UserKeys>): Promise<ConnectedUser> {
     // TODO: check public key length
-    const found = followedUsers.find((u) => u.publicKey === followedUserPublicKey);
+    const found = connectedUsers.find((u) => u.publicKey === connectedUserPublicKey);
 
     if (found) {
-      return found; // already followed
+      return found; // already connected
     }
-    const tempFollowedUser: FollowedUser = {
+    const tempConnectedUser: ConnectedUser = {
       startedAt: new Date(Date.now()),
-      publicKey: followedUserPublicKey,
+      publicKey: connectedUserPublicKey,
     };
-    followedUsers.unshift(tempFollowedUser);
+    connectedUsers.unshift(tempConnectedUser);
     try {
       await this.skynetClient.db.setJSON(
         privateKey,
-        this.userFollowedUsersSkydbKey,
-        followedUsers,
+        this.userConnectedUsersSkydbKey,
+        connectedUsers,
         undefined,
         {
           timeout: this.skydbTimeout,
         },
       );
     } catch (error) {
-      throw new Error('Could not follow');
+      throw new Error('Could not connect');
     }
 
-    return tempFollowedUser;
+    return tempConnectedUser;
   }
 
-  public async unfollowUserByPublicKey({ followedUserPublicKey, privateKey, followedUsers }:
-    { followedUserPublicKey: string, followedUsers: FollowedUser[] } & Partial<UserKeys>): Promise<void> {
+  public async unconnectUserByPublicKey({ connectedUserPublicKey, privateKey, connectedUsers }:
+    { connectedUserPublicKey: string, connectedUsers: ConnectedUser[] } & Partial<UserKeys>): Promise<void> {
     // TODO: check public key length
 
-    const foundIndex = followedUsers.findIndex((u) => u.publicKey === followedUserPublicKey);
+    const foundIndex = connectedUsers.findIndex((u) => u.publicKey === connectedUserPublicKey);
     if (foundIndex === -1) {
-      return; // already unfollowed
+      return; // already unconnected
     }
 
     if (foundIndex > -1) {
-      followedUsers = [
-        ...followedUsers.slice(0, foundIndex),
-        ...followedUsers.slice(foundIndex + 1),
+      connectedUsers = [
+        ...connectedUsers.slice(0, foundIndex),
+        ...connectedUsers.slice(foundIndex + 1),
       ];
       try {
         await this.skynetClient.db.setJSON(
           privateKey,
-          this.userFollowedUsersSkydbKey,
-          followedUsers,
+          this.userConnectedUsersSkydbKey,
+          connectedUsers,
           undefined,
           {
             timeout: this.skydbTimeout,
           },
         );
       } catch (error) {
-        throw new Error('Could not unfollow');
+        throw new Error('Could not unconnect');
       }
     }
   }
 
-  public async getPublicMemoriesOfFollowedUsers({ followedUsers }: { followedUsers: FollowedUser[] }): Promise<UsersPublicMemories> {
-    const followedUsersMemories: UsersPublicMemories = {};
-    for (const fu of followedUsers) {
-      const followedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemories({ publicKey: fu.publicKey });
-      followedUsersMemories[fu.publicKey] = followedUserPublicMemories;
+  public async getPublicMemoriesOfConnectedUsers({ connectedUsers }: { connectedUsers: ConnectedUser[] }): Promise<UsersPublicMemories> {
+    const connectedUsersMemories: UsersPublicMemories = {};
+    for (const fu of connectedUsers) {
+      const connectedUserPublicMemories: UserPublicMemory[] = await this.getPublicMemories({ publicKey: fu.publicKey });
+      connectedUsersMemories[fu.publicKey] = connectedUserPublicMemories;
     }
-    return followedUsersMemories;
+    return connectedUsersMemories;
   }
 
   private async getSharedMemories({ publicKey }: Partial<UserKeys>): Promise<UserSharedMemory[]> {
@@ -673,11 +673,11 @@ export class ApiService {
       // await this.removePublicMemory(m[0].id);
       // console.log(await this.getPublicMemories());
 
-      await this.followUserByPublicKey(
+      await this.connectUserByPublicKey(
         'f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295'
       ); // INFO: public key of user test2:test2
-      console.log(await this.getFollowedUsers());
-      console.log(await this.getPublicMemoriesOfFollowedUsers());
+      console.log(await this.getConnectedUsers());
+      console.log(await this.getPublicMemoriesOfConnectedUsers());
       console.log(await this.getSharedMemories());
       const base64Link = await this.shareMemory(m[0].id)
       if (base64Link) {

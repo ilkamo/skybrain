@@ -5,7 +5,7 @@ import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
 import { UserData, userDataValidator } from '../../models/user-data';
-import { SKYBRAIN_ACCOUNT_PUBLIC_KEY } from 'src/app/models/user-followed-users';
+import { SKYBRAIN_ACCOUNT_PUBLIC_KEY } from 'src/app/models/user-connected-users';
 
 @Component({
   selector: 'app-profile',
@@ -14,13 +14,13 @@ import { SKYBRAIN_ACCOUNT_PUBLIC_KEY } from 'src/app/models/user-followed-users'
 })
 export class ProfileComponent implements OnInit {
   userData$ = this.store.pipe(select(UserSelectors.selectUserData));
-  followedUsers$ = this.store.pipe(select(UserSelectors.selectFollowedUsers));
+  connectedUsers$ = this.store.pipe(select(UserSelectors.selectConnectedUsers));
   validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));
   profileForm = this.formBuilder.group({
     nickname: ['']
   }, { validators: [ userDataValidator ] });
-  followedForm = this.formBuilder.group({
+  connectedForm = this.formBuilder.group({
     publicKey: ['', [Validators.required, Validators.minLength(10)] ]
   });
   skybrainAccountPublicKey: string;
@@ -45,7 +45,7 @@ export class ProfileComponent implements OnInit {
   get fform(): {
     [key: string]: AbstractControl;
   } {
-    return this.followedForm.controls;
+    return this.connectedForm.controls;
   }
 
   onSubmit(): void {
@@ -61,9 +61,9 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-  unfollow(publicKey: string): void {
+  unconnect(publicKey: string): void {
     this.store.dispatch(
-      UserActions.unfollowUser({
+      UserActions.unconnectUser({
         publicKey
       })
     );
@@ -71,15 +71,15 @@ export class ProfileComponent implements OnInit {
 
   addFolower(): void {
     // stop here if form is invalid
-    if (this.followedForm.invalid) {
+    if (this.connectedForm.invalid) {
         return;
     }
     this.store.dispatch(
-      UserActions.followUser({
-        publicKey: this.followedForm.controls.publicKey.value
+      UserActions.connectUser({
+        publicKey: this.connectedForm.controls.publicKey.value
       })
     );
-    this.followedForm.reset();
+    this.connectedForm.reset();
   }
 
 }

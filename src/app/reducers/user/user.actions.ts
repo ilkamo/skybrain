@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { UserData, UserKeys } from 'src/app/models/user-data';
-import { FollowedUser } from 'src/app/models/user-followed-users';
+import { ConnectedUser } from 'src/app/models/user-connected-users';
 
 export const authenticateUser = createAction(
   '[Authenticate] Load Authenticates',
@@ -46,40 +46,40 @@ export const updateUserDataFailure = createAction(
   props<{ error: string }>()
 );
 
-export const getFollowedUsers = createAction(
-  '[Profile] Get Followed Users'
+export const getConnectedUsers = createAction(
+  '[Profile] Get Connected Users'
 );
-export const getFollowedUsersSuccess = createAction(
-  '[Profile] Get Followed Users Success',
-  props<{ users: FollowedUser[] }>()
+export const getConnectedUsersSuccess = createAction(
+  '[Profile] Get Connected Users Success',
+  props<{ users: ConnectedUser[] }>()
 );
-export const getFollowedUsersFailure = createAction(
-  '[Profile] Get Followed Users Failure',
+export const getConnectedUsersFailure = createAction(
+  '[Profile] Get Connected Users Failure',
   props<{ error: string }>()
 );
 
-export const followUser = createAction(
-  '[Profile] Follow User',
+export const connectUser = createAction(
+  '[Profile] Connect User',
   props<{ publicKey: string }>()
 );
-export const followUserSuccess = createAction(
-  '[Profile] Follow User Success',
-  props<{ user: FollowedUser }>()
+export const connectUserSuccess = createAction(
+  '[Profile] Connect User Success',
+  props<{ user: ConnectedUser }>()
 );
-export const followUserFailure = createAction(
-  '[Profile] Follow User Failure',
+export const connectUserFailure = createAction(
+  '[Profile] Connect User Failure',
   props<{ error: string }>()
 );
 
-export const unfollowUser = createAction(
-  '[Profile] Unfollow User',
+export const unconnectUser = createAction(
+  '[Profile] Unconnect User',
   props<{ publicKey: string }>()
 );
-export const unfollowUserSuccess = createAction(
-  '[Profile] Unfollow User Success',
+export const unconnectUserSuccess = createAction(
+  '[Profile] Unconnect User Success',
   props<{ publicKey: string }>()
 );
-export const unfollowUserFailure = createAction(
-  '[Profile] Unfollow User Failure',
+export const unconnectUserFailure = createAction(
+  '[Profile] Unconnect User Failure',
   props<{ error: string }>()
 );

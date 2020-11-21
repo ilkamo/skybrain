@@ -1,4 +1,4 @@
-import { FollowedUser } from 'src/app/models/user-followed-users';
+import { ConnectedUser } from 'src/app/models/user-connected-users';
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { EMPTY, from, Observable, zip } from 'rxjs';
@@ -9,13 +9,13 @@ import { ApiService } from './api.service';
 @Injectable({
   providedIn: 'root'
 })
-export class SharedMemoryService implements Resolve<{sharedMemory: Memory, followedUsers: FollowedUser[]}> {
+export class SharedMemoryService implements Resolve<{sharedMemory: Memory, connectedUsers: ConnectedUser[]}> {
   constructor(private apiService: ApiService, private router: Router) { }
 
   resolve(
     route: ActivatedRouteSnapshot,
     _: RouterStateSnapshot
-  ): Observable<{sharedMemory: Memory, followedUsers: FollowedUser[]}> {
+  ): Observable<{sharedMemory: Memory, connectedUsers: ConnectedUser[]}> {
     if (!route.params.code) {
       this.router.navigate(['/404'], { queryParams: { error: 'Invalid shared link' } });
       return EMPTY;
@@ -33,15 +33,15 @@ export class SharedMemoryService implements Resolve<{sharedMemory: Memory, follo
         })
       );
 
-    const followedUsers$ = from(this.apiService.getFollowedUsers({ publicKey })).pipe(
+    const connectedUsers$ = from(this.apiService.getConnectedUsers({ publicKey })).pipe(
       catchError(error => {
         // TODO: dispaly error
         return EMPTY;
       })
     );
 
-    return zip(sharedMemory$, followedUsers$).pipe(
-      map(([sharedMemory, followedUsers]) => ({ sharedMemory, followedUsers })),
+    return zip(sharedMemory$, connectedUsers$).pipe(
+      map(([sharedMemory, connectedUsers]) => ({ sharedMemory, connectedUsers })),
       first()
     );
   }

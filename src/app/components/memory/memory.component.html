@@ -44,7 +44,7 @@
     </div>
   </div>
 
-  <div *ngIf="!simple && !memory.followerId" class="card-footer text-muted">
+  <div *ngIf="!simple && !memory.connectedId" class="card-footer text-muted">
     <div class="btn-group w-100 justify-content-center">
       <a href="#" class="btn btn-outline-primary" (click)="forgetMe($event)">
         <fa-icon class="mr-2" [icon]="['fas', 'comment-slash']"></fa-icon>
@@ -61,8 +61,8 @@
     </div>
   </div>
 
-  <div class="card-footer text-center" *ngIf="memory?.followerId">
-    <button [attr.title]="'User public memories'" [routerLink]="['/connection', memory.followerId]" class="btn btn-light pull-right">
+  <div class="card-footer text-center" *ngIf="memory?.connectedId">
+    <button [attr.title]="'User public memories'" [routerLink]="['/connection', memory.connectedId]" class="btn btn-light pull-right">
       <fa-icon [icon]="['far', 'user']"></fa-icon> Dispaly connection
     </button>
   </div>

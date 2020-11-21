@@ -1,4 +1,4 @@
-import { FollowedUser } from 'src/app/models/user-followed-users';
+import { ConnectedUser } from 'src/app/models/user-connected-users';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Memory } from 'src/app/reducers/memory/memory.model';
@@ -10,7 +10,7 @@ import { Observable, Subscription } from 'rxjs';
 })
 export class ConnectionComponent implements OnInit, OnDestroy {
   memories: Memory[] | null = null;
-  followedUsers: FollowedUser[] | null = null;
+  connectedUsers: ConnectedUser[] | null = null;
   accordionOpened = false;
   publicKey: string | undefined;
   subscription = new Subscription();
@@ -33,7 +33,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription.add(
       this.routeData$.subscribe(data => {
-        this.followedUsers = data.publicBrain.followedUsers;
+        this.connectedUsers = data.publicBrain.connectedUsers;
         this.memories = data.publicBrain.memories;
         this.publicKey = data.params.publicKey;
       })

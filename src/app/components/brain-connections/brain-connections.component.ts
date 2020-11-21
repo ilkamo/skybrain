@@ -1,4 +1,4 @@
-import { FollowedUser } from 'src/app/models/user-followed-users';
+import { ConnectedUser } from 'src/app/models/user-connected-users';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { Observable, Subscription } from 'rxjs';
   styleUrls: ['./brain-connections.component.scss']
 })
 export class BrainConnectionsComponent implements OnInit, OnDestroy {
-  @Input() followedUsers?: FollowedUser[];
+  @Input() connectedUsers?: ConnectedUser[];
   accordionOpened = false;
   // tslint:disable-next-line: no-any
   routeData$: Observable<any>;

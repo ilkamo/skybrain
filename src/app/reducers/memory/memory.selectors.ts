@@ -3,7 +3,7 @@ import { adapter } from './memory.reducer';
 import { State as RootState } from '..';
 import { State as MemoryState, memoriesFeatureKey } from './memory.reducer';
 import { mapMemoryToSky, Memory } from './memory.model';
-import { selectFollowedUsers } from '../user/user.selectors';
+import { selectConnectedUsers } from '../user/user.selectors';
 
 export const selectFeature = createFeatureSelector<RootState, MemoryState>(memoriesFeatureKey);
 
@@ -39,13 +39,13 @@ export const selectCache = createSelector(
   (memories) => memories.map(mapMemoryToSky).filter(m => !!m) as Memory[]
 );
 
-export const selectPopulatedFollowedUsers = createSelector(
+export const selectPopulatedConnectedUsers = createSelector(
   selectFeature,
-  (state) => state.populatedFollowedUsers
+  (state) => state.populatedConnectedUsers
 );
 
-export const selectFollowedUsersToPopulate = createSelector(
-  selectPopulatedFollowedUsers,
-  selectFollowedUsers,
+export const selectConnectedUsersToPopulate = createSelector(
+  selectPopulatedConnectedUsers,
+  selectConnectedUsers,
   (populated, fallowed) => fallowed.filter(f => !populated.includes(f.publicKey))
 );

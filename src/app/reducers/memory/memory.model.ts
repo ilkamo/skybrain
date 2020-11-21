@@ -3,7 +3,7 @@ import { UserMemory } from 'src/app/models/user-memory';
 
 // tslint:disable-next-line: no-empty-interface
 export interface Memory extends UserMemory {
-  followerId?: string;
+  connectedId?: string;
 }
 
 export const mapSkyToMemory = (memory: UserMemory): Memory => {
@@ -12,7 +12,7 @@ export const mapSkyToMemory = (memory: UserMemory): Memory => {
 };
 
 export const mapMemoryToSky = (memory: Memory): UserMemory | undefined => {
-  if (memory.followerId) {
+  if (memory.connectedId) {
     return undefined;
   }
   const { added, id, mimeType, name, skylink, tags, text, location, isPublic, isShared, shareLink, ...rest } = memory;

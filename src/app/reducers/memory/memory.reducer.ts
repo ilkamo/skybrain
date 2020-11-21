@@ -8,7 +8,7 @@ export const memoriesFeatureKey = 'memories';
 
 export interface State extends EntityState<Memory>, LoadingState {
   initialized: boolean;
-  populatedFollowedUsers: string[];
+  populatedConnectedUsers: string[];
 }
 
 export const adapter: EntityAdapter<Memory> = createEntityAdapter<Memory>({
@@ -21,7 +21,7 @@ export const initialState: State = adapter.getInitialState({
   initialized: false,
   loading: false,
   error: undefined,
-  populatedFollowedUsers: []
+  populatedConnectedUsers: []
 });
 
 export const reducer = createReducer(
@@ -80,14 +80,14 @@ export const reducer = createReducer(
   on(MemoryActions.getShareMemoryLinkFailure,
     (state, action) => ({ ...state, loading: false, error: action.error })
   ),
-  on(MemoryActions.followedUsersMemoriesSuccess,
+  on(MemoryActions.connectedUsersMemoriesSuccess,
     (state, action) => {
-      const populatedFollowedUsers = action.followedUsers
-        .filter(f => !state.populatedFollowedUsers.includes(f.publicKey))
+      const populatedConnectedUsers = action.connectedUsers
+        .filter(f => !state.populatedConnectedUsers.includes(f.publicKey))
         .map(f => f.publicKey);
       return adapter.addMany(
         action.memories,
-        { ...state, populatedFollowedUsers: [ ...state.populatedFollowedUsers, ...populatedFollowedUsers] }
+        { ...state, populatedConnectedUsers: [ ...state.populatedConnectedUsers, ...populatedConnectedUsers] }
       );
     }
   )

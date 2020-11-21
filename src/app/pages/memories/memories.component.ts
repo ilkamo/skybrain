@@ -9,11 +9,11 @@ import * as MemomryActions from '../../reducers/memory/memory.actions';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 
 @Component({
-  selector: 'app-wall',
-  templateUrl: './wall.component.html',
-  styleUrls: ['./wall.component.scss']
+  selector: 'app-memories',
+  templateUrl: './memories.component.html',
+  styleUrls: ['./memories.component.scss']
 })
-export class WallComponent implements OnInit {
+export class MemoriesComponent implements OnInit {
   memories$ = this.store.pipe(select(MemomrySelectors.selectMemories));
   error$ = this.store.pipe(select(MemomrySelectors.selectError));
   uploadForm: FormGroup;
@@ -32,7 +32,7 @@ export class WallComponent implements OnInit {
   ngOnInit(): void {
     this.memories$.pipe(
       first(),
-      map(memories => memories.filter(m => !m.followerId).length),
+      map(memories => memories.filter(m => !m.connectedId).length),
     ).forEach(l => this.formOpened = l === 0);
   }
 

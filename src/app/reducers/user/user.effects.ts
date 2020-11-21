@@ -44,47 +44,47 @@ export class UserEffects {
     })
   ));
 
-  getFollowedUsers$ = createEffect(() => this.actions$.pipe(
+  getConnectedUsers$ = createEffect(() => this.actions$.pipe(
     ofType(UserActions.authenticateUserSuccess),
     withLatestFrom(this.store.select(UserSelectors.selectUserKeys)),
     switchMap(([_, keys]) => {
-      return from(this.api.getFollowedUsers({ ...keys })).pipe(
-        map(users =>  UserActions.getFollowedUsersSuccess({ users })),
-        catchError(error => of(UserActions.getFollowedUsersFailure({ error: error.message })))
+      return from(this.api.getConnectedUsers({ ...keys })).pipe(
+        map(users =>  UserActions.getConnectedUsersSuccess({ users })),
+        catchError(error => of(UserActions.getConnectedUsersFailure({ error: error.message })))
       );
     })
   ));
 
-  followUser$ = createEffect(() => this.actions$.pipe(
-    ofType(UserActions.followUser),
+  connectUser$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.connectUser),
     withLatestFrom(
       this.store.select(UserSelectors.selectUserKeys),
-      this.store.select(UserSelectors.selectFollowedUsersCache),
+      this.store.select(UserSelectors.selectConnectedUsersCache),
     ),
-    switchMap(([action, keys, followedUsers]) => {
-      return from(this.api.followUserByPublicKey({ followedUserPublicKey: action.publicKey, followedUsers, ...keys })).pipe(
-        map(user => UserActions.followUserSuccess({ user })),
-        catchError(error => of(UserActions.followUserFailure({ error: error.message })))
+    switchMap(([action, keys, connectedUsers]) => {
+      return from(this.api.connectUserByPublicKey({ connectedUserPublicKey: action.publicKey, connectedUsers, ...keys })).pipe(
+        map(user => UserActions.connectUserSuccess({ user })),
+        catchError(error => of(UserActions.connectUserFailure({ error: error.message })))
       );
     })
   ));
 
-  unfollowUser$ = createEffect(() => this.actions$.pipe(
-    ofType(UserActions.unfollowUser),
+  unconnectUser$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.unconnectUser),
     withLatestFrom(
       this.store.select(UserSelectors.selectUserKeys),
-      this.store.select(UserSelectors.selectFollowedUsersCache),
+      this.store.select(UserSelectors.selectConnectedUsersCache),
     ),
-    switchMap(([action, keys, followedUsers]) => {
-      return from(this.api.unfollowUserByPublicKey({ followedUserPublicKey: action.publicKey, followedUsers, ...keys })).pipe(
-        map(_ =>  UserActions.unfollowUserSuccess({ publicKey: action.publicKey })),
-        catchError(error => of(UserActions.unfollowUserFailure({ error: error.message })))
+    switchMap(([action, keys, connectedUsers]) => {
+      return from(this.api.unconnectUserByPublicKey({ connectedUserPublicKey: action.publicKey, connectedUsers, ...keys })).pipe(
+        map(_ =>  UserActions.unconnectUserSuccess({ publicKey: action.publicKey })),
+        catchError(error => of(UserActions.unconnectUserFailure({ error: error.message })))
       );
     })
   ));
 
   redirect$ = createEffect(() => this.actions$.pipe(
-    ofType(UserActions.getFollowedUsersSuccess, UserActions.getFollowedUsersFailure),
+    ofType(UserActions.getConnectedUsersSuccess, UserActions.getConnectedUsersFailure),
     map(_ => this.router.navigate(['/']))
   ), { dispatch: false } );
 

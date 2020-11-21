@@ -9,7 +9,7 @@ import { ErrorComponent } from './pages/error/error.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { RegisterComponent } from './pages/register/register.component';
-import { WallComponent } from './pages/wall/wall.component';
+import { MemoriesComponent } from './pages/memories/memories.component';
 import { MemoriesInitializedService } from './services/memories-initialized.resolver';
 import { SharedMemoryService } from './services/shared-memory.resolver';
 import { PublicBrainResolver } from './services/public-brain.resolver';
@@ -46,7 +46,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    component: WallComponent,
+    component: MemoriesComponent,
     canActivate: [ AuthenticatedGuard, ValidProfileGuard ],
     resolve: {
       memoriesInitialized: MemoriesInitializedService

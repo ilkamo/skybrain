@@ -92,20 +92,20 @@ export class MemoryEffects {
     })
   ));
 
-  followersMemories$ = createEffect(() => this.store.pipe(
-    select(MemorySelectors.selectFollowedUsersToPopulate),
-    filter(followedUsers => !!followedUsers .length),
-    switchMap(followedUsers  => {
-      return from(this.api.getPublicMemoriesOfFollowedUsers({ followedUsers })).pipe(
+  connectedMemories$ = createEffect(() => this.store.pipe(
+    select(MemorySelectors.selectConnectedUsersToPopulate),
+    filter(connectedUsers => !!connectedUsers .length),
+    switchMap(connectedUsers  => {
+      return from(this.api.getPublicMemoriesOfConnectedUsers({ connectedUsers })).pipe(
         map(userPublicMemories => {
           const users = Object.keys(userPublicMemories);
-          return users.reduce((acc, followerId) => {
-            const userMemories: Memory[] = userPublicMemories[followerId].map(data => ({ ...mapSkyToMemory(data.memory), followerId }));
+          return users.reduce((acc, connectedId) => {
+            const userMemories: Memory[] = userPublicMemories[connectedId].map(data => ({ ...mapSkyToMemory(data.memory), connectedId }));
             return [ ...acc, ...userMemories];
           }, [] as Memory[]);
         }),
-        map(memories => MemoryActions.followedUsersMemoriesSuccess({ memories, followedUsers })),
-        catchError(error => of(MemoryActions.followedUsersMemoriesFailure({ followedUsers, error: error.message })))
+        map(memories => MemoryActions.connectedUsersMemoriesSuccess({ memories, connectedUsers })),
+        catchError(error => of(MemoryActions.connectedUsersMemoriesFailure({ connectedUsers, error: error.message })))
       );
     }),
   ));

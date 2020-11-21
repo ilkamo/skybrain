@@ -59,7 +59,7 @@
 
       <ng-container *ngFor="let memory of memories; trackBy:trackMemory">
         <app-memory
-          *ngIf="!onlyMyMemoris.value || !memory.followerId "
+          *ngIf="!onlyMyMemoris.value || !memory.connectedId "
           [memory]="memory"
           (forget)="forgetMemory($event)"
           (publish)="publishMemory($event)"

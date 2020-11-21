@@ -6,8 +6,8 @@
       </p>
     </div>
     <div class="collapse" [ngClass]="{ show: accordionOpened }">
-      <div class="list-group list-group-flush" *ngIf="followedUsers">
-        <a *ngFor="let followedUser of followedUsers" [routerLink]="['/connection', followedUser.publicKey]" class="list-group-item list-group-item-action text-center small">{{followedUser.publicKey}}</a>
+      <div class="list-group list-group-flush" *ngIf="connectedUsers">
+        <a *ngFor="let connectedUser of connectedUsers" [routerLink]="['/connection', connectedUser.publicKey]" class="list-group-item list-group-item-action text-center small">{{connectedUser.publicKey}}</a>
       </div>
     </div>
   </div>
