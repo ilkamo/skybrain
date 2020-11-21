@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { State as RootState } from '../../reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
 import { UserData, userDataValidator } from '../../models/user-data';
+import { SKYBRAIN_ACCOUNT_PUBLIC_KEY } from 'src/app/models/user-followed-users';
 
 @Component({
   selector: 'app-profile',
@@ -22,11 +23,15 @@ export class ProfileComponent implements OnInit {
   followedForm = this.formBuilder.group({
     publicKey: ['', [Validators.required, Validators.minLength(10)] ]
   });
+  skybrainAccountPublicKey: string;
 
   constructor(
     private formBuilder: FormBuilder,
-    private store: Store<RootState>
-  ) { }
+    private store: Store<RootState>,
+    @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) skybrainAccountPublicKey: string,
+  ) {
+    this.skybrainAccountPublicKey = skybrainAccountPublicKey;
+  }
 
   ngOnInit(): void {
   }

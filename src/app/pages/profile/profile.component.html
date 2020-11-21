@@ -3,7 +3,6 @@
     <div class="card-body">
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <div *ngIf="!(validProfile$ | async)" class="alert alert-warning">Please update your profile</div>
-      <!-- <h1 class="text-center">Profile</h1> -->
       <h4>Brain profile</h4>
       <h6 class="card-title"><p>Choose a name for your brain.</p></h6>
       <h6 class="card-subtitle mb-2 text-muted small">This information will be used in the future to display brain friendly names.</h6>
@@ -24,7 +23,7 @@
         </div>
       </form>
       <h4 class="mt-5">Brain connections</h4>
-      <h6 class="card-title"><p>In order to display connections on your wall you have to connect with other brains.</p></h6>
+      <h6 class="card-title"><p>In order to display connections* on your wall you have to connect with other brains.</p></h6>
       <h6 class="card-subtitle mb-2 text-muted small">Fill the input with the public key of the brain you want to connect with and add a new connection.</h6>
       <form [formGroup]="followedForm" (ngSubmit)="addFolower()">
         <div class="form-group required">
@@ -48,6 +47,7 @@
           <span (click)="unfollow(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
         </li>
       </ul>
+      <p class="small" style="padding: 20px 0;">* As part of the registration process we created a connection with <a [routerLink]="['/connection', skybrainAccountPublicKey]">Skybrain brain</a>. You can remove it at any time.</p>
     </div>
   </div>
 </div>
