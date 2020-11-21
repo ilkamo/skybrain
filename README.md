@@ -5,10 +5,12 @@
 ## Mission
 Skybrain wants to be the core of the entire "Sia sky" ecosystem, the place where magic happens and all memories and emotions are stored, like in the human brain. Sign up and start sharing your memories. Photos, videos, audio notes, text. Store all you want in the Skybrain.
 
-All your memories are private by default. With one click, you can share them with the public (**public memory**) or a good friend (**shared memory by link**). Choose which content is public or simply share a content with a single person. It is like in the real life. You can talk in public or share a secret with your best friend. 
+All your memories are private by default. With one click, you can share them with the public (**public memory**). You can also decide to share memories by link without making them public (**shared memory by link**). Have under control the access to your memories. It is like in the real life. Talk in public or share a secret with your best friend.
 
 ## Vision
-Sharing your public key, other users can follow your **public memories**. At the same time, satellite Skybrain apps can access your public and shared memories. Imagine something like *Skyprint*. You paste your public key and bom! You are able to list all your public/shared photos from Skybrain, create an album and order an online print of it. Or even better! Imagine to use something like *Skyeditor*. Select your favorites memories and create a happy birthday movie for a person you love. It's like a magic. And these are just a **few of the infinite ideas you can build up on Skybrain**. 
+Brain and connections are the main concept of Skybrain. Sharing your public key, others brains are able to connect with your **public memories**. At the same time, your brain **can connect** with memories of other brains. In this way your *Skybrain* is always up to date about all your connections and you can see all the memories in a single place. 
+
+That's not all, there is one more thing. For how Skybrain is organized, its satellite apps can access brains public memories. Imagine something like *Skyprint*. You paste your public key and bom! You are able to list all your public photos from Skybrain, create an album and order an online print of it. Or even better. Imagine to use something like *Skyeditor*. Select your favorites memories and create a happy birthday movie for a person you love. It's like a magic. And these are just a **few of the infinite ideas you can build up on Skybrain**. 
 
 ## Skybrain architecture
 ![Skydb architecture](https://siasky.net/vAB_ei6xU1JbeoEhyoSz08aAuwbK8UqgzchNFRXuOFX4XA)
