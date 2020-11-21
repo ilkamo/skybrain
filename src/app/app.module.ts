@@ -35,8 +35,8 @@ import { AbsolutePathPipe } from './pipes/absolute-path.pipe';
 import { MemoryMediaTypePipe } from './pipes/memory-media-type.pipe';
 import { ConnectionComponent } from './pages/connection/connection.component';
 import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
-import { FollowMeComponent } from './components/follow-me/follow-me.component';
 import { BrainConnectionsComponent } from './components/brain-connections/brain-connections.component';
+import { ConnectMeComponent } from './components/connect-me/connect-me.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +55,7 @@ import { BrainConnectionsComponent } from './components/brain-connections/brain-
     FooterComponent,
     AbsolutePathPipe,
     MemoryMediaTypePipe,
-    FollowMeComponent,
+    ConnectMeComponent,
     ConnectionComponent,
     BrainConnectionsComponent
   ],

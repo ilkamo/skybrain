@@ -1,7 +1,7 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
     <div class="d-flex mt-3">
-      <app-follow-me [publicKey]="publicKey" [cssClasses]="'ml-auto'"></app-follow-me>
+      <app-connect-me [publicKey]="publicKey" [cssClasses]="'ml-auto'"></app-connect-me>
     </div>
     <app-brain-connections *ngIf="followedUsers" [followedUsers]="followedUsers"></app-brain-connections>
     <ng-container *ngIf="memories">
