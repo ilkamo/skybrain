@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { EncryptionType } from './encryption';
-export const USER_MEMORIES_KEY_PREFIX = new InjectionToken('sia-user-memories-key-prefix');
+export const USER_MEMORIES_KEY_PREFIX = new InjectionToken('skybrain-user-memories-key-prefix');
 
 export interface BaseMemory {
   text?: string;

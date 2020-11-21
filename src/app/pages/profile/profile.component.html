@@ -3,11 +3,13 @@
     <div class="card-body">
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <div *ngIf="!(validProfile$ | async)" class="alert alert-warning">Please update your profile</div>
-      <h1 class="text-center">Profile</h1>
-      <h3>User data</h3>
+      <!-- <h1 class="text-center">Profile</h1> -->
+      <h4>Brain profile</h4>
+      <h6 class="card-title"><p>Choose a name for your brain.</p></h6>
+      <h6 class="card-subtitle mb-2 text-muted small">This information will be used in the future to display brain friendly names.</h6>
       <form [formGroup]="profileForm" [appConnectForm]="userData$ | async" (ngSubmit)="onSubmit()">
         <div class="form-group required">
-            <label>Nickname</label>
+            <label>Brain name</label>
             <input type="text" class="form-control" formControlName="nickname" [ngClass]="{ 'is-invalid': form.nickname.touched && form.nickname.errors }"/>
             <div *ngIf="form.nickname.errors as error" class="invalid-feedback">
               {{ error.invalid }}
@@ -21,10 +23,12 @@
             </p>
         </div>
       </form>
-      <h3 class="mt-5">Followed users</h3>
+      <h4 class="mt-5">Brain connections</h4>
+      <h6 class="card-title"><p>In order to display connections on your wall you have to connect with other brains.</p></h6>
+      <h6 class="card-subtitle mb-2 text-muted small">Fill the input with the public key of the brain you want to connect with and add a new connection.</h6>
       <form [formGroup]="followedForm" (ngSubmit)="addFolower()">
         <div class="form-group required">
-            <label>User public key</label>
+            <label>Public key</label>
             <input type="text" class="form-control" formControlName="publicKey" [ngClass]="{ 'is-invalid': fform.publicKey.touched && fform.publicKey.errors }"/>
             <div *ngIf="fform.publicKey.errors as error" class="invalid-feedback">
               {{ error.invalid }}
@@ -33,7 +37,7 @@
         <div>
             <p>
               <button type="submit" [disabled]="!followedForm.valid" class="btn btn-primary btn-block">
-                  Add followed user
+                  Add connection
               </button>
             </p>
         </div>

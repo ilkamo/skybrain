@@ -61,12 +61,9 @@
     </div>
   </div>
 
-  <div class="card-footer text-right" *ngIf="memory?.followerId">
-    <button [attr.title]="'Memory public link'" [routerLink]="['/public', memory?.id]" class="btn btn-light pull-right">
-      <fa-icon [icon]="['fas', 'link']"></fa-icon>
-    </button>
+  <div class="card-footer text-center" *ngIf="memory?.followerId">
     <button [attr.title]="'User public memories'" [routerLink]="['/connection', memory.followerId]" class="btn btn-light pull-right">
-      <fa-icon [icon]="['far', 'user']"></fa-icon>
+      <fa-icon [icon]="['far', 'user']"></fa-icon> Dispaly connection
     </button>
   </div>
 </ng-container>
