@@ -1,4 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+$breadcrumb-font-size:              12px;
+$breadcrumb-padding-y:              .5rem;
+$breadcrumb-padding-x:              1rem;
+$breadcrumb-item-padding:           .5rem;
+$breadcrumb-border-radius:          0;
+$primary: #10bad6;
 
 @import '~bootstrap/scss/bootstrap';
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400&display=swap');

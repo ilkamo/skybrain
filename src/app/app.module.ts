@@ -37,6 +37,7 @@ import { ConnectionComponent } from './pages/connection/connection.component';
 import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrainConnectionsComponent } from './components/brain-connections/brain-connections.component';
 import { ConnectMeComponent } from './components/connect-me/connect-me.component';
+import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { ConnectMeComponent } from './components/connect-me/connect-me.component
     MemoryMediaTypePipe,
     ConnectMeComponent,
     ConnectionComponent,
-    BrainConnectionsComponent
+    BrainConnectionsComponent,
+    BreadcrumbsComponent
   ],
   imports: [
     BrowserModule,

@@ -14,6 +14,12 @@ import { MemoriesInitializedService } from './services/memories-initialized.reso
 import { SharedMemoryService } from './services/shared-memory.resolver';
 import { PublicBrainResolver } from './services/public-brain.resolver';
 
+export interface IBreadcrumbLink {
+  title?: string;
+  param?: string;
+  link?: string;
+}
+
 const routes: Routes = [
   {
     path: 'login',
@@ -29,20 +35,51 @@ const routes: Routes = [
     path: 'profile',
     component: ProfileComponent,
     canActivate: [ AuthenticatedGuard ],
+    data: {
+      breadcrumbs: [
+        {
+          title: 'Profile',
+          link: '/profile'
+        } as IBreadcrumbLink,
+      ]
+    },
   },
   {
     path: 'shared/:code',
     component: SharedComponent,
     resolve: {
       sharedData: SharedMemoryService
-    }
+    },
+    data: {
+      breadcrumbs: [
+        {
+          title: 'Shared',
+        } as IBreadcrumbLink,
+        {
+          title: 'Memory',
+          param: 'code',
+          link: 'shared'
+        } as IBreadcrumbLink,
+      ]
+    },
   },
   {
     path: 'connection/:publicKey',
     component: ConnectionComponent,
     resolve: {
       publicBrain: PublicBrainResolver
-    }
+    },
+    data: {
+      breadcrumbs: [
+        {
+          title: 'Connection',
+        } as IBreadcrumbLink,
+        {
+          param: 'publicKey',
+          link: 'connection'
+        } as IBreadcrumbLink,
+      ]
+    },
   },
   {
     path: '',
@@ -50,6 +87,14 @@ const routes: Routes = [
     canActivate: [ AuthenticatedGuard, ValidProfileGuard ],
     resolve: {
       memoriesInitialized: MemoriesInitializedService
+    },
+    data: {
+      breadcrumbs: [
+        {
+          title: 'Memories',
+          link: '/'
+        } as IBreadcrumbLink,
+      ]
     },
     pathMatch: 'full'
   },
