@@ -6,7 +6,7 @@ import { BaseMemory, UserMemoriesEncrypted, UserMemory, USER_MEMORIES_KEY_PREFIX
 import { v4 as uuidv4 } from 'uuid';
 import { UserPublicMemory, UsersPublicMemories, USER_PUBLIC_MEMORIES_KEY } from '../models/user-public-memories';
 import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from '../models/user-shared-memories';
-import { FollowedUser, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
+import { FollowedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_FOLLOWED_USERS_KEY } from '../models/user-followed-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
 
@@ -25,6 +25,7 @@ export class ApiService {
     @Inject(USER_PUBLIC_MEMORIES_KEY) private userPublicMemoriesSkydbKey: string,
     @Inject(USER_SHARED_MEMORIES_KEY) private userSharedMemoriesSkydbKey: string,
     @Inject(USER_FOLLOWED_USERS_KEY) private userFollowedUsersSkydbKey: string,
+    @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skybrainAccountPublicKey: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -146,9 +147,14 @@ export class ApiService {
 
     const initialRevision = 0;
 
-    user = user || { nickname: '' };
-    await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey,
-      revision: initialRevision });
+    // genratate random username
+    user = user || { nickname: `skybrain-${Math.random().toString(36).substring(6)}` };
+
+    // init followed users with the Skybrain official publicKey
+    const followedUsers: FollowedUser[] = [{
+      publicKey: this.skybrainAccountPublicKey,
+      startedAt: new Date(Date.now()),
+    }];
 
     try {
       await this.skynetClient.db.setJSON(
@@ -164,7 +170,7 @@ export class ApiService {
       await this.skynetClient.db.setJSON(
         privateKey,
         this.userFollowedUsersSkydbKey,
-        [] as FollowedUser[],
+        followedUsers,
         initialRevision,
         {
           timeout: this.skydbTimeout,
@@ -184,6 +190,9 @@ export class ApiService {
     } catch (error) {
       throw new Error('The user database could not be initialized');
     }
+
+    await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey,
+      revision: initialRevision });
 
     // This should be executed as the last one to ensure that all the other schemas are stored.
     await this.updateUserData({ user, privateKey, revision: initialRevision });

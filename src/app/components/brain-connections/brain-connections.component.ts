@@ -1,17 +1,32 @@
 import { FollowedUser } from 'src/app/models/user-followed-users';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-brain-connections',
   templateUrl: './brain-connections.component.html',
   styleUrls: ['./brain-connections.component.scss']
 })
-export class BrainConnectionsComponent implements OnInit {
+export class BrainConnectionsComponent implements OnInit, OnDestroy {
   @Input() followedUsers?: FollowedUser[];
   accordionOpened = false;
-  constructor() { }
+  // tslint:disable-next-line: no-any
+  routeData$: Observable<any>;
+  subscription = new Subscription();
 
-  ngOnInit(): void {
+  constructor(private router: Router) {
+    this.routeData$ = router.events.pipe(filter(event => event instanceof NavigationStart));
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  ngOnInit(): void {
+    this.subscription = this.routeData$.subscribe((event: NavigationStart) => {
+      this.accordionOpened = false;
+    });
+  }
 }

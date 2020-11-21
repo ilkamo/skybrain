@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { AbstractControl, FormGroup, ValidatorFn } from '@angular/forms';
-export const USER_DATA_KEY = new InjectionToken('sia-user-data-key');
+export const USER_DATA_KEY = new InjectionToken('skybrain-user-data-key');
 
 export interface UserKeys {
   publicKey: string;
