@@ -1,4 +1,4 @@
-# Skybrain
+# [Skybrain](https://skybrain.hns.siasky.net/)
 
 ![Skybrain logo](https://siasky.net/KAAuqcLCyG-KW1JiQYDDZHxn8AXzCQhD-gKe9mZChfoqFg)
 
