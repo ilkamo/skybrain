@@ -1,6 +1,6 @@
 <ng-container *ngIf="breadcrumbs$ | async as breadcrumbs">
   <nav *ngIf="breadcrumbs.length" aria-label="breadcrumb">
-    <ol class="breadcrumb">
+    <ol class="breadcrumb pr-3">
       <li class="breadcrumb-item">
         Brain
       </li>
@@ -9,9 +9,9 @@
         class="breadcrumb-item"
       >
         <a *ngIf="crumb.link; else simple"
-          class="text-primary"
+          class="text-primary text-truncate"
           [routerLink]="crumb.link"
-        ><span class="text-truncate">{{ crumb.title }}</span></a>
+        >{{ crumb.title }}</a>
         <ng-template #simple>{{ crumb.title }}</ng-template>
       </li>
     </ol>

@@ -30,9 +30,11 @@ This architecture was created for the purposes of the hackathon with just a few 
 8. Navigation breadcrumbs
 9. Clean responsive design
 
-Having a look at [these memories](https://skybrain.hns.siasky.net/#/connection/aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f) you can see how powerful is now Skybrain. You can also understand how much work and dedication it took us to develop a service like this.
+We recorded a few short videos in order to explain how Skybrain works. [Visit this brain connection](https://skybrain.hns.siasky.net/#/connection/669ee4eaf08ed6beb1e1ea13bafc84de39f2ffe38cfccae6374d5794e687f1dd) to display them.
 
-The hackathon was three weeks long so, from the beginning, we planned what to bring to the end and what to sacrifice in order to have a working product at the end. For this reason other cool features will be introduced after the hackathon. We first thought about the essentials needed to make Skybrain a working idea that people will love.
+At the same time, having a look at [these memories](https://skybrain.hns.siasky.net/#/connection/aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f) you can see how powerful is now Skybrain. You can also understand how much work and dedication it took us to develop a service like this.
+
+The hackathon was three weeks long and it was a continuous thinking about what to bring to the end and what to sacrifice in order to have a working product at the end. For this reason other cool features will be introduced after the hackathon. We first thought about the essentials needed to make Skybrain a working idea that people will love.
 
 ## Development server
 
