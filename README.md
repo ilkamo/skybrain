@@ -36,6 +36,34 @@ At the same time, having a look at [these memories](https://skybrain.hns.siasky.
 
 The hackathon was three weeks long and it was a continuous thinking about what to bring to the end and what to sacrifice in order to have a working product at the end. For this reason other cool features will be introduced after the hackathon. We first thought about the essentials needed to make Skybrain a working idea that people will love.
 
+## Access Skybrain public data
+
+Fetching public Skybrain data is easy like writing an Hello world! All you need is the public key of the user.
+
+```
+try {
+  response = await this.skynetClient.db.getJSON(
+    publicKey,
+    'SKYBRAIN__USER_PUBLIC_MEMORIES',
+    {
+      timeout: 5000,
+    },
+    );
+  } catch (error) {
+}
+if (!response || !('data' in response)) {
+  throw new Error(
+    'Could not fetch public memories'
+  );
+}
+
+const userPublicMemories = response.data as UserPublicMemory[];
+```
+
+The returned structures are described here: 
+- [UserPublicMemory](https://github.com/kamy22/skybrain/blob/master/src/app/models/user-public-memories.ts)
+- [UserMemory](https://github.com/kamy22/skybrain/blob/master/src/app/models/user-memory.ts)
+
 ## Development server
 
 Run `yarn install` & `yarn start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
