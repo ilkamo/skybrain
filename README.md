@@ -38,24 +38,16 @@ The hackathon was three weeks long and it was a continuous thinking about what t
 
 ## Access Skybrain public data
 
-Fetching public Skybrain data is easy like writing an Hello world! All you need is the public key of the user.
+Fetching Skybrain public data is easy like writing a basic Hello world! All you need is the public key of the user.
 
 ```
-try {
-  response = await this.skynetClient.db.getJSON(
-    publicKey,
-    'SKYBRAIN__USER_PUBLIC_MEMORIES',
-    {
-      timeout: 5000,
-    },
-    );
-  } catch (error) {
-}
-if (!response || !('data' in response)) {
-  throw new Error(
-    'Could not fetch public memories'
-  );
-}
+const response = await this.skynetClient.db.getJSON(
+  {PUBLIC_KEY},
+  'SKYBRAIN__USER_PUBLIC_MEMORIES',
+  {
+    timeout: 6000,
+  },
+);
 
 const userPublicMemories = response.data as UserPublicMemory[];
 ```
