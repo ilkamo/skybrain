@@ -18,7 +18,8 @@ export class ProfileComponent implements OnInit {
   validProfile$ = this.store.pipe(select(UserSelectors.hasValidUserData));
   error$ = this.store.pipe(select(UserSelectors.selectError));
   profileForm = this.formBuilder.group({
-    nickname: ['']
+    nickname: [''],
+    description: ['', Validators.maxLength(300)]
   }, { validators: [ userDataValidator ] });
   connectedForm = this.formBuilder.group({
     publicKey: ['', [Validators.required, Validators.minLength(10)] ]

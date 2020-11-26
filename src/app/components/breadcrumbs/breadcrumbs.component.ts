@@ -25,7 +25,7 @@ export class BreadcrumbsComponent implements OnInit {
         if (link && params && b.param) {
           link.push(params[b.param]);
         }
-        console.log({title, link});
+
         return {title, link};
       });
     })
