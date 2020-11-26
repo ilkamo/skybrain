@@ -1,3 +1,4 @@
+import { UserData } from './../../models/user-data';
 import { ConnectedUser } from 'src/app/models/user-connected-users';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -11,6 +12,7 @@ import { Observable, Subscription } from 'rxjs';
 export class ConnectionComponent implements OnInit, OnDestroy {
   memories: Memory[] | null = null;
   connectedUsers: ConnectedUser[] | null = null;
+  brainData: UserData | null = null;
   accordionOpened = false;
   publicKey: string | undefined;
   subscription = new Subscription();
@@ -36,6 +38,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         this.connectedUsers = data.publicBrain.connectedUsers;
         this.memories = data.publicBrain.memories;
         this.publicKey = data.params.publicKey;
+        this.brainData = data.publicBrain.brainData;
       })
     );
   }

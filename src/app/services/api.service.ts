@@ -51,7 +51,7 @@ export class ApiService {
     return { publicKey, privateKey, memoriesEncryptionKey, memoriesSkydbKey };
   }
 
-  public async authenticateUser({ publicKey }: Partial<UserKeys>): Promise<UserData> {
+  public async getBrainData({ publicKey }: Partial<UserKeys>): Promise<UserData> {
     if (!publicKey) {
       throw new Error('No publicKey');
     }
@@ -61,7 +61,7 @@ export class ApiService {
         publicKey,
         this.userDataKey,
         {
-          timeout: this.registerUserSkydbTimeout,
+          timeout: this.skydbTimeout,
         },
       ) || {};
       if (data) {
@@ -69,7 +69,7 @@ export class ApiService {
       }
     } catch (error) { }
 
-    throw new Error('Could not get user data');
+    throw new Error('Could not get brain data');
   }
 
   private encryptUserMemories({ memories, memoriesEncryptionKey }: { memories: UserMemory[] } & Partial<UserKeys>): string {
