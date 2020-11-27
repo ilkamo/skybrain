@@ -37,7 +37,6 @@ export class SharedComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription.add(
       this.routeData$.subscribe(data => {
-        console.log(data);
         const sharedData = data.sharedData;
         this.memory = sharedData.sharedMemory;
         this.connectedUsers = sharedData.connectedUsers;
