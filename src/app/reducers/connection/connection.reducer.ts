@@ -18,17 +18,17 @@ export const intialState = initializeState();
 
 export const reducer = createReducer(
   intialState,
-  on(ConnectionActions.GetConnectionAction, state => state),
-  on(ConnectionActions.CreateVisitedConnectionAction, (state: State, { connection }) => {
+  on(ConnectionActions.getConnectionAction, state => state),
+  on(ConnectionActions.createVisitedConnectionAction, (state: State, { connection }) => {
     return { ...state, visitedConnections: [...state.visitedConnections, connection] };
   }),
-  on(ConnectionActions.SuccessGetConnectionAction, (state: State, { connection }) => {
+  on(ConnectionActions.successGetConnectionAction, (state: State, { connection }) => {
     return { ...state, visitedConnections: connection };
   }),
-  on(ConnectionActions.SuccessCreateVisitedConnectionAction, (state: State, { connection }) => {
+  on(ConnectionActions.successCreateVisitedConnectionAction, (state: State, { connection }) => {
     return { ...state, visitedConnections: [...state.visitedConnections, connection] };
   }),
-  on(ConnectionActions.SuccessGetConnectionInfoAction, (state: State, { connectionData }) => {
+  on(ConnectionActions.successGetConnectionInfoAction, (state: State, { connectionData }) => {
     return { ...state, connectionsInfo: { ...state.connectionsInfo, ...connectionData } };
   })
 );

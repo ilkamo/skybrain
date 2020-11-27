@@ -7,7 +7,7 @@ import { map, withLatestFrom } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { State as RootState } from '../../reducers';
-import { BeginCreateVisitedConnectionAction } from '../../reducers/connection/connection.action';
+import { beginCreateVisitedConnectionAction } from '../../reducers/connection/connection.action';
 
 @Component({
   templateUrl: './connection.component.html',
@@ -43,7 +43,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         this.publicKey = data.params.publicKey;
         this.brainData = data.publicBrain.brainData;
         if (this.publicKey) {
-          this.store.dispatch(BeginCreateVisitedConnectionAction({ connection: { publicKey: this.publicKey } }));
+          this.store.dispatch(beginCreateVisitedConnectionAction({ connection: { publicKey: this.publicKey } }));
         }
       })
     );

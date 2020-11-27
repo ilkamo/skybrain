@@ -11,7 +11,7 @@ import { State as RootState } from '../';
 @Injectable()
 export class ConnectionEffects {
   newVisitedConnection$ = createEffect(() => this.actions$.pipe(
-    ofType(ConnectionActions.BeginCreateVisitedConnectionAction),
+    ofType(ConnectionActions.beginCreateVisitedConnectionAction),
     withLatestFrom(
       this.store.select(ConnectionSelectors.selectConnectionsInfo),
     ),
@@ -19,20 +19,20 @@ export class ConnectionEffects {
       const connectionPublicKey = action.connection.publicKey;
       const connectionInfoIsPresent = (connectionPublicKey in connectionsInfo);
       if (!connectionInfoIsPresent) {
-        this.store.dispatch(ConnectionActions.BeginGetConnectionInfoAction({ publicKey: connectionPublicKey }));
+        this.store.dispatch(ConnectionActions.beginGetConnectionInfoAction({ publicKey: connectionPublicKey }));
       }
-      return ConnectionActions.CreateVisitedConnectionAction({ connection: action.connection});
+      return ConnectionActions.createVisitedConnectionAction({ connection: action.connection});
     }),
-    map(connection => ConnectionActions.SuccessCreateVisitedConnectionAction(connection))
+    map(connection => ConnectionActions.successCreateVisitedConnectionAction(connection))
   ));
 
   getConnectionData$ = createEffect(() => this.actions$.pipe(
-    ofType(ConnectionActions.BeginGetConnectionInfoAction),
+    ofType(ConnectionActions.beginGetConnectionInfoAction),
     switchMap(action => {
       const publicKey = action.publicKey;
       return from(this.api.getBrainData({ publicKey })).pipe(
-        map(brainData => ConnectionActions.SuccessGetConnectionInfoAction({ connectionData: { [publicKey]: brainData }})),
-        catchError(error => of(ConnectionActions.FailureGetConnectionInfoAction({ error: error.message })))
+        map(brainData => ConnectionActions.successGetConnectionInfoAction({ connectionData: { [publicKey]: brainData }})),
+        catchError(error => of(ConnectionActions.failureGetConnectionInfoAction({ error: error.message })))
       );
     })
   ));
