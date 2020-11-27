@@ -8,3 +8,8 @@ export const selectVisitedConnections = createSelector(
   selectFeature,
   (state: ConnectionState) => state.visitedConnections
 );
+
+export const selectConnectionsInfo = createSelector(
+  selectFeature,
+  (state: ConnectionState) => state.connectionsInfo
+);

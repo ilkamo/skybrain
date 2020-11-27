@@ -7,7 +7,7 @@ import { map, withLatestFrom } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { State as RootState } from '../../reducers';
-import * as ConnectionActions from '../../reducers/connection/connection.action';
+import { BeginCreateVisitedConnectionAction, BeginGetConnectionInfoAction } from '../../reducers/connection/connection.action';
 
 @Component({
   templateUrl: './connection.component.html',
@@ -28,7 +28,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
     this.routeData$ = route.data.pipe(
       map(data => data.publicBrain),
       withLatestFrom(route.params),
-      map(([publicBrain, params]) => ({publicBrain, params}))
+      map(([publicBrain, params]) => ({ publicBrain, params }))
     );
   }
 
@@ -43,7 +43,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         this.memories = data.publicBrain.memories;
         this.publicKey = data.params.publicKey;
         this.brainData = data.publicBrain.brainData;
-        this.store.dispatch(ConnectionActions.BeginCreateVisitedConnectionAction({ payload: {publicKey: this.publicKey } }));
+        this.store.dispatch(BeginCreateVisitedConnectionAction({ connection: { publicKey: this.publicKey } }));
       })
     );
   }

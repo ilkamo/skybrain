@@ -14,6 +14,10 @@ export interface UserData {
   description?: string;
 }
 
+export interface UsersData {
+  [userPublicKey: string]: UserData;
+}
+
 export type DataValidator<T> = {
   [P in keyof T]: string | true
 };
