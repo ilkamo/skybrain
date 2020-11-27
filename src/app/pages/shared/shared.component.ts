@@ -10,11 +10,13 @@ export class SharedComponent implements OnInit {
   memory: Memory | null = null;
   connectedUsers: ConnectedUser[] | null = null;
   accordionOpened = false;
+  publicKey: string;
 
   constructor(route: ActivatedRoute) {
     const sharedData = route.snapshot.data.sharedData;
     this.memory = sharedData.sharedMemory;
     this.connectedUsers = sharedData.connectedUsers;
+    this.publicKey = sharedData.publicKey;
   }
 
   ngOnInit(): void {

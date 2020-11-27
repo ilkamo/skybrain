@@ -5,6 +5,10 @@ import { ActivatedRoute } from '@angular/router';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 import { map, withLatestFrom } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { State as RootState } from '../../reducers';
+import * as ConnectionActions from '../../reducers/connection/connection.action';
+
 @Component({
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss']
@@ -20,7 +24,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
   routeData$: Observable<any>;
 
 
-  constructor(route: ActivatedRoute) {
+  constructor(private store: Store<RootState>, route: ActivatedRoute) {
     this.routeData$ = route.data.pipe(
       map(data => data.publicBrain),
       withLatestFrom(route.params),
@@ -39,6 +43,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         this.memories = data.publicBrain.memories;
         this.publicKey = data.params.publicKey;
         this.brainData = data.publicBrain.brainData;
+        this.store.dispatch(ConnectionActions.BeginCreateConnectionAction({ payload: {publicKey: this.publicKey } }));
       })
     );
   }

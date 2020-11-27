@@ -1,22 +1,17 @@
 import {
   ActionReducerMap,
   MetaReducer,
-  Store
 } from '@ngrx/store';
 import { environment } from '../../environments/environment';
 import * as fromMemory from './memory/memory.reducer';
 import * as fromUser from './user/user.reducer';
+import * as fromConnection from './connection/connection.reducer';
 import * as fromRouter from './router';
 import { MinimalRouterStateSnapshot, routerReducer, RouterReducerState } from '@ngrx/router-store';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map, withLatestFrom } from 'rxjs/operators';
-import { Injectable } from '@angular/core';
-import { isAuthenticated } from './user/user.selectors';
 
 
 export interface State {
-
+  [fromConnection.connectionsFeatureKey]: fromConnection.State;
   [fromMemory.memoriesFeatureKey]: fromMemory.State;
   [fromUser.userFeatureKey]: fromUser.State;
   // tslint:disable-next-line: no-any
@@ -24,7 +19,7 @@ export interface State {
 }
 
 export const reducers: ActionReducerMap<State> = {
-
+  [fromConnection.connectionsFeatureKey]: fromConnection.reducer,
   [fromMemory.memoriesFeatureKey]: fromMemory.reducer,
   [fromUser.userFeatureKey]: fromUser.reducer,
   [fromRouter.routerFeatureKey]: routerReducer

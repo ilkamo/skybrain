@@ -1,3 +1,4 @@
+import { ConnectionEffects } from './reducers/connection/connection.effects';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
@@ -66,7 +67,7 @@ import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.compo
     AppRoutingModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    EffectsModule.forRoot([UserEffects, MemoryEffects]),
+    EffectsModule.forRoot([UserEffects, MemoryEffects, ConnectionEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],

@@ -9,19 +9,19 @@ import { ApiService } from './api.service';
 @Injectable({
   providedIn: 'root'
 })
-export class SharedMemoryService implements Resolve<{sharedMemory: Memory, connectedUsers: ConnectedUser[]}> {
+export class SharedMemoryService implements Resolve<{sharedMemory: Memory, connectedUsers: ConnectedUser[], publicKey: string}> {
   constructor(private apiService: ApiService, private router: Router) { }
 
   resolve(
     route: ActivatedRouteSnapshot,
     _: RouterStateSnapshot
-  ): Observable<{sharedMemory: Memory, connectedUsers: ConnectedUser[]}> {
+  ): Observable<{sharedMemory: Memory, connectedUsers: ConnectedUser[], publicKey: string}> {
     if (!route.params.code) {
       this.router.navigate(['/404'], { queryParams: { error: 'Invalid shared link' } });
       return EMPTY;
     }
 
-    const publicKey = this.apiService.resolvePublicKeyFromBase64(route.params.code);
+    const publicKeyFromBase64 = this.apiService.resolvePublicKeyFromBase64(route.params.code);
 
     const sharedMemory$ = from(this.apiService.resolveMemoryFromBase64(route.params.code))
       .pipe(
@@ -33,15 +33,15 @@ export class SharedMemoryService implements Resolve<{sharedMemory: Memory, conne
         })
       );
 
-    const connectedUsers$ = from(this.apiService.getConnectedUsers({ publicKey })).pipe(
+    const connectedUsers$ = from(this.apiService.getConnectedUsers({ publicKey: publicKeyFromBase64 })).pipe(
       catchError(error => {
         // TODO: dispaly error
         return EMPTY;
       })
     );
 
-    return zip(sharedMemory$, connectedUsers$).pipe(
-      map(([sharedMemory, connectedUsers]) => ({ sharedMemory, connectedUsers })),
+    return zip(sharedMemory$, connectedUsers$, publicKeyFromBase64).pipe(
+      map(([sharedMemory, connectedUsers, publicKey]) => ({ sharedMemory, connectedUsers, publicKey })),
       first()
     );
   }
