@@ -8,7 +8,6 @@ import { select, Store } from '@ngrx/store';
 import * as UserSelectors from '../user/user.selectors';
 import * as MemorySelectors from '../memory/memory.selectors';
 import * as MemoryActions from './memory.actions';
-import * as UserActions from '../user/user.actions';
 import { mapSkyToMemory, Memory } from './memory.model';
 import { UserKeys } from 'src/app/models/user-data';
 

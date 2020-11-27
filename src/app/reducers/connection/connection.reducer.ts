@@ -1,5 +1,5 @@
 import { UsersData } from './../../models/user-data';
-import { Action, createReducer, on } from '@ngrx/store';
+import { createReducer, on } from '@ngrx/store';
 import * as ConnectionActions from './connection.action';
 import { Connection } from './connection.model';
 
