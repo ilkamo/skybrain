@@ -43,7 +43,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         this.memories = data.publicBrain.memories;
         this.publicKey = data.params.publicKey;
         this.brainData = data.publicBrain.brainData;
-        this.store.dispatch(ConnectionActions.BeginCreateConnectionAction({ payload: {publicKey: this.publicKey } }));
+        this.store.dispatch(ConnectionActions.BeginCreateVisitedConnectionAction({ payload: {publicKey: this.publicKey } }));
       })
     );
   }

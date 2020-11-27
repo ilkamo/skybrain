@@ -3,7 +3,7 @@ import Connection from './connection.model';
 
 export const GetConnectionAction = createAction('[Connection] - Get Connection');
 
-export const CreateConnectionAction = createAction(
+export const CreateVisitedConnectionAction = createAction(
   '[Connection] - Create Connection',
   props<Connection>()
 );
@@ -15,12 +15,12 @@ export const SuccessGetConnectionAction = createAction(
   props<{ payload: Connection[] }>()
 );
 
-export const BeginCreateConnectionAction = createAction(
+export const BeginCreateVisitedConnectionAction = createAction(
   '[Connection] - Begin Create Connection',
   props<{ payload: Connection }>()
 );
 
-export const SuccessCreateConnectionAction = createAction(
+export const SuccessCreateVisitedConnectionAction = createAction(
   '[Connection] - Success Create Connection',
   props<{ payload: Connection }>()
 );

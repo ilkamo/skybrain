@@ -7,8 +7,8 @@ import * as ConnectionActions from './connection.action';
 export class ConnectionEffects {
 
   newVisitedConnection$ = createEffect(() => this.actions$.pipe(
-    ofType(ConnectionActions.BeginCreateConnectionAction),
-    map(connection => ConnectionActions.CreateConnectionAction(connection.payload))
+    ofType(ConnectionActions.BeginCreateVisitedConnectionAction),
+    map(connection => ConnectionActions.CreateVisitedConnectionAction(connection.payload))
   ));
 
   constructor(

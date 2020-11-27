@@ -17,13 +17,13 @@ export const intialState = initializeState();
 export const reducer = createReducer(
   intialState,
   on(ConnectionActions.GetConnectionAction, state => state),
-  on(ConnectionActions.CreateConnectionAction, (state: State, visitedConnection: Connection) => {
+  on(ConnectionActions.CreateVisitedConnectionAction, (state: State, visitedConnection: Connection) => {
     return { ...state, visitedConnections: [...state.visitedConnections, visitedConnection] };
   }),
   on(ConnectionActions.SuccessGetConnectionAction, (state: State, { payload }) => {
     return { ...state, visitedConnections: payload };
   }),
-  on(ConnectionActions.SuccessCreateConnectionAction, (state: State, { payload }) => {
+  on(ConnectionActions.SuccessCreateVisitedConnectionAction, (state: State, { payload }) => {
     return { ...state, visitedConnections: [...state.visitedConnections, payload] };
   })
 );

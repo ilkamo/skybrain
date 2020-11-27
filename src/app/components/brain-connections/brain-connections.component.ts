@@ -8,7 +8,6 @@ import { State as RootState } from '../../reducers';
 import { selectVisitedConnections } from 'src/app/reducers/connection/connection.selectors';
 import { map } from 'rxjs/operators';
 import Connection from 'src/app/reducers/connection/connection.model';
-import { BeginGetConnectionAction } from 'src/app/reducers/connection/connection.action';
 
 @Component({
   selector: 'app-brain-connections',
@@ -47,8 +46,6 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe();
-
-    this.store.dispatch(BeginGetConnectionAction());
   }
 
   visited(publicKey: string): boolean {
