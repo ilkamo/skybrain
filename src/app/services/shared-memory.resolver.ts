@@ -41,7 +41,7 @@ export class SharedMemoryService implements Resolve<{sharedMemory: Memory, conne
     );
 
     return zip(sharedMemory$, connectedUsers$, publicKeyFromBase64).pipe(
-      map(([sharedMemory, connectedUsers, publicKey]) => ({ sharedMemory, connectedUsers, publicKey })),
+      map(([sharedMemory, connectedUsers ]) => ({ sharedMemory, connectedUsers, publicKey: publicKeyFromBase64 })),
       first()
     );
   }
