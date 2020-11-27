@@ -1,7 +1,7 @@
 import { UsersData } from './../../models/user-data';
 import { Action, createReducer, on } from '@ngrx/store';
 import * as ConnectionActions from './connection.action';
-import Connection from './connection.model';
+import { Connection } from './connection.model';
 
 export const connectionsFeatureKey = 'connections';
 
@@ -29,6 +29,6 @@ export const reducer = createReducer(
     return { ...state, visitedConnections: [...state.visitedConnections, connection] };
   }),
   on(ConnectionActions.SuccessGetConnectionInfoAction, (state: State, { connectionData }) => {
-    return { ...state, connectionsInfo: { ...state.connectionsInfo, connectionData } };
+    return { ...state, connectionsInfo: { ...state.connectionsInfo, ...connectionData } };
   })
 );

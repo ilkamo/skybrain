@@ -1,6 +1,6 @@
 import { UsersData } from 'src/app/models/user-data';
 import { createAction, props } from '@ngrx/store';
-import Connection from './connection.model';
+import { Connection } from './connection.model';
 
 export const GetConnectionAction = createAction('[Connection] - Get Connection');
 

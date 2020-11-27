@@ -13,3 +13,8 @@ export const selectConnectionsInfo = createSelector(
   selectFeature,
   (state: ConnectionState) => state.connectionsInfo
 );
+
+export const selectConnections = createSelector(
+  selectFeature,
+  (state: ConnectionState) => state
+);

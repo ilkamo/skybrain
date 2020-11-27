@@ -5,9 +5,10 @@ import { filter } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { State as RootState } from '../../reducers';
-import { selectVisitedConnections } from 'src/app/reducers/connection/connection.selectors';
+import { selectConnections } from 'src/app/reducers/connection/connection.selectors';
 import { map } from 'rxjs/operators';
-import Connection from 'src/app/reducers/connection/connection.model';
+import { Connection } from 'src/app/reducers/connection/connection.model';
+import { UsersData } from 'src/app/models/user-data';
 
 @Component({
   selector: 'app-brain-connections',
@@ -20,10 +21,12 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
   // tslint:disable-next-line: no-any
   routeData$: Observable<any>;
   routerSubscription = new Subscription();
-  visitedConnectionsSubscription = new Subscription();
-  visitedConnections$ = this.store.pipe(select(selectVisitedConnections));
 
   visitedConnections: Connection[] = [];
+  connectionsInfo: UsersData = {};
+
+  connectionsSubscription = new Subscription();
+  connections$ = this.store.pipe(select(selectConnections));
 
   constructor(private store: Store<RootState>, private router: Router) {
     this.routeData$ = router.events.pipe(filter(event => event instanceof NavigationStart));
@@ -31,7 +34,7 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSubscription.unsubscribe();
-    this.visitedConnectionsSubscription.unsubscribe();
+    this.connectionsSubscription.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -39,10 +42,11 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
       this.accordionOpened = false;
     });
 
-    this.visitedConnectionsSubscription = this.visitedConnections$
+    this.connectionsSubscription = this.connections$
       .pipe(
-        map(visitedConnections => {
-          this.visitedConnections = visitedConnections;
+        map(connections => {
+          this.visitedConnections = connections.visitedConnections;
+          this.connectionsInfo = connections.connectionsInfo;
         })
       )
       .subscribe();
@@ -50,5 +54,14 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
 
   visited(publicKey: string): boolean {
     return this.visitedConnections.find(c => c.publicKey === publicKey) !== undefined;
+  }
+
+  resolveConnectionName(publicKey: string): string {
+    if (publicKey in this.connectionsInfo) {
+      const connection = this.connectionsInfo[publicKey];
+      const nickname = connection.nickname;
+      return nickname !== undefined ? `${publicKey.substring(0, 20)}... <-> ${nickname}` : publicKey;
+    }
+    return publicKey;
   }
 }
