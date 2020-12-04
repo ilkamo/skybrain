@@ -39,6 +39,8 @@ import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrainConnectionsComponent } from './components/brain-connections/brain-connections.component';
 import { ConnectMeComponent } from './components/connect-me/connect-me.component';
 import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
+import { SkyidConnectComponent } from './components/skyid-connect/skyid-connect.component';
+import { APP_NAME } from './tokens/app-name.token';
 
 @NgModule({
   declarations: [
@@ -60,7 +62,8 @@ import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.compo
     ConnectMeComponent,
     ConnectionComponent,
     BrainConnectionsComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    SkyidConnectComponent
   ],
   imports: [
     BrowserModule,
@@ -80,6 +83,7 @@ import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.compo
     { provide: USER_SHARED_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_SHARED_MEMORIES' },
     { provide: USER_CONNECTED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
     { provide: SKYBRAIN_ACCOUNT_PUBLIC_KEY, useValue: 'aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f' },
+    { provide: APP_NAME, useValue: 'Skybrain' },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
   ],
   bootstrap: [AppComponent]
