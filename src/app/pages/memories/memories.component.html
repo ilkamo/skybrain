@@ -18,7 +18,8 @@
 
             <form [formGroup]="uploadForm">
               <div class="form-group mb-3">
-                <textarea placeholder="What is your memory about?" class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea>
+                <app-markdown-editor></app-markdown-editor>
+                <!-- <textarea placeholder="What is your memory about?" class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea> -->
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">

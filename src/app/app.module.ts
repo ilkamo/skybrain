@@ -41,6 +41,7 @@ import { ConnectMeComponent } from './components/connect-me/connect-me.component
 import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
 import { SkyidConnectComponent } from './components/skyid-connect/skyid-connect.component';
 import { APP_NAME } from './tokens/app-name.token';
+import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.module';
 
 @NgModule({
   declarations: [
@@ -74,7 +75,8 @@ import { APP_NAME } from './tokens/app-name.token';
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
-    StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal })
+    StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal }),
+    MarkdownEditorModule
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },
