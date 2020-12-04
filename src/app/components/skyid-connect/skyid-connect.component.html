@@ -1,0 +1,10 @@
+<div *ngIf="logged; else elseBlock">
+  <button (click)="connect()" class="btn btn-light btn-image btn-block">
+		Continue with SkyID
+	</button>
+</div>
+<ng-template #elseBlock>
+  <button (click)="sessionStart()" class="btn btn-light btn-image btn-block">
+		Sign in with SkyID
+	</button>
+</ng-template>

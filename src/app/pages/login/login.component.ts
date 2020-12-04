@@ -15,17 +15,15 @@ export class LoginComponent implements OnInit {
 
   error$ = this.store.pipe(select(UserSelectors.selectError));
   loginForm = this.formBuilder.group({
-    passphrase: ['', [ Validators.required, Validators.minLength(4) ]]
+    passphrase: ['', [Validators.required, Validators.minLength(4)]]
   });
 
   constructor(
     private formBuilder: FormBuilder,
     private store: Store<RootState>
-  ) {
-  }
+  ) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   get form(): {
     [key: string]: AbstractControl;
@@ -35,7 +33,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
-        return;
+      return;
     }
 
     this.store.dispatch(
