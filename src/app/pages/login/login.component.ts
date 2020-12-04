@@ -5,9 +5,6 @@ import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
 
-// @ts-ignore
-import * as SkyID from 'skyid';
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
