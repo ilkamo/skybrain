@@ -1,16 +1,10 @@
-<!-- <div class="show-if-initialized show-if-logged-in logout-bar" style="display:none">
-	<a href="javascript: skyid.sessionDestroy()">Logout</a>
-</div> -->
-
-<div *ngIf="!logged">
-	<!-- Button for login -->
-	<button (click)="sessionStart()" class="btn btn-light btn-image btn-block">
-		Sign in with SkyID
-	</button>
-</div>
-
-<div *ngIf="logged">
-	<button (click)="connect()" class="btn btn-light btn-image btn-block">
+<div *ngIf="logged; else elseBlock">
+  <button (click)="connect()" class="btn btn-light btn-image btn-block">
 		Continue with SkyID
 	</button>
 </div>
+<ng-template #elseBlock>
+  <button (click)="sessionStart()" class="btn btn-light btn-image btn-block">
+		Sign in with SkyID
+	</button>
+</ng-template>
