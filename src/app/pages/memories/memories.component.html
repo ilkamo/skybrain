@@ -18,7 +18,13 @@
 
             <form [formGroup]="uploadForm">
               <div class="form-group mb-3">
-                <app-markdown-editor [(textAreaValue)]="textAreaValue"></app-markdown-editor>
+                <button type="button" class="mb-3 btn btn-light btn-sm" (click)="displayPreview = !displayPreview">
+                  {{ displayPreview ? 'Hide preview' : 'Display preview' }}
+                </button>
+                <app-markdown-editor [ngClass]="{ 'd-none': displayPreview}" [(textAreaValue)]="textAreaValue"></app-markdown-editor>
+                <div [ngClass]="{ 'd-none': !displayPreview}" class="border p-3 preview">
+                  <div class="markdown-body" [innerHTML]="textAreaValue | markdown"></div>
+                </div>
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">

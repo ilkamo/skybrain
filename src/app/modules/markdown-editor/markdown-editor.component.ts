@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import '@github/markdown-toolbar-element';
 
@@ -23,10 +23,5 @@ export class MarkdownEditorComponent implements OnInit {
 
   propagateChange(ev: any): void {
     this.textAreaValueChange.emit(ev.target.value);
-  }
-
-  autoGrowTextZone(e: any): void {
-    e.target.style.height = '0px';
-    e.target.style.height = (e.target.scrollHeight + 25) + 'px';
   }
 }

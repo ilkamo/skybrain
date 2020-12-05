@@ -20,6 +20,7 @@ export class MemoriesComponent implements OnInit {
   onlyMyMemoris = new FormControl();
   formOpened = false;
   textAreaValue = '';
+  displayPreview = false;
 
   constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
     this.uploadForm = this.formBuilder.group({
