@@ -1,3 +1,4 @@
+import { MarkdownPipe } from './pipes/markdown.pipe';
 import { ConnectionEffects } from './reducers/connection/connection.effects';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -41,6 +42,7 @@ import { ConnectMeComponent } from './components/connect-me/connect-me.component
 import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
 import { SkyidConnectComponent } from './components/skyid-connect/skyid-connect.component';
 import { APP_NAME } from './tokens/app-name.token';
+import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.module';
 
 @NgModule({
   declarations: [
@@ -63,7 +65,8 @@ import { APP_NAME } from './tokens/app-name.token';
     ConnectionComponent,
     BrainConnectionsComponent,
     BreadcrumbsComponent,
-    SkyidConnectComponent
+    SkyidConnectComponent,
+    MarkdownPipe
   ],
   imports: [
     BrowserModule,
@@ -74,7 +77,8 @@ import { APP_NAME } from './tokens/app-name.token';
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
-    StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal })
+    StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal }),
+    MarkdownEditorModule
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },
@@ -84,7 +88,7 @@ import { APP_NAME } from './tokens/app-name.token';
     { provide: USER_CONNECTED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
     { provide: SKYBRAIN_ACCOUNT_PUBLIC_KEY, useValue: 'aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f' },
     { provide: APP_NAME, useValue: 'Skybrain' },
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
+    { provide: LocationStrategy, useClass: HashLocationStrategy }
   ],
   bootstrap: [AppComponent]
 })

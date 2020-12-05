@@ -4,8 +4,16 @@
 
 .memories {
   width: 100%;
+
   @include media-breakpoint-up(sm) {
     width: 600px;
     max-width: 100%;
   }
+}
+
+.preview {
+  border: 1px solid $border-color;
+  box-shadow: 0 0 0 1px $border-color;
+  border-radius: 3px;
+  background-color: #f1f2f6;
 }

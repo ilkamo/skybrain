@@ -17,7 +17,7 @@
   </div>
 
   <div class="card-body" *ngIf="memory?.text">
-    {{ memory?.text }}
+    <div class="markdown-body" [innerHTML]="memory?.text | markdown"></div>
   </div>
 
   <div class="card-body" *ngIf="memory?.tags?.length">

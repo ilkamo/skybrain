@@ -18,7 +18,13 @@
 
             <form [formGroup]="uploadForm">
               <div class="form-group mb-3">
-                <textarea placeholder="What is your memory about?" class="form-control" formControlName="text" aria-describedby="inputGroup-sizing-default"></textarea>
+                <button type="button" class="mb-3 btn btn-light btn-sm" (click)="displayPreview = !displayPreview">
+                  {{ displayPreview ? 'Hide preview' : 'Display preview' }}
+                </button>
+                <app-markdown-editor [ngClass]="{ 'd-none': displayPreview}" [(textAreaValue)]="memoryText"></app-markdown-editor>
+                <div [ngClass]="{ 'd-none': !displayPreview}" class="border p-3 preview">
+                  <div class="markdown-body" [innerHTML]="memoryText | markdown"></div>
+                </div>
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">

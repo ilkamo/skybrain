@@ -1,11 +1,12 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, EventEmitter, HostBinding, Inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 
 @Component({
   selector: 'app-memory',
   templateUrl: './memory.component.html',
-  styleUrls: ['./memory.component.scss']
+  styleUrls: ['./memory.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class MemoryComponent implements OnInit {
   @Input() memory?: Memory;
