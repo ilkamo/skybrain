@@ -1,3 +1,4 @@
+import { MarkdownPipe } from './pipes/markdown.pipe';
 import { ConnectionEffects } from './reducers/connection/connection.effects';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -64,7 +65,8 @@ import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.
     ConnectionComponent,
     BrainConnectionsComponent,
     BreadcrumbsComponent,
-    SkyidConnectComponent
+    SkyidConnectComponent,
+    MarkdownPipe
   ],
   imports: [
     BrowserModule,
@@ -86,7 +88,7 @@ import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.
     { provide: USER_CONNECTED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
     { provide: SKYBRAIN_ACCOUNT_PUBLIC_KEY, useValue: 'aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f' },
     { provide: APP_NAME, useValue: 'Skybrain' },
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
+    { provide: LocationStrategy, useClass: HashLocationStrategy }
   ],
   bootstrap: [AppComponent]
 })

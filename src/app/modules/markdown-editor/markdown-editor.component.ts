@@ -1,5 +1,4 @@
-import { Component, HostBinding, Input, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
 
 import '@github/markdown-toolbar-element';
 
@@ -10,9 +9,11 @@ import '@github/markdown-toolbar-element';
 })
 export class MarkdownEditorComponent implements OnInit {
 
-  controlId = `MarkdownEditor-${Math.floor(100000 * Math.random())}`;
-  @HostBinding('class.focus') isFocus = false;
-  @Input() controlName: string | undefined | null;
+  markdownTextAreaControlId = `MarkdownEditor-${Math.floor(100000 * Math.random())}`;
+  @Input() controlId: string | undefined | null;
+
+  @Input() textAreaValue: string | undefined | null;
+  @Output() textAreaValueChange = new EventEmitter<string>();
 
   constructor() {
   }
@@ -20,11 +21,7 @@ export class MarkdownEditorComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  focus(): void {
-    this.isFocus = true;
-  }
-
-  blur(): void {
-    this.isFocus = false;
+  logChange(ev: any): void {
+    this.textAreaValueChange.emit(ev.target.value);
   }
 }

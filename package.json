@@ -37,6 +37,7 @@
     "bootstrap": "^4.5.3",
     "buffer": "^6.0.2",
     "crypto-js": "^4.0.0",
+    "marked": "^1.2.5",
     "rxjs": "~6.6.3",
     "skyid": "^0.0.5",
     "skynet-js": "^2.9.0",
