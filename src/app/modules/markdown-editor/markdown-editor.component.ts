@@ -8,9 +8,7 @@ import '@github/markdown-toolbar-element';
   styleUrls: ['./markdown-editor.component.scss']
 })
 export class MarkdownEditorComponent implements OnInit {
-
   markdownTextAreaControlId = `MarkdownEditor-${Math.floor(100000 * Math.random())}`;
-  @Input() controlId: string | undefined | null;
 
   @Input() textAreaValue = '';
   @Output() textAreaValueChange = new EventEmitter<string>();
