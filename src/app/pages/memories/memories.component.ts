@@ -19,7 +19,7 @@ export class MemoriesComponent implements OnInit {
   uploadForm: FormGroup;
   onlyMyMemoris = new FormControl();
   formOpened = false;
-  textAreaValue = '';
+  memoryText = '';
   displayPreview = false;
 
   constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
@@ -54,12 +54,14 @@ export class MemoriesComponent implements OnInit {
       tags: this.form.tags.value ? this.form.tags.value.split(',')
         .map((item: string) => item.trim())
         .filter((item: string) => item.length) : [],
-      text: this.textAreaValue,
+      text: this.memoryText
+  ,
     };
 
     this.store.dispatch(MemomryActions.newMemory({ memory, file: this.form.file.value }));
     this.uploadForm.reset();
-    this.textAreaValue = '';
+    this.memoryText
+ = '';
   }
 
   forgetMemory(memory: Memory): void {
