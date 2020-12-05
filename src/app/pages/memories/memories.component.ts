@@ -19,7 +19,7 @@ export class MemoriesComponent implements OnInit {
   uploadForm: FormGroup;
   onlyMyMemoris = new FormControl();
   formOpened = false;
-  textAreaValue: string | undefined = undefined;
+  textAreaValue = '';
 
   constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
     this.uploadForm = this.formBuilder.group({
@@ -50,9 +50,9 @@ export class MemoriesComponent implements OnInit {
 
     const memory: BaseMemory = {
       location: this.form.location.value,
-      tags: this.form.tags.value.split(',')
+      tags: this.form.tags.value ? this.form.tags.value.split(',')
         .map((item: string) => item.trim())
-        .filter((item: string) => item.length),
+        .filter((item: string) => item.length) : [],
       text: this.textAreaValue,
     };
 

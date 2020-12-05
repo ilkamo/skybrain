@@ -12,7 +12,7 @@ export class MarkdownEditorComponent implements OnInit {
   markdownTextAreaControlId = `MarkdownEditor-${Math.floor(100000 * Math.random())}`;
   @Input() controlId: string | undefined | null;
 
-  @Input() textAreaValue: string | undefined | null;
+  @Input() textAreaValue = '';
   @Output() textAreaValueChange = new EventEmitter<string>();
 
   constructor() {
@@ -21,7 +21,12 @@ export class MarkdownEditorComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  logChange(ev: any): void {
+  propagateChange(ev: any): void {
     this.textAreaValueChange.emit(ev.target.value);
+  }
+
+  autoGrowTextZone(e: any): void {
+    e.target.style.height = '0px';
+    e.target.style.height = (e.target.scrollHeight + 25) + 'px';
   }
 }

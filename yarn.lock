@@ -132,15 +132,6 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/cdk@^11.0.1":
-  version "11.0.1"
-  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-11.0.1.tgz#37e1e4fe4450497a5965282dd8cc3702583fd6cf"
-  integrity sha512-PkOaIZWG9RQRmvw/6LxTM4nti5qzmhAKj6G9un5D/izO0gAyCzGgPzdqf3ZSW/rYz2nUVicdBvk+w0rRgcj1iw==
-  dependencies:
-    tslib "^2.0.0"
-  optionalDependencies:
-    parse5 "^5.0.0"
-
 "@angular/cli@~11.0.2":
   version "11.0.2"
   resolved "https://registry.yarnpkg.com/@angular/cli/-/cli-11.0.2.tgz#15ee1732258deec8ecb93f6ccac52d95230074d8"
@@ -5887,6 +5878,13 @@ next-tick@~1.0.0:
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
 
+ngx-autosize@^1.8.4:
+  version "1.8.4"
+  resolved "https://registry.yarnpkg.com/ngx-autosize/-/ngx-autosize-1.8.4.tgz#b9c14fe276d4d0ba19efa6ade86edd2dcf8c811f"
+  integrity sha512-eswPninzx2H1AyZrSNS36wMd4eLg9Hce5Utc23J3dAGher/PNC+6X9MBTqsOnQGbQk7wV1dhlZZH3252VwB05A==
+  dependencies:
+    tslib "^1.9.0"
+
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
@@ -6405,11 +6403,6 @@ parse5-sax-parser@^6.0.1:
   integrity sha512-kXX+5S81lgESA0LsDuGjAlBybImAChYRMT+/uKCEXFBFOeEhS52qUCydGhU3qLRD8D9DVjaUo821WK7DM4iCeg==
   dependencies:
     parse5 "^6.0.1"
-
-parse5@^5.0.0:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/parse5/-/parse5-5.1.1.tgz#f68e4e5ba1852ac2cadc00f4555fff6c2abb6178"
-  integrity sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==
 
 parse5@^6.0.1:
   version "6.0.1"

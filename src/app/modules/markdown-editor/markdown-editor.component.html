@@ -84,6 +84,6 @@
     </button></md-ref>
 </markdown-toolbar>
 
-<textarea [id]="markdownTextAreaControlId" class="text-editor" (input)="logChange($event)"
-  cdkTextareaAutosize [cdkAutosizeMinRows]="6" placeholder="What is your memory about?">
+<textarea [(ngModel)]="textAreaValue" [id]="markdownTextAreaControlId" class="text-editor" (input)="propagateChange($event)"
+  autosize placeholder="What is your memory about?">
 </textarea>
