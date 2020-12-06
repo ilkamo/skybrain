@@ -75,12 +75,7 @@ const routes: Routes = [
       breadcrumbs: [
         {
           title: 'Public Memory',
-        } as IBreadcrumbLink,
-        {
-          title: 'Memory',
-          param: 'publicKey',
-          link: '/p'
-        } as IBreadcrumbLink,
+        } as IBreadcrumbLink
       ]
     },
   },
