@@ -43,6 +43,7 @@ import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.compo
 import { SkyidConnectComponent } from './components/skyid-connect/skyid-connect.component';
 import { APP_NAME } from './tokens/app-name.token';
 import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.module';
+import { PublicMemoryComponent } from './pages/public-memory/public-memory.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.
     BrainConnectionsComponent,
     BreadcrumbsComponent,
     SkyidConnectComponent,
-    MarkdownPipe
+    MarkdownPipe,
+    PublicMemoryComponent
   ],
   imports: [
     BrowserModule,

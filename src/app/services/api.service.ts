@@ -327,6 +327,18 @@ export class ApiService {
     return userPublicMemories;
   }
 
+  public async getPublicMemory({ id, publicKey }: { id: string } & Partial<UserKeys>): Promise<UserPublicMemory> {
+    const publicMemories = await this.getPublicMemories({ publicKey });
+    const found = publicMemories.find((m) => m.memory.id === id);
+    if (found === undefined) {
+      throw new Error(
+        'Could not fetch public memory: not found!'
+      );
+    }
+
+    return found;
+  }
+
   private async deleteFromPublicMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
     let publicMemories = await this.getPublicMemories({ publicKey });
     const foundIndex = publicMemories.findIndex((pm) => pm.memory.id && pm.memory.id === id);

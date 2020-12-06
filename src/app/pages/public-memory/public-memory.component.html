@@ -1,0 +1,15 @@
+<div class="d-flex justify-content-center">
+  <div class="memories d-flex flex-column">
+    <div *ngIf="brainData" class="border p-3 bg-white rounded">
+      <div class="d-flex justify-content-between">
+        <h5 *ngIf="brainData?.nickname" class="stroke mt-2">{{brainData?.nickname}}</h5>
+        <div class="d-flex mt-2">
+          <app-connect-me [publicKey]="publicKey"></app-connect-me>
+        </div>
+      </div>
+      <div *ngIf="brainData?.description" class="text-muted mt-4 mb-2">{{brainData?.description}}</div>
+    </div>
+    <app-brain-connections *ngIf="connectedUsers" [connectedUsers]="connectedUsers"></app-brain-connections>
+    <app-memory *ngIf="publicMemory" [memory]="publicMemory.memory" [simple]="true" class="mb-3"></app-memory>
+  </div>
+</div>
