@@ -1,0 +1,11 @@
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+
+.memories {
+  width: 100%;
+  @include media-breakpoint-up(sm) {
+    width: 600px;
+    max-width: 100%;
+  }
+}

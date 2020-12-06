@@ -1,3 +1,4 @@
+import { UserPublicMemory } from './../models/user-public-memories';
 import { ConnectedUser } from 'src/app/models/user-connected-users';
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
@@ -10,30 +11,32 @@ import { UserData } from '../models/user-data';
 @Injectable({
   providedIn: 'root'
 })
-export class SharedMemoryService implements Resolve<{sharedMemory: Memory, connectedUsers: ConnectedUser[],
-  brainData: UserData, publicKey: string}> {
+export class PublicMemoryService implements Resolve<{
+  publicMemory: UserPublicMemory, connectedUsers: ConnectedUser[], brainData: UserData
+}> {
   constructor(private apiService: ApiService, private router: Router) { }
 
   resolve(
     route: ActivatedRouteSnapshot,
     _: RouterStateSnapshot
-  ): Observable<{sharedMemory: Memory, connectedUsers: ConnectedUser[], brainData: UserData, publicKey: string}> {
-    if (!route.params.code) {
-      this.router.navigate(['/404'], { queryParams: { error: 'Invalid shared link' } });
+  ): Observable<{ publicMemory: UserPublicMemory, connectedUsers: ConnectedUser[], brainData: UserData }> {
+    if (!route.params.publicKey || !route.params.memoryId) {
+      this.router.navigate(['/404'], { queryParams: { error: 'Invalid public memory link' } });
       return EMPTY;
     }
 
-    const publicKey = this.apiService.resolvePublicKeyFromBase64(route.params.code);
+    const publicKey: string = route.params.publicKey;
+    const id = route.params.memoryId;
 
     return zip(
-      from(this.apiService.resolveMemoryFromBase64(route.params.code)),
+      from(this.apiService.getPublicMemory({ id, publicKey })),
       from(this.apiService.getConnectedUsers({ publicKey })),
       from(this.apiService.getBrainData({ publicKey }))
     )
       .pipe(
         first(),
-        map(([sharedMemory, connectedUsers, brainData]) => {
-          return { sharedMemory, connectedUsers, brainData, publicKey };
+        map(([publicMemory, connectedUsers, brainData]) => {
+          return { publicMemory, connectedUsers, brainData };
         }),
         catchError(error => {
           this.router.navigate(['/404'], { queryParams: { error: error.message } });

@@ -1,34 +1,35 @@
+import { UserPublicMemory } from './../../models/user-public-memories';
+import { UserData } from './../../models/user-data';
+import { ConnectedUser } from 'src/app/models/user-connected-users';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
-import { map, withLatestFrom } from 'rxjs/operators';
-import { ConnectedUser } from 'src/app/models/user-connected-users';
-import { UserData } from 'src/app/models/user-data';
-import { beginCreateVisitedConnectionAction } from 'src/app/reducers/connection/connection.action';
 import { Memory } from 'src/app/reducers/memory/memory.model';
+import { map, withLatestFrom } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { State as RootState } from '../../reducers';
+import { beginCreateVisitedConnectionAction } from '../../reducers/connection/connection.action';
 
 @Component({
-  templateUrl: './shared.component.html',
-  styleUrls: ['./shared.component.scss']
+  templateUrl: './public-memory.component.html',
+  styleUrls: ['./public-memory.component.scss']
 })
-export class SharedComponent implements OnInit, OnDestroy {
-  memory: Memory | null = null;
+export class PublicMemoryComponent implements OnInit, OnDestroy {
+
+  publicMemory: UserPublicMemory | null = null;
   connectedUsers: ConnectedUser[] | null = null;
   brainData: UserData | null = null;
   accordionOpened = false;
   publicKey: string | undefined;
   subscription = new Subscription();
-
   // tslint:disable-next-line: no-any
   routeData$: Observable<any>;
 
   constructor(private store: Store<RootState>, route: ActivatedRoute) {
     this.routeData$ = route.data.pipe(
-      map(data => data.sharedData),
+      map(data => data.publicData),
       withLatestFrom(route.params),
-      map(([sharedData, params]) => ({ sharedData, params }))
+      map(([publicData, params]) => ({ publicData, params }))
     );
   }
 
@@ -39,11 +40,10 @@ export class SharedComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription.add(
       this.routeData$.subscribe(data => {
-        const sharedData = data.sharedData;
-        this.memory = sharedData.sharedMemory;
-        this.connectedUsers = sharedData.connectedUsers;
-        this.brainData = sharedData.brainData;
-        this.publicKey = sharedData.publicKey;
+        this.connectedUsers = data.publicData.connectedUsers;
+        this.publicMemory = data.publicData.publicMemory;
+        this.publicKey = data.params.publicKey;
+        this.brainData = data.publicData.brainData;
         if (this.publicKey) {
           this.store.dispatch(beginCreateVisitedConnectionAction({ connection: { publicKey: this.publicKey } }));
         }
