@@ -322,7 +322,10 @@ export class ApiService {
     }
 
     const userPublicMemories = response.data as UserPublicMemory[];
-    userPublicMemories.forEach(m => m.memory.added = new Date(m.memory.added));
+    userPublicMemories.forEach(m => {
+      m.memory.added = new Date(m.memory.added);
+      m.memory.isPublic = true;
+    });
 
     return userPublicMemories;
   }
@@ -426,6 +429,8 @@ export class ApiService {
       return;
     }
 
+    found.isPublic = true;
+
     const tempFound = { ... found };
     /*
      It should be shared only with the person you want to share the memory and never saved in public memories
@@ -455,7 +460,6 @@ export class ApiService {
       throw new Error('Could not public memories');
     }
 
-    found.isPublic = true;
     this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
   }
 

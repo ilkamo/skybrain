@@ -70,6 +70,7 @@
           (forget)="forgetMemory($event)"
           (publish)="publishMemory($event)"
           (share)="shareMemory($event)"
+          [ownerPublicKey]="memory.connectedId ? memory.connectedId : userPublicKey$ | async"
           class="mb-3">
         </app-memory>
       </ng-container>

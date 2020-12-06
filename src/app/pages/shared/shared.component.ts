@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { map, withLatestFrom } from 'rxjs/operators';
 import { ConnectedUser } from 'src/app/models/user-connected-users';
+import { UserData } from 'src/app/models/user-data';
 import { beginCreateVisitedConnectionAction } from 'src/app/reducers/connection/connection.action';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 import { State as RootState } from '../../reducers';
@@ -15,6 +16,7 @@ import { State as RootState } from '../../reducers';
 export class SharedComponent implements OnInit, OnDestroy {
   memory: Memory | null = null;
   connectedUsers: ConnectedUser[] | null = null;
+  brainData: UserData | null = null;
   accordionOpened = false;
   publicKey: string | undefined;
   subscription = new Subscription();
@@ -40,6 +42,7 @@ export class SharedComponent implements OnInit, OnDestroy {
         const sharedData = data.sharedData;
         this.memory = sharedData.sharedMemory;
         this.connectedUsers = sharedData.connectedUsers;
+        this.brainData = sharedData.brainData;
         this.publicKey = sharedData.publicKey;
         if (this.publicKey) {
           this.store.dispatch(beginCreateVisitedConnectionAction({ connection: { publicKey: this.publicKey } }));

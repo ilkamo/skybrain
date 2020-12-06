@@ -66,7 +66,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'p/:publicKey/:memoryId',
+    path: 'public/:publicKey/:memoryId',
     component: PublicMemoryComponent,
     resolve: {
       publicData: PublicMemoryService

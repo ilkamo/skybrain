@@ -2,7 +2,7 @@
   <div class="memories d-flex flex-column">
     <div *ngIf="brainData" class="border p-3 bg-white rounded">
       <div class="d-flex justify-content-between">
-        <h5 *ngIf="brainData?.nickname" class="stroke mt-2">{{brainData?.nickname}}</h5>
+        <h5 *ngIf="brainData?.nickname" class="stroke mt-2"><a [routerLink]="['/connection', publicKey]">{{brainData?.nickname}}</a></h5>
         <div class="d-flex mt-2">
           <app-connect-me [publicKey]="publicKey"></app-connect-me>
         </div>

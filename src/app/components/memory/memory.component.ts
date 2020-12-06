@@ -15,6 +15,7 @@ export class MemoryComponent implements OnInit {
   @Output() forget = new EventEmitter<Memory>();
   @Output() publish = new EventEmitter<Memory>();
   @Output() share = new EventEmitter<Memory>();
+  @Input() ownerPublicKey: string | null | undefined;
 
   constructor(@Inject(DOCUMENT) private document: Document) { }
 

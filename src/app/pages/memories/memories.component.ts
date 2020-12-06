@@ -5,6 +5,7 @@ import { BaseMemory } from 'src/app/models/user-memory';
 import { Store, select } from '@ngrx/store';
 import { State as RootState } from '../../reducers';
 import * as MemomrySelectors from '../../reducers/memory/memory.selectors';
+import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as MemomryActions from '../../reducers/memory/memory.actions';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 
@@ -15,6 +16,7 @@ import { Memory } from 'src/app/reducers/memory/memory.model';
 })
 export class MemoriesComponent implements OnInit {
   memories$ = this.store.pipe(select(MemomrySelectors.selectMemories));
+  userPublicKey$ = this.store.pipe(select(UserSelectors.selectUserPublicKey));
   error$ = this.store.pipe(select(MemomrySelectors.selectError));
   uploadForm: FormGroup;
   onlyMyMemoris = new FormControl();
