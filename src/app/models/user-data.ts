@@ -11,6 +11,11 @@ export interface UserKeys {
 
 export interface UserData {
   nickname?: string;
+  description?: string;
+}
+
+export interface UsersData {
+  [userPublicKey: string]: UserData;
 }
 
 export type DataValidator<T> = {

@@ -3,6 +3,12 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
+import { Store, select } from '@ngrx/store';
+import { State as RootState } from '../../reducers';
+import { selectConnections } from 'src/app/reducers/connection/connection.selectors';
+import { map } from 'rxjs/operators';
+import { Connection } from 'src/app/reducers/connection/connection.model';
+import { UsersData } from 'src/app/models/user-data';
 
 @Component({
   selector: 'app-brain-connections',
@@ -14,19 +20,48 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
   accordionOpened = false;
   // tslint:disable-next-line: no-any
   routeData$: Observable<any>;
-  subscription = new Subscription();
+  routerSubscription = new Subscription();
 
-  constructor(router: Router) {
+  visitedConnections: Connection[] = [];
+  connectionsInfo: UsersData = {};
+
+  connectionsSubscription = new Subscription();
+  connections$ = this.store.pipe(select(selectConnections));
+
+  constructor(private store: Store<RootState>, private router: Router) {
     this.routeData$ = router.events.pipe(filter(event => event instanceof NavigationStart));
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.routerSubscription.unsubscribe();
+    this.connectionsSubscription.unsubscribe();
   }
 
   ngOnInit(): void {
-    this.subscription = this.routeData$.subscribe((event: NavigationStart) => {
+    this.routerSubscription = this.routeData$.subscribe((event: NavigationStart) => {
       this.accordionOpened = false;
     });
+
+    this.connectionsSubscription = this.connections$
+      .pipe(
+        map(connections => {
+          this.visitedConnections = connections.visitedConnections;
+          this.connectionsInfo = connections.connectionsInfo;
+        })
+      )
+      .subscribe();
+  }
+
+  visited(publicKey: string): boolean {
+    return this.visitedConnections.find(c => c.publicKey === publicKey) !== undefined;
+  }
+
+  resolveConnectionName(publicKey: string): string {
+    if (publicKey in this.connectionsInfo) {
+      const connection = this.connectionsInfo[publicKey];
+      const nickname = connection.nickname;
+      return nickname !== undefined ? `${publicKey.substring(0, 20)}... <-> ${nickname}` : publicKey;
+    }
+    return publicKey;
   }
 }

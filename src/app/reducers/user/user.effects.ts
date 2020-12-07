@@ -18,7 +18,7 @@ export class UserEffects {
     ofType(UserActions.authenticateUser),
     switchMap(action => {
       const keys = this.api.generateUserKeys(action.passphrase);
-      return from(this.api.authenticateUser(keys)).pipe(
+      return from(this.api.getBrainData(keys)).pipe(
         map(user => UserActions.authenticateUserSuccess({user, keys})),
         catchError(error => of(UserActions.authenticateUserFailure({ error: error.message })))
       );

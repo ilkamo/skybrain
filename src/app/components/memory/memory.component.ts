@@ -1,11 +1,12 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, EventEmitter, HostBinding, Inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 
 @Component({
   selector: 'app-memory',
   templateUrl: './memory.component.html',
-  styleUrls: ['./memory.component.scss']
+  styleUrls: ['./memory.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class MemoryComponent implements OnInit {
   @Input() memory?: Memory;
@@ -14,6 +15,7 @@ export class MemoryComponent implements OnInit {
   @Output() forget = new EventEmitter<Memory>();
   @Output() publish = new EventEmitter<Memory>();
   @Output() share = new EventEmitter<Memory>();
+  @Input() ownerPublicKey: string | null | undefined;
 
   constructor(@Inject(DOCUMENT) private document: Document) { }
 

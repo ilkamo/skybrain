@@ -1,3 +1,5 @@
+import { MarkdownPipe } from './pipes/markdown.pipe';
+import { ConnectionEffects } from './reducers/connection/connection.effects';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
@@ -39,6 +41,10 @@ import { BrainConnectionsComponent } from './components/brain-connections/brain-
 import { ConnectMeComponent } from './components/connect-me/connect-me.component';
 import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
 import { RouterEffects } from './reducers/router/router.effects';
+import { SkyidConnectComponent } from './components/skyid-connect/skyid-connect.component';
+import { APP_NAME } from './tokens/app-name.token';
+import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.module';
+import { PublicMemoryComponent } from './pages/public-memory/public-memory.component';
 
 @NgModule({
   declarations: [
@@ -60,18 +66,22 @@ import { RouterEffects } from './reducers/router/router.effects';
     ConnectMeComponent,
     ConnectionComponent,
     BrainConnectionsComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    SkyidConnectComponent,
+    MarkdownPipe,
+    PublicMemoryComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    EffectsModule.forRoot([RouterEffects, UserEffects, MemoryEffects]),
+    EffectsModule.forRoot([RouterEffects, UserEffects, MemoryEffects, ConnectionEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
-    StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal })
+    StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal }),
+    MarkdownEditorModule
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },
@@ -80,7 +90,8 @@ import { RouterEffects } from './reducers/router/router.effects';
     { provide: USER_SHARED_MEMORIES_KEY, useValue: 'SKYBRAIN__USER_SHARED_MEMORIES' },
     { provide: USER_CONNECTED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
     { provide: SKYBRAIN_ACCOUNT_PUBLIC_KEY, useValue: 'aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f' },
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
+    { provide: APP_NAME, useValue: 'Skybrain' },
+    { provide: LocationStrategy, useClass: HashLocationStrategy }
   ],
   bootstrap: [AppComponent]
 })

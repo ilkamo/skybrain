@@ -1,4 +1,4 @@
-# Skybrain
+# [Skybrain](https://skybrain.hns.siasky.net/)
 
 ![Skybrain logo](https://siasky.net/KAAuqcLCyG-KW1JiQYDDZHxn8AXzCQhD-gKe9mZChfoqFg)
 
@@ -35,6 +35,26 @@ We recorded a few short videos in order to explain how Skybrain works. [Visit th
 At the same time, having a look at [these memories](https://skybrain.hns.siasky.net/#/connection/aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f) you can see how powerful is now Skybrain. You can also understand how much work and dedication it took us to develop a service like this.
 
 The hackathon was three weeks long and it was a continuous thinking about what to bring to the end and what to sacrifice in order to have a working product at the end. For this reason other cool features will be introduced after the hackathon. We first thought about the essentials needed to make Skybrain a working idea that people will love.
+
+## Access Skybrain public data
+
+Fetching Skybrain public data is easy like writing a basic Hello world! All you need is the public key of the user.
+
+```
+const response = await this.skynetClient.db.getJSON(
+  {PUBLIC_KEY},
+  'SKYBRAIN__USER_PUBLIC_MEMORIES',
+  {
+    timeout: 6000,
+  },
+);
+
+const userPublicMemories = response.data as UserPublicMemory[];
+```
+
+The returned structures are described here: 
+- [UserPublicMemory](https://github.com/kamy22/skybrain/blob/master/src/app/models/user-public-memories.ts)
+- [UserMemory](https://github.com/kamy22/skybrain/blob/master/src/app/models/user-memory.ts)
 
 ## Development server
 

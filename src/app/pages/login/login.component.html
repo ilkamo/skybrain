@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-center">
   <div class="card login-card border-0 mt-3 text-left">
-    <img class="card-img-top" src="https://siasky.net/CAA4f8Z4YdfINcXK_bdDJH4lU4t0Bs07WgWjA5YHELUHYA" alt="Skybrain" />
+    <img class="card-img-top" src="/assets/skybrain-logo.svg" alt="Skybrain" />
     <div class="card-body">
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <h6 class="card-title"><p>Enter the place where magic happens. You will be able to store/manage memories and emotions, like happens in the human brain.</p></h6>
@@ -22,6 +22,9 @@
               <button type="submit" [disabled]="!loginForm.valid" class="btn btn-primary btn-block">
                   Login
               </button>
+            </p>
+            <p>
+              <app-skyid-connect></app-skyid-connect>
             </p>
             <p class="text-center mb-0">Don't have an account? <a routerLink="/register">Register</a></p>
         </div>

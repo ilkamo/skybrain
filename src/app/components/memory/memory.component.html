@@ -1,6 +1,10 @@
 <ng-container *ngIf="memory">
   <div class="card-header d-flex justify-content-between">
-    <span><fa-icon [icon]="['far', 'calendar']"></fa-icon> {{memory?.added | date }}</span>
+    <span>
+      <fa-icon [icon]="['far', 'calendar']"></fa-icon>&nbsp;
+      <a *ngIf="ownerPublicKey && memory?.isPublic; else elseBlock" [routerLink]="['/public', ownerPublicKey, memory.id]">{{memory?.added | date }}</a>
+      <ng-template #elseBlock>{{memory?.added | date }}</ng-template>
+    </span>
     <span *ngIf="memory.location"><fa-icon [icon]="['fas', 'map-marker-alt']"></fa-icon> {{memory.location}}</span>
   </div>
 
@@ -17,7 +21,7 @@
   </div>
 
   <div class="card-body" *ngIf="memory?.text">
-    {{ memory?.text }}
+    <div class="markdown-body" [innerHTML]="memory?.text | markdown"></div>
   </div>
 
   <div class="card-body" *ngIf="memory?.tags?.length">

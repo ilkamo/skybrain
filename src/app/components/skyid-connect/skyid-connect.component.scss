@@ -1,0 +1,13 @@
+.btn-image:before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin: 5px;
+  vertical-align: text-top;
+  background-color: transparent;
+  background-position : center center;
+  background-repeat:no-repeat;
+  background-image : url(/assets/SkyID_Logo_128.png);
+  background-size: cover;
+}

@@ -21,7 +21,6 @@ export class BreadcrumbsComponent implements OnInit {
       return data.breadcrumbs.map((b: IBreadcrumbLink) => {
         const title = b.title ? b.title : (b.param && params ? params[b.param] : undefined);
         const link = b.link ? [b.link] : undefined;
-
         if (link && params && b.param) {
           link.push(params[b.param]);
         }

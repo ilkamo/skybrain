@@ -61,7 +61,7 @@ export class ConnectMeComponent implements OnInit, OnDestroy {
 
         this.icon = connected || isMyBrain ? faCheck : undefined;
 
-        let classes = 'btn ' + this.cssClasses;
+        let classes = 'btn btn-sm' + this.cssClasses;
         classes += isMyBrain ? ' btn-outline-success disabled' : (connected ? ' btn-outline-danger' : ' btn-outline-primary');
         this.class = classes;
 

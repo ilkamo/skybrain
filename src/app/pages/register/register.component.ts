@@ -15,7 +15,7 @@ export class RegisterComponent implements OnInit {
 
   error$ = this.store.pipe(select(UserSelectors.selectError));
   registerForm = this.formBuilder.group({
-    passphrase: ['', [Validators.required, Validators.minLength(4)]]
+    passphrase: ['', [Validators.required, Validators.minLength(8)]]
   });
 
   constructor(

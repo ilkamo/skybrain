@@ -1,3 +1,4 @@
+import { PublicMemoryComponent } from './pages/public-memory/public-memory.component';
 import { ConnectionComponent } from './pages/connection/connection.component';
 import { SharedComponent } from './pages/shared/shared.component';
 import { NgModule } from '@angular/core';
@@ -13,6 +14,7 @@ import { MemoriesComponent } from './pages/memories/memories.component';
 import { MemoriesInitializedService } from './services/memories-initialized.resolver';
 import { SharedMemoryService } from './services/shared-memory.resolver';
 import { PublicBrainResolver } from './services/public-brain.resolver';
+import { PublicMemoryService } from './services/public-memory.resolver';
 
 export interface IBreadcrumbLink {
   title?: string;
@@ -60,6 +62,20 @@ const routes: Routes = [
           param: 'code',
           link: 'shared'
         } as IBreadcrumbLink,
+      ]
+    },
+  },
+  {
+    path: 'public/:publicKey/:memoryId',
+    component: PublicMemoryComponent,
+    resolve: {
+      publicData: PublicMemoryService
+    },
+    data: {
+      breadcrumbs: [
+        {
+          title: 'Public Memory',
+        } as IBreadcrumbLink
       ]
     },
   },

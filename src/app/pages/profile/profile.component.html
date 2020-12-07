@@ -3,16 +3,23 @@
     <div class="card-body">
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
       <div *ngIf="!(validProfile$ | async)" class="alert alert-warning">Please update your profile</div>
-      <h4>Brain profile</h4>
-      <h6 class="card-title"><p>Choose a name for your brain.</p></h6>
-      <h6 class="card-subtitle mb-2 text-muted small">This information will be used in the future to display brain friendly names.</h6>
+      <h5>Brain profile</h5>
+      <h6 class="card-title"><p>Your public brain profile.</p></h6>
+      <h6 class="card-subtitle mb-2 text-muted small">Fill these fields to update your public brain profile.</h6>
       <form [formGroup]="profileForm" [appConnectForm]="userData$ | async" (ngSubmit)="onSubmit()">
         <div class="form-group required">
-            <label>Brain name</label>
+            <label>Name</label>
             <input type="text" class="form-control" formControlName="nickname" [ngClass]="{ 'is-invalid': form.nickname.touched && form.nickname.errors }"/>
             <div *ngIf="form.nickname.errors as error" class="invalid-feedback">
               {{ error.invalid }}
             </div>
+        </div>
+        <div class="form-group mb-3">
+          <label>Description</label>
+          <textarea placeholder="Write a public description of your brain" class="form-control small" formControlName="description" aria-describedby="inputGroup-sizing-default"></textarea>
+          <div *ngIf="form.description.errors as error" class="invalid-feedback">
+            {{ error.invalid }}
+          </div>
         </div>
         <div>
             <p>
@@ -22,7 +29,7 @@
             </p>
         </div>
       </form>
-      <h4 class="mt-5">Brain connections</h4>
+      <h5 class="mt-5">Brain connections</h5>
       <h6 class="card-title"><p>In order to display connections* on your wall you have to connect with other brains.</p></h6>
       <h6 class="card-subtitle mb-2 text-muted small">Fill the input with the public key of the brain you want to connect with and add a new connection.</h6>
       <form [formGroup]="connectedForm" (ngSubmit)="addFolower()">
@@ -47,7 +54,8 @@
           <span (click)="unconnect(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
         </li>
       </ul>
-      <p class="small" style="padding: 20px 0;">* As part of the registration process we created a connection with <a [routerLink]="['/connection', skybrainAccountPublicKey]">Skybrain brain</a>. You can remove it at any time.</p>
+      <p class="small" style="padding: 20px 0 0 0;">* As part of the registration process we created a connection with <a [routerLink]="['/connection', skybrainAccountPublicKey]">Skybrain brain</a>. You can remove it at any time.</p>
+      <p class="small" style="padding: 20px 0;">To better understand how Skybrain works please <a [routerLink]="['/connection', '669ee4eaf08ed6beb1e1ea13bafc84de39f2ffe38cfccae6374d5794e687f1dd']">visit this brain connection</a> and watch the videos we prepared.</p>
     </div>
   </div>
 </div>

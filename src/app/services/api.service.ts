@@ -51,7 +51,7 @@ export class ApiService {
     return { publicKey, privateKey, memoriesEncryptionKey, memoriesSkydbKey };
   }
 
-  public async authenticateUser({ publicKey }: Partial<UserKeys>): Promise<UserData> {
+  public async getBrainData({ publicKey }: Partial<UserKeys>): Promise<UserData> {
     if (!publicKey) {
       throw new Error('No publicKey');
     }
@@ -61,7 +61,7 @@ export class ApiService {
         publicKey,
         this.userDataKey,
         {
-          timeout: this.registerUserSkydbTimeout,
+          timeout: this.skydbTimeout,
         },
       ) || {};
       if (data) {
@@ -69,7 +69,7 @@ export class ApiService {
       }
     } catch (error) { }
 
-    throw new Error('Could not get user data');
+    throw new Error('Could not get brain data');
   }
 
   private encryptUserMemories({ memories, memoriesEncryptionKey }: { memories: UserMemory[] } & Partial<UserKeys>): string {
@@ -322,9 +322,24 @@ export class ApiService {
     }
 
     const userPublicMemories = response.data as UserPublicMemory[];
-    userPublicMemories.forEach(m => m.memory.added = new Date(m.memory.added));
+    userPublicMemories.forEach(m => {
+      m.memory.added = new Date(m.memory.added);
+      m.memory.isPublic = true;
+    });
 
     return userPublicMemories;
+  }
+
+  public async getPublicMemory({ id, publicKey }: { id: string } & Partial<UserKeys>): Promise<UserPublicMemory> {
+    const publicMemories = await this.getPublicMemories({ publicKey });
+    const found = publicMemories.find((m) => m.memory.id === id);
+    if (found === undefined) {
+      throw new Error(
+        'Could not fetch public memory: not found!'
+      );
+    }
+
+    return found;
   }
 
   private async deleteFromPublicMemories({ id, publicKey, privateKey }: { id: string } & Partial<UserKeys>): Promise<void> {
@@ -414,6 +429,8 @@ export class ApiService {
       return;
     }
 
+    found.isPublic = true;
+
     const tempFound = { ... found };
     /*
      It should be shared only with the person you want to share the memory and never saved in public memories
@@ -443,7 +460,6 @@ export class ApiService {
       throw new Error('Could not public memories');
     }
 
-    found.isPublic = true;
     this.storeMemories({ memories, privateKey, memoriesSkydbKey, memoriesEncryptionKey });
   }
 

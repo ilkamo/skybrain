@@ -7,7 +7,9 @@
     </div>
     <div class="collapse" [ngClass]="{ show: accordionOpened }">
       <div class="list-group list-group-flush" *ngIf="connectedUsers">
-        <a *ngFor="let connectedUser of connectedUsers" [routerLink]="['/connection', connectedUser.publicKey]" class="list-group-item list-group-item-action text-center small">{{connectedUser.publicKey}}</a>
+        <a [ngClass]="{ visited: visited(connectedUser.publicKey) }" *ngFor="let connectedUser of connectedUsers" [routerLink]="['/connection', connectedUser.publicKey]" class="connection list-group-item list-group-item-action text-center small text-monospace">
+          {{resolveConnectionName(connectedUser.publicKey)}}
+        </a>
       </div>
     </div>
   </div>
