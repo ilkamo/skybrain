@@ -18,5 +18,7 @@ export const {
 
 export const selectNavbarIsVisibleForRoute = createSelector(
   selectUrl,
-  url => !['/login', '/register'].includes(url)
+  url => {
+    return ['/login', '/register'].filter((r) => url && url.indexOf(r) !== -1).length === 0;
+  }
 );
