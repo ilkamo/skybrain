@@ -19,7 +19,6 @@ import {
 import {NavigationEnd, NavigationStart, Router} from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { combineLatest, Observable } from 'rxjs';
-import { selectVavbarIsVisible } from './reducers/router';
 
 @Component({
   selector: 'app-root',
@@ -27,7 +26,7 @@ import { selectVavbarIsVisible } from './reducers/router';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  navbarIsVisible$ = this.store.pipe(select(selectVavbarIsVisible));
+  navbarIsVisible$ = this.store.pipe(select(UserSelectors.selectNavbarIsVisible));
   userPublicKey$ = this.store.pipe(select(UserSelectors.selectUserPublicKey));
 
   isLoading$: Observable<boolean>;

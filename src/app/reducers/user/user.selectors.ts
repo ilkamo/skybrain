@@ -1,6 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { isValidatorValid, validateUserData } from 'src/app/models/user-data';
 import { State as RootState } from '..';
+import { selectNavbarIsVisibleForRoute } from '../router';
 import { State as UserState, userFeatureKey } from './user.reducer';
 
 export const selectFeature = createFeatureSelector<RootState, UserState>(userFeatureKey);
@@ -48,4 +49,15 @@ export const hasValidUserData = createSelector(
 export const selectUserPublicKey = createSelector(
   selectUserKeys,
   (keys) => keys && keys.publicKey || undefined
+);
+
+export const selectUserAuthAction = createSelector(
+  selectFeature,
+  (state: UserState) => state.authAction
+);
+
+export const selectNavbarIsVisible = createSelector(
+  isAuthenticated,
+  selectNavbarIsVisibleForRoute,
+  (auth, visible) => auth && visible
 );

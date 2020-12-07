@@ -38,6 +38,7 @@ import { RouterState, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { BrainConnectionsComponent } from './components/brain-connections/brain-connections.component';
 import { ConnectMeComponent } from './components/connect-me/connect-me.component';
 import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
+import { RouterEffects } from './reducers/router/router.effects';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,7 @@ import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.compo
     AppRoutingModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    EffectsModule.forRoot([UserEffects, MemoryEffects]),
+    EffectsModule.forRoot([RouterEffects, UserEffects, MemoryEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],

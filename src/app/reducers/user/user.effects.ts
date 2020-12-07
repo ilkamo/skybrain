@@ -1,13 +1,16 @@
+// tslint:disable: no-any
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { switchMap, catchError, withLatestFrom, map } from 'rxjs/operators';
-import { from, of } from 'rxjs';
+import { EMPTY, from, of } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { State as RootState } from '../';
 import { Store } from '@ngrx/store';
 import * as UserSelectors from './user.selectors';
 import * as UserActions from './user.actions';
-import { Router } from '@angular/router';
+import * as RouterActions from '../router/router.actions';
+import { ConnectedUser } from 'src/app/models/user-connected-users';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable()
 export class UserEffects {
@@ -83,16 +86,43 @@ export class UserEffects {
     })
   ));
 
-  redirect$ = createEffect(() => this.actions$.pipe(
+  authenticated$ = createEffect(() => this.actions$.pipe(
     ofType(UserActions.getConnectedUsersSuccess, UserActions.getConnectedUsersFailure),
-    map(_ => this.router.navigate(['/']))
-  ), { dispatch: false } );
+    map(_ => UserActions.runUserAuthAction())
+  ));
+
+  authAction$ = createEffect(() => this.actions$.pipe(
+    ofType(UserActions.runUserAuthAction),
+    withLatestFrom(this.store.select(UserSelectors.selectUserAuthAction)),
+    switchMap(([_, action]) => {
+      if (action) {
+        return from([action, UserActions.runUserAuthActionSuccess({ authAction: action })]);
+      }
+      return of(UserActions.runUserAuthActionSuccess({}));
+    })
+  ));
+
+  redirectAfterAction$ = createEffect(() => this.actions$.pipe(
+    withLatestFrom(this.route.queryParams),
+    switchMap(([action, query]) => {
+      switch (action.type) {
+        case UserActions.connectUserSuccess.type:
+          const user = (action as any).user as ConnectedUser;
+          return of(RouterActions.navigate({ commands: ['/connection', user.publicKey] }));
+        case UserActions.runUserAuthActionSuccess.type:
+          const url = query.redirect ? query.redirect : '/';
+          return of(RouterActions.navigateByUrl({ url }));
+        default:
+          return EMPTY;
+      }
+    })
+  ));
 
   constructor(
     private actions$: Actions,
     private api: ApiService,
     private store: Store<RootState>,
-    private router: Router
+    private route: ActivatedRoute
   ) {
   }
 }

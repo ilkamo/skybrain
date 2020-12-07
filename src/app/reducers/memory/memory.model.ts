@@ -1,7 +1,6 @@
 import { UserPublicMemory } from './../../models/user-public-memories';
 import { UserMemory } from 'src/app/models/user-memory';
 
-// tslint:disable-next-line: no-empty-interface
 export interface Memory extends UserMemory {
   connectedId?: string;
 }

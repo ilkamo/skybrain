@@ -3,8 +3,6 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { State as RootState } from '..';
 
 export const routerFeatureKey = 'router';
-
-// tslint:disable-next-line: no-any
 export const selectRouterFeature = createFeatureSelector<RootState, RouterReducerState<MinimalRouterStateSnapshot>>(routerFeatureKey);
 
 export const {
@@ -18,7 +16,7 @@ export const {
   selectUrl,
 } = getSelectors(selectRouterFeature);
 
-export const selectVavbarIsVisible = createSelector(
+export const selectNavbarIsVisibleForRoute = createSelector(
   selectUrl,
   url => !['/login', '/register'].includes(url)
 );

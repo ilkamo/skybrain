@@ -21,28 +21,30 @@ export class SharedMemoryService implements Resolve<{sharedMemory: Memory, conne
       return EMPTY;
     }
 
-    const publicKey = this.apiService.resolvePublicKeyFromBase64(route.params.code);
+    let publicKey;
+
+    try {
+      publicKey = this.apiService.resolvePublicKeyFromBase64(route.params.code);
+    } catch (error) {
+      this.router.navigate(['/404'], { queryParams: { error: 'Invalid shared link' } });
+      return EMPTY;
+    }
 
     const sharedMemory$ = from(this.apiService.resolveMemoryFromBase64(route.params.code))
       .pipe(
         map(mapSkyToMemory),
-        first(),
-        catchError(error => {
-          this.router.navigate(['/404'], { queryParams: { error: error.message } });
-          return EMPTY;
-        })
+        first()
       );
 
-    const connectedUsers$ = from(this.apiService.getConnectedUsers({ publicKey })).pipe(
-      catchError(error => {
-        // TODO: dispaly error
-        return EMPTY;
-      })
-    );
+    const connectedUsers$ = from(this.apiService.getConnectedUsers({ publicKey }));
 
     return zip(sharedMemory$, connectedUsers$).pipe(
       map(([sharedMemory, connectedUsers]) => ({ sharedMemory, connectedUsers })),
-      first()
+      first(),
+      catchError(error => {
+        this.router.navigate(['/404'], { queryParams: { error: error.message } });
+        return EMPTY;
+      }),
     );
   }
 }

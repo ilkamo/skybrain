@@ -1,4 +1,4 @@
-import { createAction, props } from '@ngrx/store';
+import { Action, createAction, props } from '@ngrx/store';
 import { UserData, UserKeys } from 'src/app/models/user-data';
 import { ConnectedUser } from 'src/app/models/user-connected-users';
 
@@ -82,4 +82,11 @@ export const unconnectUserSuccess = createAction(
 export const unconnectUserFailure = createAction(
   '[Profile] Unconnect User Failure',
   props<{ error: string }>()
+);
+export const runUserAuthAction = createAction(
+  '[Profile] Run User Auth Action'
+);
+export const runUserAuthActionSuccess = createAction(
+    '[Profile] Run User Auth Action Success',
+    props<{ authAction?: Action }>()
 );

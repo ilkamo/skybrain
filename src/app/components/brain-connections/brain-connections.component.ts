@@ -16,7 +16,7 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
   routeData$: Observable<any>;
   subscription = new Subscription();
 
-  constructor(private router: Router) {
+  constructor(router: Router) {
     this.routeData$ = router.events.pipe(filter(event => event instanceof NavigationStart));
   }
 

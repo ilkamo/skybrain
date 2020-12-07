@@ -1,9 +1,9 @@
 import { Component, HostBinding, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { faCheck, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { Action, Store } from '@ngrx/store';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { State } from 'src/app/reducers';
+import { navigate } from 'src/app/reducers/router/router.actions';
 import { connectUser, unconnectUser } from 'src/app/reducers/user/user.actions';
 import { selectConnectedUsers, selectUserPublicKey } from 'src/app/reducers/user/user.selectors';
 
@@ -18,7 +18,7 @@ export class ConnectMeComponent implements OnInit, OnDestroy {
   private subscription = new Subscription();
   private publicKey$ = new BehaviorSubject<string | undefined>(undefined);
   // tslint:disable-next-line: no-any
-  private btnAction?: Action | null;
+  private btnAction?: Action;
   @HostBinding('class') class = 'hidden';
   @Input() cssClasses = '';
   @Input() connectLabel = 'Connect';
@@ -36,17 +36,13 @@ export class ConnectMeComponent implements OnInit, OnDestroy {
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent): void {
     event.preventDefault();
-    if (this.btnAction === null) {
-      this.router.navigateByUrl('/login');
-      return;
-    }
     if (this.btnAction === undefined) {
       return;
     }
     this.store.dispatch(this.btnAction);
   }
 
-  constructor(private store: Store<State>, private router: Router) {
+  constructor(private store: Store<State>) {
   }
 
   ngOnDestroy(): void {
@@ -71,7 +67,10 @@ export class ConnectMeComponent implements OnInit, OnDestroy {
 
         this.btnLabel = isMyBrain ? this.myLabel : (connected ? this.unconnectLabel : this.connectLabel);
 
-        this.btnAction = !m ? null : ( !k || isMyBrain ? undefined : ( connected ?
+        this.btnAction = !m ? navigate({
+          commands: ['/login'],
+          authAction: k ? connectUser({ publicKey: k }) : undefined }
+        ) : ( !k || isMyBrain ? undefined : ( connected ?
           unconnectUser({ publicKey: k }) :
           connectUser({ publicKey: k })
         ));
