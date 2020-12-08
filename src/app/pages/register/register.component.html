@@ -1,5 +1,5 @@
 <div class="d-flex justify-content-center">
-  <div class="card register-card border-0 mt-3 text-left">
+  <div class="card register-card border-0 mt-5 text-left">
     <img class="card-img-top" src="/assets/skybrain-logo.svg" alt="Skybrain" />
     <div class="card-body">
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
@@ -29,7 +29,7 @@
             <p class="text-center mb-0">Already have an account? <a routerLink="/login">Login</a></p>
         </div>
       </form>
-      <p class="small" style="padding: 20px 0;">* Alpha software may contain serious errors and any resulting instability could cause crashes or data loss.</p>
+      <div class="p-3 small">* Alpha software may contain serious errors and any resulting instability could cause crashes or data loss.</div>
     </div>
   </div>
 </div>

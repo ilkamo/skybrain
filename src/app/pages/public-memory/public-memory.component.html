@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
-    <div *ngIf="brainData" class="border p-3 bg-white rounded">
+    <div *ngIf="brainData" class="border p-3 bg-white rounded brain-profile">
       <div class="d-flex justify-content-between">
         <h5 *ngIf="brainData?.nickname" class="stroke mt-2"><a [routerLink]="['/connection', publicKey]">{{brainData?.nickname}}</a></h5>
         <div class="d-flex mt-2">
