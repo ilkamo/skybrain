@@ -12,8 +12,11 @@
 }
 
 .preview {
-  border: 1px solid $border-color;
-  box-shadow: 0 0 0 1px $border-color;
-  border-radius: 3px;
-  background-color: #f1f2f6;
+  background-color: #f7f7f9;
+  border-radius: 5px;
+  border: 1px dashed rgba(0, 0, 0, 0.125);
+}
+
+.tags, .location {
+  font-size: 0.85rem;
 }

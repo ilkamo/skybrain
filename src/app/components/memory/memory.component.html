@@ -1,5 +1,6 @@
 <ng-container *ngIf="memory">
-  <div class="card-header d-flex justify-content-between">
+
+  <div class="card-header d-flex justify-content-between memory-info">
     <span>
       <fa-icon [icon]="['far', 'calendar']"></fa-icon>&nbsp;
       <a *ngIf="ownerPublicKey && memory?.isPublic; else elseBlock" [routerLink]="['/public', ownerPublicKey, memory.id]">{{memory?.added | date }}</a>
