@@ -92,12 +92,13 @@ export class ApiService {
     ).toString();
   }
 
-  public async updateUserData({ user, publicKey, privateKey, revision }: { user?: UserData, revision?: number }
+  public async updateUserData({ user, privateKey, revision }: { user?: UserData, revision?: number }
     & Partial<UserKeys>): Promise<UserData> {
-    if (!privateKey || !publicKey) {
+    if (!privateKey) {
       throw new Error('No privateKey');
     }
 
+    const publicKey = privateKey.slice(privateKey.length, 64);
     this.silentCacheUser({ toCacheUserPublicKey: publicKey, user });
 
     user = user || { nickname: '' };
