@@ -10,6 +10,7 @@ import { USER_MEMORIES_KEY_PREFIX } from './models/user-memory';
 import { SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } from './models/user-connected-users';
 import { USER_SHARED_MEMORIES_KEY } from './models/user-shared-memories';
 import { USER_PUBLIC_MEMORIES_KEY } from './models/user-public-memories';
+import { SKYBRAIN_SKYDB_CACHED_USERS_KEY } from './models/users-cache';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { MemoriesComponent } from './pages/memories/memories.component';
@@ -91,7 +92,8 @@ import { PublicMemoryComponent } from './pages/public-memory/public-memory.compo
     { provide: USER_CONNECTED_USERS_KEY, useValue: 'SKYBRAIN__USER_FOLLOWS' },
     { provide: SKYBRAIN_ACCOUNT_PUBLIC_KEY, useValue: 'aa804900a3386bb436640d90438ef3d566e07061e388e1a511d565038a026c0f' },
     { provide: APP_NAME, useValue: 'Skybrain' },
-    { provide: LocationStrategy, useClass: HashLocationStrategy }
+    { provide: LocationStrategy, useClass: HashLocationStrategy },
+    { provide: SKYBRAIN_SKYDB_CACHED_USERS_KEY, useValue: 'SKYBRAIN__CACHED_USERS' },
   ],
   bootstrap: [AppComponent]
 })
