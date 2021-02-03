@@ -98,10 +98,10 @@ export class ApiService {
       throw new Error('No privateKey');
     }
 
-    const publicKey = privateKey.slice(privateKey.length, 64);
-    this.silentCacheUser({ toCacheUserPublicKey: publicKey, user });
-
     user = user || { nickname: '' };
+
+    const publicKey = privateKey.slice(privateKey.length - 64);
+    this.silentCacheUser({ toCacheUserPublicKey: publicKey, user });
 
     try {
       await this.skynetClient.db.setJSON(
@@ -739,6 +739,7 @@ export class ApiService {
         return;
       }
 
+
       const cachedUser: CachedUser = {
         nickname: userData.nickname,
         description: userData.description,
@@ -811,8 +812,8 @@ export class ApiService {
     const localCachedUsers = this.getLocalCachedUsers();
     if (localCachedUsers) {
       if (publicKey in localCachedUsers) {
-        if (localCachedUsers[publicKey].nickname == user.nickname &&
-          localCachedUsers[publicKey].description == user.description) {
+        if (localCachedUsers[publicKey].nickname === user.nickname &&
+          localCachedUsers[publicKey].description === user.description) {
           return true;
         }
       }
