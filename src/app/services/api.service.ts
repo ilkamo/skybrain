@@ -1,3 +1,4 @@
+import { CachedUser } from './../models/users-cache';
 import { Inject, Injectable, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
@@ -9,6 +10,8 @@ import { UserSharedMemory, UserSharedMemoryLink, USER_SHARED_MEMORIES_KEY } from
 import { ConnectedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } from '../models/user-connected-users';
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
+import { CachedUsers, SKYBRAIN_SKYDB_CACHED_USERS_KEY } from '../models/users-cache';
+import { interval } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +21,10 @@ export class ApiService {
   private registerUserSkydbTimeout = 7000;
   private skynetClient: SkynetClient;
 
+  // Cache mechanism
+  private cachedUsersLocalStorageKey = "cahcedUsers";
+  private chacheTimeout: NodeJS.Timeout = setTimeout(() => { }, 0);
+
   constructor(
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
@@ -25,7 +32,8 @@ export class ApiService {
     @Inject(USER_PUBLIC_MEMORIES_KEY) private userPublicMemoriesSkydbKey: string,
     @Inject(USER_SHARED_MEMORIES_KEY) private userSharedMemoriesSkydbKey: string,
     @Inject(USER_CONNECTED_USERS_KEY) private userConnectedUsersSkydbKey: string,
-    @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skybrainAccountPublicKey: string,
+    @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skyBrainAccountPublicKey: string,
+    @Inject(SKYBRAIN_SKYDB_CACHED_USERS_KEY) private skyBrainSkyDBCachedUsersKey: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -65,7 +73,9 @@ export class ApiService {
         },
       ) || {};
       if (data) {
-        return data as UserData;
+        const user = data as UserData;
+        this.silentCacheUser({ toCacheUserPublicKey: publicKey, user });
+        return user;
       }
     } catch (error) { }
 
@@ -83,11 +93,13 @@ export class ApiService {
     ).toString();
   }
 
-  public async updateUserData({ user, privateKey, revision }: { user?: UserData, revision?: number }
+  public async updateUserData({ user, publicKey, privateKey, revision }: { user?: UserData, revision?: number }
     & Partial<UserKeys>): Promise<UserData> {
-    if (!privateKey) {
+    if (!privateKey || !publicKey) {
       throw new Error('No privateKey');
     }
+
+    this.silentCacheUser({ toCacheUserPublicKey: publicKey, user });
 
     user = user || { nickname: '' };
 
@@ -152,7 +164,7 @@ export class ApiService {
 
     // init connected users with the Skybrain official publicKey
     const connectedUsers: ConnectedUser[] = [{
-      publicKey: this.skybrainAccountPublicKey,
+      publicKey: this.skyBrainAccountPublicKey,
       startedAt: new Date(Date.now()),
     }];
 
@@ -186,13 +198,14 @@ export class ApiService {
           timeout: this.skydbTimeout,
         },
       );
-
     } catch (error) {
       throw new Error('The user database could not be initialized');
     }
 
-    await this.storeMemories({ memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey,
-      revision: initialRevision });
+    await this.storeMemories({
+      memories: [], privateKey, memoriesSkydbKey, memoriesEncryptionKey,
+      revision: initialRevision
+    });
 
     // This should be executed as the last one to ensure that all the other schemas are stored.
     await this.updateUserData({ user, privateKey, revision: initialRevision });
@@ -312,8 +325,8 @@ export class ApiService {
         {
           timeout: this.skydbTimeout,
         },
-        );
-      } catch (error) {
+      );
+    } catch (error) {
     }
     if (!response || !('data' in response)) {
       throw new Error(
@@ -431,7 +444,7 @@ export class ApiService {
 
     found.isPublic = true;
 
-    const tempFound = { ... found };
+    const tempFound = { ...found };
     /*
      It should be shared only with the person you want to share the memory and never saved in public memories
      because of the fact that user can decide to unpublic the memory without unshare.
@@ -494,21 +507,31 @@ export class ApiService {
     }
 
     // tslint:disable-next-line: no-any
-    return response.data.map((u: any) => ({ ...u, startedAt: new Date(u.startedAt)})) as ConnectedUser[];
+    const connectedUsers = response.data.map((u: any) => ({ ...u, startedAt: new Date(u.startedAt) })) as ConnectedUser[];
+
+    // IMPO: caching!
+    connectedUsers.forEach((u) => this.silentCacheUser({ toCacheUserPublicKey: u.publicKey }));
+
+    return connectedUsers;
   }
 
   public async connectUserByPublicKey({ connectedUserPublicKey, privateKey, connectedUsers }:
     { connectedUserPublicKey: string, connectedUsers: ConnectedUser[] } & Partial<UserKeys>): Promise<ConnectedUser> {
     // TODO: check public key length
     const found = connectedUsers.find((u) => u.publicKey === connectedUserPublicKey);
-
     if (found) {
       return found; // already connected
     }
+
+    // IMPO: caching!
+    this.silentCacheUser({ toCacheUserPublicKey: connectedUserPublicKey });
+    connectedUsers.forEach((u) => this.silentCacheUser({ toCacheUserPublicKey: u.publicKey }));
+
     const tempConnectedUser: ConnectedUser = {
       startedAt: new Date(Date.now()),
       publicKey: connectedUserPublicKey,
     };
+
     connectedUsers.unshift(tempConnectedUser);
     try {
       await this.skynetClient.db.setJSON(
@@ -679,30 +702,139 @@ export class ApiService {
     }
   }
 
-  /* public async logTestData(): Promise<void> {
-    const m = await this.getMemories();
-    console.log(m);
+  private async getSkyBrainCachedUsers(): Promise<CachedUsers> {
+    let response;
+    try {
+      response = await this.skynetClient.db.getJSON(
+        "9064afe68f239b52a5e5366f1eed2548b872bed361025699479890a54f9b26e1",
+        this.skyBrainSkyDBCachedUsersKey,
+        { timeout: this.skydbTimeout },
+      );
+    } catch (error) {
+      response = null;
+      throw new Error(
+        'Could not fetch SkyBrain cached users'
+      );
+    }
 
-    if (m.length > 0) {
-      // await this.publicMemory(m[0].id);
-      // console.log(await this.getPublicMemories());
-      // await this.removePublicMemory(m[0].id);
-      // console.log(await this.getPublicMemories());
+    if (!response || !('data' in response)) {
+      throw new Error('Could not fetch SkyBrain cached users');
+    }
 
-      await this.connectUserByPublicKey(
-        'f050c12dfacc6de5420a4ce7bcd3ca998ecc067d4fc290376b35463364574295'
-      ); // INFO: public key of user test2:test2
-      console.log(await this.getConnectedUsers());
-      console.log(await this.getPublicMemoriesOfConnectedUsers());
-      console.log(await this.getSharedMemories());
-      const base64Link = await this.shareMemory(m[0].id)
-      if (base64Link) {
-        console.log('resolving');
-        // tslint:disable-next-line: max-line-length
-        // console.log(await this.resolveMemoryFromBase64("eyJwdWJsaWNLZXkiOiIyZmZlOGUxYjA5MWVjN2Q3M2I5ZTg5NDczMDYzMmM1ZTEyYzI4OWRjOTQzMjYwMzdlMjNmMzNkNTRmOTVhYWQ4Iiwic2hhcmVkSWQiOiIyYjY2OGFjZC1hYzMwLTRhNzYtYmMxMi01ODgwOWM2NTkxMTAiLCJlbmNyeXB0aW9uS2V5IjoiZWQxMzI4YTljMWE5ZDE1NTVmNzhiYzJjYmZiMjY4NzExM2E3NzIzNjdjNTA0YTU5ZTY4OTM3MGViZGM0NzJhNSJ9"));
-        // console.log(await this.resolveMemoryFromBase64(base64Link));
+    return response.data as CachedUsers;
+  }
+
+  private async silentCacheUser({ toCacheUserPublicKey, user }: { toCacheUserPublicKey: string, user?: UserData }) {
+    if (!toCacheUserPublicKey) {
+      return;
+    }
+
+    try {
+      let userData = user;
+      if (!userData) {
+        userData = await this.getBrainData({ publicKey: toCacheUserPublicKey })
+      }
+
+      if (this.userAlreadyCachedAndUpToDate({ publicKey: toCacheUserPublicKey, user: userData })) {
+        return;
+      }
+
+      const cachedUser: CachedUser = {
+        nickname: userData.nickname ? userData.nickname : '',
+        description: userData.description ? userData.description : '',
+        cachedAt: new Date(Date.now()),
+      }
+
+      this.cacheUserInLocalstorage({ publicKey: toCacheUserPublicKey, user: cachedUser });
+    } catch (error) {
+      console.log("Could not update cached users.");
+    }
+  }
+
+  private async storeCachedUsers() {
+    const localCachedUsers = localStorage.getItem(this.cachedUsersLocalStorageKey);
+    if (!localCachedUsers) {
+      return;
+    }
+
+    const parsedLocalCachedUsers = JSON.parse(localCachedUsers) as CachedUsers;
+    const skyBrainCachedUsers = await this.getSkyBrainCachedUsers();
+    let callSkyDB = false;
+
+    for (let cachedUserPublicKey in parsedLocalCachedUsers) {
+      let cachedUser = parsedLocalCachedUsers[cachedUserPublicKey];
+      if (cachedUserPublicKey in skyBrainCachedUsers) {
+        const storedCachedUser = skyBrainCachedUsers[cachedUserPublicKey];
+        if (cachedUser.cachedAt > storedCachedUser.cachedAt) {
+          if (cachedUser.description != storedCachedUser.description ||
+            cachedUser.nickname != storedCachedUser.nickname) {
+            skyBrainCachedUsers[cachedUserPublicKey] = cachedUser;
+            callSkyDB = true;
+          }
+        }
+      } else {
+        skyBrainCachedUsers[cachedUserPublicKey] = cachedUser;
+        callSkyDB = true;
       }
     }
 
-  } */
+    if (!callSkyDB) {
+      return;
+    }
+
+    await this.skynetClient.db.setJSON(
+      "10acb3fa1047c27b28281f0ff9e870f53bd6911f9a7dd87e95472fa1c2d1ee4b9064afe68f239b52a5e5366f1eed2548b872bed361025699479890a54f9b26e1",
+      this.skyBrainSkyDBCachedUsersKey,
+      skyBrainCachedUsers,
+      undefined,
+      { timeout: this.skydbTimeout }
+    );
+  }
+
+  private userAlreadyCachedAndUpToDate({ publicKey, user }: { user: UserData } & Partial<UserKeys>): Boolean {
+    if (!publicKey) {
+      throw new Error('userAlreadyCachedAndUpToDate: invalid publicKey');;
+    }
+
+    if (!user.description) {
+      user.description = "";
+    }
+
+    if (!user.nickname) {
+      user.nickname = "";
+    }
+
+    const cachedUsers = localStorage.getItem(this.cachedUsersLocalStorageKey);
+    if (cachedUsers) {
+      const parsedCachedUsers = JSON.parse(cachedUsers) as CachedUsers;
+      if (publicKey in parsedCachedUsers) {
+        if (parsedCachedUsers[publicKey].nickname == user.nickname &&
+          parsedCachedUsers[publicKey].description == user.description) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private cacheUserInLocalstorage({ publicKey, user }: { user: CachedUser } & Partial<UserKeys>) {
+    if (!publicKey) {
+      throw new Error('cacheUserInLocalstorage: invalid publicKey');;
+    }
+
+    let parsedCachedUsers = {} as CachedUsers;
+    const cachedUsers = localStorage.getItem(this.cachedUsersLocalStorageKey);
+    if (cachedUsers) {
+      parsedCachedUsers = JSON.parse(cachedUsers) as CachedUsers;
+    }
+
+    parsedCachedUsers[publicKey] = user;
+    localStorage.setItem(this.cachedUsersLocalStorageKey, JSON.stringify(parsedCachedUsers));
+
+    clearTimeout(this.chacheTimeout);
+    this.chacheTimeout = setTimeout(() => {
+      this.storeCachedUsers();
+    }, 1500);
+  }
 }
