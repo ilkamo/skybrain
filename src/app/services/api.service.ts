@@ -11,7 +11,6 @@ import { ConnectedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } 
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
 import { CachedUsers, SKYBRAIN_SKYDB_CACHED_USERS_KEY } from '../models/users-cache';
-import { from, interval } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -732,7 +731,7 @@ export class ApiService {
     try {
       let userData = user;
       if (!userData) {
-        userData = await this.getBrainData({ publicKey: toCacheUserPublicKey })
+        userData = await this.getBrainData({ publicKey: toCacheUserPublicKey });
       }
 
       if (this.userAlreadyCachedAndUpToDate({ publicKey: toCacheUserPublicKey, user: userData })) {
