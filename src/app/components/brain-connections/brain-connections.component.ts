@@ -9,6 +9,7 @@ import { selectConnections } from 'src/app/reducers/connection/connection.select
 import { map } from 'rxjs/operators';
 import { Connection } from 'src/app/reducers/connection/connection.model';
 import { UsersData } from 'src/app/models/user-data';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-brain-connections',
@@ -28,7 +29,7 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
   connectionsSubscription = new Subscription();
   connections$ = this.store.pipe(select(selectConnections));
 
-  constructor(private store: Store<RootState>, private router: Router) {
+  constructor(private store: Store<RootState>, private router: Router, private apiService: ApiService) {
     this.routeData$ = router.events.pipe(filter(event => event instanceof NavigationStart));
   }
 
@@ -56,12 +57,23 @@ export class BrainConnectionsComponent implements OnInit, OnDestroy {
     return this.visitedConnections.find(c => c.publicKey === publicKey) !== undefined;
   }
 
+  // TODO: do it in a pipe and apply to other part of the application!
   resolveConnectionName(publicKey: string): string {
+    let connection;
     if (publicKey in this.connectionsInfo) {
-      const connection = this.connectionsInfo[publicKey];
+      connection = this.connectionsInfo[publicKey];
+    } else {
+      const localCachedUsers = this.apiService.getLocalCachedUsers();
+      if (publicKey in localCachedUsers) {
+        connection = localCachedUsers[publicKey];
+      }
+    }
+
+    if (connection) {
       const nickname = connection.nickname;
       return nickname !== undefined ? `${publicKey.substring(0, 20)}... <-> ${nickname}` : publicKey;
     }
+
     return publicKey;
   }
 }

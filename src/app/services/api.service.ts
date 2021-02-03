@@ -830,7 +830,7 @@ export class ApiService {
     localStorage.setItem(this.cachedUsersLocalStorageKey, JSON.stringify(localCachedUsers));
   }
 
-  private getLocalCachedUsers(): CachedUsers {
+  public getLocalCachedUsers(): CachedUsers {
     let localCachedUsers = {};
     try {
       const fromStorage = localStorage.getItem(this.cachedUsersLocalStorageKey);
