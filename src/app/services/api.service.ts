@@ -11,7 +11,7 @@ import { ConnectedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } 
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
 import { CachedUsers, SKYBRAIN_SKYDB_CACHED_USERS_KEY } from '../models/users-cache';
-import { interval } from 'rxjs';
+import { from, interval } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -702,7 +702,7 @@ export class ApiService {
     }
   }
 
-  private async getSkyBrainCachedUsers(): Promise<CachedUsers> {
+  private async getCachedUsersFromSkyDB(): Promise<CachedUsers> {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
@@ -725,7 +725,7 @@ export class ApiService {
   }
 
   private async silentCacheUser({ toCacheUserPublicKey, user }: { toCacheUserPublicKey: string, user?: UserData }) {
-    if (!toCacheUserPublicKey) {
+    if (!toCacheUserPublicKey || toCacheUserPublicKey.length != 64) {
       return;
     }
 
@@ -740,41 +740,53 @@ export class ApiService {
       }
 
       const cachedUser: CachedUser = {
-        nickname: userData.nickname ? userData.nickname : '',
-        description: userData.description ? userData.description : '',
+        nickname: userData.nickname,
+        description: userData.description,
         cachedAt: new Date(Date.now()),
       }
 
       this.cacheUserInLocalstorage({ publicKey: toCacheUserPublicKey, user: cachedUser });
+
+      clearTimeout(this.chacheTimeout);
+      this.chacheTimeout = setTimeout(() => {
+        this.persistCachedUsers();
+      }, 3000);
     } catch (error) {
       console.log("Could not update cached users.");
     }
   }
 
-  private async storeCachedUsers() {
-    const localCachedUsers = localStorage.getItem(this.cachedUsersLocalStorageKey);
+  private async persistCachedUsers() {
+    const localCachedUsers = this.getLocalCachedUsers();
     if (!localCachedUsers) {
       return;
     }
 
-    const parsedLocalCachedUsers = JSON.parse(localCachedUsers) as CachedUsers;
-    const skyBrainCachedUsers = await this.getSkyBrainCachedUsers();
+    const skyDBCachedUsers = await this.getCachedUsersFromSkyDB();
     let callSkyDB = false;
 
-    for (let cachedUserPublicKey in parsedLocalCachedUsers) {
-      let cachedUser = parsedLocalCachedUsers[cachedUserPublicKey];
-      if (cachedUserPublicKey in skyBrainCachedUsers) {
-        const storedCachedUser = skyBrainCachedUsers[cachedUserPublicKey];
+    for (let cachedUserPublicKey in localCachedUsers) {
+      let cachedUser = localCachedUsers[cachedUserPublicKey];
+      if (cachedUserPublicKey in skyDBCachedUsers) {
+        const storedCachedUser = skyDBCachedUsers[cachedUserPublicKey];
         if (cachedUser.cachedAt > storedCachedUser.cachedAt) {
-          if (cachedUser.description != storedCachedUser.description ||
-            cachedUser.nickname != storedCachedUser.nickname) {
-            skyBrainCachedUsers[cachedUserPublicKey] = cachedUser;
+          if (cachedUser.description !== storedCachedUser.description ||
+            cachedUser.nickname !== storedCachedUser.nickname) {
+            skyDBCachedUsers[cachedUserPublicKey] = cachedUser;
             callSkyDB = true;
           }
         }
       } else {
-        skyBrainCachedUsers[cachedUserPublicKey] = cachedUser;
+        skyDBCachedUsers[cachedUserPublicKey] = cachedUser;
         callSkyDB = true;
+      }
+    }
+
+    // Updating the localStorage with cache from SkyDB
+    for (let skyDbCachedUserPublicKey in skyDBCachedUsers) {
+      if (!(skyDbCachedUserPublicKey in localCachedUsers)) {
+        const skyDBCachedUser = skyDBCachedUsers[skyDbCachedUserPublicKey];
+        this.cacheUserInLocalstorage({ publicKey: skyDbCachedUserPublicKey, user: skyDBCachedUser });
       }
     }
 
@@ -785,7 +797,7 @@ export class ApiService {
     await this.skynetClient.db.setJSON(
       "10acb3fa1047c27b28281f0ff9e870f53bd6911f9a7dd87e95472fa1c2d1ee4b9064afe68f239b52a5e5366f1eed2548b872bed361025699479890a54f9b26e1",
       this.skyBrainSkyDBCachedUsersKey,
-      skyBrainCachedUsers,
+      skyDBCachedUsers,
       undefined,
       { timeout: this.skydbTimeout }
     );
@@ -796,20 +808,11 @@ export class ApiService {
       throw new Error('userAlreadyCachedAndUpToDate: invalid publicKey');;
     }
 
-    if (!user.description) {
-      user.description = "";
-    }
-
-    if (!user.nickname) {
-      user.nickname = "";
-    }
-
-    const cachedUsers = localStorage.getItem(this.cachedUsersLocalStorageKey);
-    if (cachedUsers) {
-      const parsedCachedUsers = JSON.parse(cachedUsers) as CachedUsers;
-      if (publicKey in parsedCachedUsers) {
-        if (parsedCachedUsers[publicKey].nickname == user.nickname &&
-          parsedCachedUsers[publicKey].description == user.description) {
+    const localCachedUsers = this.getLocalCachedUsers();
+    if (localCachedUsers) {
+      if (publicKey in localCachedUsers) {
+        if (localCachedUsers[publicKey].nickname == user.nickname &&
+          localCachedUsers[publicKey].description == user.description) {
           return true;
         }
       }
@@ -823,18 +826,20 @@ export class ApiService {
       throw new Error('cacheUserInLocalstorage: invalid publicKey');;
     }
 
-    let parsedCachedUsers = {} as CachedUsers;
-    const cachedUsers = localStorage.getItem(this.cachedUsersLocalStorageKey);
-    if (cachedUsers) {
-      parsedCachedUsers = JSON.parse(cachedUsers) as CachedUsers;
-    }
+    const localCachedUsers = this.getLocalCachedUsers();
+    localCachedUsers[publicKey] = user;
+    localStorage.setItem(this.cachedUsersLocalStorageKey, JSON.stringify(localCachedUsers));
+  }
 
-    parsedCachedUsers[publicKey] = user;
-    localStorage.setItem(this.cachedUsersLocalStorageKey, JSON.stringify(parsedCachedUsers));
+  private getLocalCachedUsers(): CachedUsers {
+    let localCachedUsers = {};
+    try {
+      const fromStorage = localStorage.getItem(this.cachedUsersLocalStorageKey);
+      if (fromStorage) {
+        localCachedUsers = JSON.parse(fromStorage) as CachedUsers;
+      }
+    } catch (error) { }
 
-    clearTimeout(this.chacheTimeout);
-    this.chacheTimeout = setTimeout(() => {
-      this.storeCachedUsers();
-    }, 1500);
+    return localCachedUsers;
   }
 }
