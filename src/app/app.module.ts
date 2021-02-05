@@ -1,3 +1,4 @@
+import { CopyKeyComponent } from './components/copy-key/copy-key.component';
 import { MarkdownPipe } from './pipes/markdown.pipe';
 import { ConnectionEffects } from './reducers/connection/connection.effects';
 import { BrowserModule } from '@angular/platform-browser';
@@ -70,7 +71,8 @@ import { PublicMemoryComponent } from './pages/public-memory/public-memory.compo
     BreadcrumbsComponent,
     SkyidConnectComponent,
     MarkdownPipe,
-    PublicMemoryComponent
+    PublicMemoryComponent,
+    CopyKeyComponent
   ],
   imports: [
     BrowserModule,

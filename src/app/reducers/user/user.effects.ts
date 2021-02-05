@@ -1,3 +1,4 @@
+import { CacheService } from 'src/app/services/cache.service';
 // tslint:disable: no-any
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
@@ -19,7 +20,10 @@ export class UserEffects {
     switchMap(action => {
       const keys = this.api.generateUserKeys(action.passphrase);
       return from(this.api.getBrainData(keys)).pipe(
-        map(user => UserActions.authenticateUserSuccess({user, keys})),
+        map(user => {
+            this.cacheService.persistSeed(action.passphrase);
+            return UserActions.authenticateUserSuccess({user, keys});
+          }),
         catchError(error => of(UserActions.authenticateUserFailure({ error: error.message })))
       );
     })
@@ -121,6 +125,7 @@ export class UserEffects {
   constructor(
     private actions$: Actions,
     private api: ApiService,
+    private cacheService: CacheService,
     private store: Store<RootState>,
     private route: ActivatedRoute
   ) {

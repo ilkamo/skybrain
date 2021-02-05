@@ -6,6 +6,7 @@ import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
 import { UserData, userDataValidator } from '../../models/user-data';
 import { SKYBRAIN_ACCOUNT_PUBLIC_KEY } from 'src/app/models/user-connected-users';
+import { CacheService } from 'src/app/services/cache.service';
 
 @Component({
   selector: 'app-profile',
@@ -30,6 +31,7 @@ export class ProfileComponent implements OnInit {
     private formBuilder: FormBuilder,
     private store: Store<RootState>,
     @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) skybrainAccountPublicKey: string,
+    private cacheService: CacheService,
   ) {
     this.skybrainAccountPublicKey = skybrainAccountPublicKey;
   }
@@ -83,4 +85,7 @@ export class ProfileComponent implements OnInit {
     this.connectedForm.reset();
   }
 
+  resolveConnectionName(publicKey: string): string {
+    return this.cacheService.resolveNameFromPublicKey(publicKey);
+  }
 }

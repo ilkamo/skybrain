@@ -1,3 +1,4 @@
+import { CacheService } from './../../services/cache.service';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { combineLatest } from 'rxjs';
@@ -24,15 +25,20 @@ export class BreadcrumbsComponent implements OnInit {
         if (link && params && b.param) {
           link.push(params[b.param]);
         }
-        return {title, link};
+        return { title, link };
       });
     })
   );
 
   constructor(
-    private store: Store<State>
+    private store: Store<State>,
+    private cacheService: CacheService
   ) { }
 
   ngOnInit(): void {
+  }
+
+  resolveConnectionName(publicKey: string): string {
+    return this.cacheService.resolveNameFromPublicKey(publicKey);
   }
 }
