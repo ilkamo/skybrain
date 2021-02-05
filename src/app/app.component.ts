@@ -16,7 +16,8 @@ import {
   faLink,
   faMapMarkerAlt,
   faPhotoVideo,
-  faUsers
+  faUsers,
+  faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { NavigationCancel, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
@@ -50,7 +51,8 @@ export class AppComponent {
       faHeart,
       faPhotoVideo,
       faCheck,
-      faUsers
+      faUsers,
+      faSignOutAlt,
     );
 
     const routeLoading$ = router.events.pipe(

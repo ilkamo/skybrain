@@ -31,7 +31,7 @@
       </form>
       <h5 class="mt-5">Brain connections</h5>
       <h6 class="card-title"><p>In order to display connections* on your wall you have to connect with other brains.</p></h6>
-      <h6 class="card-subtitle mb-2 text-muted small">Fill the input with the public key of the brain you want to connect with and add a new connection.</h6>
+      <h6 class="card-subtitle mb-2 text-muted small">Use the connect button on the profile or fill the input with the public key of the brain you want to connect with and add a new connection.</h6>
       <form [formGroup]="connectedForm" (ngSubmit)="addFolower()">
         <div class="form-group required">
             <label>Public key</label>
@@ -50,7 +50,8 @@
       </form>
       <ul class="list-group mt-3">
         <li *ngFor="let user of connectedUsers$ | async" [attr.title]="user.startedAt | date" class="list-group-item d-flex justify-content-between align-items-center">
-          <small class="text-truncate mr-3"><a [routerLink]="['/connection', user.publicKey]">{{ user.publicKey }}</a></small>
+          <fa-icon [icon]="['far', 'user']"></fa-icon>
+          <small><a [routerLink]="['/connection', user.publicKey]">{{ resolveConnectionName(user.publicKey) }}</a></small>
           <span (click)="unconnect(user.publicKey)" class="cursor-pointer badge badge-danger badge-pill" title="Remove">&times;</span>
         </li>
       </ul>

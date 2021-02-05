@@ -11,7 +11,7 @@
         <a *ngIf="crumb.link; else simple"
           class="text-primary text-truncate"
           [routerLink]="crumb.link"
-        >{{ crumb.title }}</a>
+        >{{ resolveConnectionName(crumb.title) }}</a>
         <ng-template #simple>{{ crumb.title }}</ng-template>
       </li>
     </ol>

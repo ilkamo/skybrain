@@ -4,6 +4,10 @@ import { State as RootState } from '../../reducers';
 import { Store, select } from '@ngrx/store';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as UserActions from '../../reducers/user/user.actions';
+import { Observable, Subscription } from 'rxjs';
+import { NavigationStart, Router } from '@angular/router';
+import { CacheService } from 'src/app/services/cache.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -20,8 +24,17 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private store: Store<RootState>
-  ) {}
+    private store: Store<RootState>,
+    private cacheService: CacheService
+  ) {
+    const seed = this.cacheService.getSeed();
+    if (seed != "") {
+      console.log(seed);
+      this.store.dispatch(
+        UserActions.authenticateUser({ passphrase: seed })
+      );
+    }
+  }
 
   ngOnInit(): void {}
 

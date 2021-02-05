@@ -1,0 +1,3 @@
+<button type="button" class="mr-2 btn btn-sm btn-outline-secondary" *ngIf="publicKey" href="#" (click)="copyToClipboard(publicKey, $event)">
+  <fa-icon [icon]="['far', 'clipboard']"></fa-icon> Copy Public Key
+</button>

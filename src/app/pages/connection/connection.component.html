@@ -4,6 +4,7 @@
       <div class="d-flex justify-content-between">
         <h5 *ngIf="brainData?.nickname" class="stroke mt-2">{{brainData?.nickname}}</h5>
         <div class="d-flex mt-2">
+          <app-copy-key [publicKey]="publicKey"></app-copy-key>
           <app-connect-me [publicKey]="publicKey"></app-connect-me>
         </div>
       </div>

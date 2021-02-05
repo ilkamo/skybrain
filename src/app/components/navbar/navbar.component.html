@@ -14,17 +14,22 @@
     <ul class="nav navbar-nav">
       <ng-container *ngIf="publicKey">
         <span #key class="navbar-text text-truncate w-25 d-inline-block ml-auto">
-          <a [routerLink]="['/connection', publicKey]">{{ publicKey }}</a>
+          <a [routerLink]="['/connection', publicKey]">{{ resolveConnectionName(publicKey) }}</a>
         </span>
         <li class="nav-item">
-          <a href="#" (click)="copyToClipboard(key, $event)" class="nav-link">
+          <a title="copy public key" href="#" (click)="copyToClipboard(key, $event)" class="nav-link">
             <fa-icon [icon]="['far', 'clipboard']"></fa-icon>
           </a>
         </li>
       </ng-container>
       <li class="nav-item" [routerLinkActive]="['active']">
-        <a [routerLink]="['profile']" class="nav-link">
+        <a title="profile" [routerLink]="['profile']" class="nav-link">
           <fa-icon [icon]="['far', 'user']"></fa-icon>
+        </a>
+      </li>
+      <li class="nav-item" [routerLinkActive]="['active']">
+        <a title="sign-out" href="#" (click)="logout()" class="nav-link">
+          <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
         </a>
       </li>
     </ul>
