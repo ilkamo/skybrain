@@ -509,9 +509,6 @@ export class ApiService {
     // tslint:disable-next-line: no-any
     const connectedUsers = response.data.map((u: any) => ({ ...u, startedAt: new Date(u.startedAt) })) as ConnectedUser[];
 
-    // IMPO: caching!
-    connectedUsers.forEach((u) => this.silentCacheUser({ toCacheUserPublicKey: u.publicKey }));
-
     return connectedUsers;
   }
 
@@ -525,7 +522,6 @@ export class ApiService {
 
     // IMPO: caching!
     this.silentCacheUser({ toCacheUserPublicKey: connectedUserPublicKey });
-    connectedUsers.forEach((u) => this.silentCacheUser({ toCacheUserPublicKey: u.publicKey }));
 
     const tempConnectedUser: ConnectedUser = {
       startedAt: new Date(Date.now()),
