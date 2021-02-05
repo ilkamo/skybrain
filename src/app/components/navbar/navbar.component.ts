@@ -18,14 +18,10 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  copyToClipboard(div: HTMLSpanElement, event: MouseEvent): void {
+  copyToClipboard(text: string, event: MouseEvent): void {
     event.preventDefault();
-    const text = div.textContent;
-    if (typeof text !== 'string') {
-      return;
-    }
     navigator.clipboard.writeText(text).then(() => {
-      alert('Copying to clipboard was successful!');
+      alert('Public Key copied to Clipboard!');
     }, (err) => {
       alert('Could not copy text: ' + text);
     });

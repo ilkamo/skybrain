@@ -17,7 +17,7 @@
           <a [routerLink]="['/connection', publicKey]">{{ resolveConnectionName(publicKey) }}</a>
         </span>
         <li class="nav-item">
-          <a title="copy public key" href="#" (click)="copyToClipboard(key, $event)" class="nav-link">
+          <a title="copy public key" href="#" (click)="copyToClipboard(publicKey, $event)" class="nav-link">
             <fa-icon [icon]="['far', 'clipboard']"></fa-icon>
           </a>
         </li>
