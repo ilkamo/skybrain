@@ -1,3 +1,4 @@
+import { UserMemory } from './../../models/user-memory';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { first, map } from 'rxjs/operators';
@@ -8,6 +9,7 @@ import * as MemomrySelectors from '../../reducers/memory/memory.selectors';
 import * as UserSelectors from '../../reducers/user/user.selectors';
 import * as MemomryActions from '../../reducers/memory/memory.actions';
 import { Memory } from 'src/app/reducers/memory/memory.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-memories',
@@ -19,10 +21,19 @@ export class MemoriesComponent implements OnInit {
   userPublicKey$ = this.store.pipe(select(UserSelectors.selectUserPublicKey));
   error$ = this.store.pipe(select(MemomrySelectors.selectError));
   uploadForm: FormGroup;
+
   onlyMyMemoris = new FormControl();
+  formSubscription = new Subscription();
+
   formOpened = false;
   memoryText = '';
   displayPreview = false;
+
+  memoriesSubscription = new Subscription();
+  allMemories: Memory[] = [];
+  displayedMemories: Memory[] = [];
+  tempMemories: Memory[] = [];
+  displayedIndex = 0;
 
   constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
     this.uploadForm = this.formBuilder.group({
@@ -32,11 +43,54 @@ export class MemoriesComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.memoriesSubscription.unsubscribe();
+    this.formSubscription.unsubscribe();
+  }
+
   ngOnInit(): void {
+    this.memoriesSubscription.add(
+      this.memories$.subscribe((m) => {
+        if (this.allMemories.length > 0 && this.displayedIndex == 0) {
+          this.displayedIndex++;
+        }
+
+        this.allMemories = m;
+        if (this.allMemories.length > this.displayedIndex) {
+          this.displayedMemories = this.allMemories.slice(0, this.displayedIndex);
+        }
+      })
+    );
+
+    this.onShowOnlyMyMemoriesChange();
+
     this.memories$.pipe(
       first(),
       map(memories => memories.filter(m => !m.connectedId).length),
     ).forEach(l => this.formOpened = l === 0);
+  }
+
+  private onShowOnlyMyMemoriesChange() {
+    this.formSubscription.add(
+      this.onlyMyMemoris.valueChanges.subscribe(val => {
+        if (val == true) {
+          this.tempMemories = this.allMemories.slice();
+          this.allMemories = this.allMemories.filter(m => !m.connectedId);
+        } else {
+          this.allMemories = this.tempMemories.slice();
+        }
+
+        this.resetDisplayedIndex();
+        this.displayedMemories = this.allMemories.slice(0, this.displayedIndex);
+      })
+    );
+  }
+
+  private resetDisplayedIndex() {
+    this.displayedIndex = 0;
+    if (this.allMemories.length > 0 && this.displayedIndex == 0) {
+      this.displayedIndex++;
+    }
   }
 
   get form(): {
@@ -80,5 +134,12 @@ export class MemoriesComponent implements OnInit {
 
   trackMemory(index: number, memory: Memory): string {
     return memory.id;
+  }
+
+  onScroll() {
+    if (this.allMemories.length > this.displayedIndex) {
+      this.displayedIndex++;
+      this.displayedMemories = this.allMemories.slice(0, this.displayedIndex);
+    }
   }
 }
