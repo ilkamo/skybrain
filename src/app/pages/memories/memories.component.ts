@@ -34,6 +34,7 @@ export class MemoriesComponent implements OnInit {
   displayedMemories: Memory[] = [];
   tempMemories: Memory[] = [];
   displayedIndex = 0;
+  toDisplayOnInit = 3;
 
   constructor(private store: Store<RootState>, private formBuilder: FormBuilder) {
     this.uploadForm = this.formBuilder.group({
@@ -52,13 +53,14 @@ export class MemoriesComponent implements OnInit {
     this.memoriesSubscription.add(
       this.memories$.subscribe((m) => {
         this.allMemories = m;
+        this.displayedMemories = [];
+        this.displayedIndex = 0;
 
-        if (this.allMemories.length > 0 && this.displayedIndex == 0) {
-          this.displayedIndex++;
-        }
-
-        if (this.allMemories.length > this.displayedIndex) {
-          this.displayedMemories = this.allMemories.slice(0, this.displayedIndex);
+        if (this.displayedIndex === 0) {
+          // If possibile, display `toDisplayOnInit` memories on the timeline.
+          for (let i = 0; i < this.toDisplayOnInit; i++) {
+            this.onScroll();
+          }
         }
       })
     );
@@ -89,8 +91,11 @@ export class MemoriesComponent implements OnInit {
 
   private resetDisplayedIndex() {
     this.displayedIndex = 0;
-    if (this.allMemories.length > 0 && this.displayedIndex == 0) {
-      this.displayedIndex++;
+    // If possibile, display `toDisplayOnInit` memories on the timeline.
+    for (let i = 0; i < this.toDisplayOnInit; i++) {
+      if (this.allMemories.length > i) {
+        this.displayedIndex++;
+      }
     }
   }
 

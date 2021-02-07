@@ -25,6 +25,7 @@ export class ConnectionComponent implements OnInit, OnDestroy {
 
   displayedMemories: Memory[] = [];
   displayedIndex = 0;
+  toDisplayOnInit = 3;
 
   constructor(private store: Store<RootState>, route: ActivatedRoute) {
     this.routeData$ = route.data.pipe(
@@ -46,11 +47,10 @@ export class ConnectionComponent implements OnInit, OnDestroy {
         this.displayedIndex = 0;
         this.displayedMemories = [];
 
-        if (this.memories && this.memories.length > 0) {
-          this.displayedIndex++;
-
-          if (this.memories.length >= this.displayedIndex) {
-            this.displayedMemories = this.memories.slice(0, this.displayedIndex);
+        if (this.memories) {
+          // If possibile, display `toDisplayOnInit` memories on the timeline.
+          for (let i = 0; i < this.toDisplayOnInit; i++) {
+            this.onScroll();
           }
         }
 
