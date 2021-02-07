@@ -19,5 +19,8 @@
       <app-memory *ngFor="let memory of displayedMemories; trackBy:trackMemory" [memory]="memory" [ownerPublicKey]="publicKey" [simple]="true" class="mb-3"></app-memory>
       </div>
     </ng-container>
+    <button *ngIf="canShowMore()" type="button" class="mr-2 btn btn-sm btn-outline-primary" href="#" (click)="onScroll()">
+      Show more
+    </button>
   </div>
 </div>

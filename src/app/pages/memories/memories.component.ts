@@ -51,11 +51,12 @@ export class MemoriesComponent implements OnInit {
   ngOnInit(): void {
     this.memoriesSubscription.add(
       this.memories$.subscribe((m) => {
+        this.allMemories = m;
+
         if (this.allMemories.length > 0 && this.displayedIndex == 0) {
           this.displayedIndex++;
         }
 
-        this.allMemories = m;
         if (this.allMemories.length > this.displayedIndex) {
           this.displayedMemories = this.allMemories.slice(0, this.displayedIndex);
         }
@@ -141,5 +142,9 @@ export class MemoriesComponent implements OnInit {
       this.displayedIndex++;
       this.displayedMemories = this.allMemories.slice(0, this.displayedIndex);
     }
+  }
+
+  canShowMore(): boolean {
+    return this.allMemories.length > this.displayedIndex;
   }
 }

@@ -43,13 +43,15 @@ export class ConnectionComponent implements OnInit, OnDestroy {
       this.routeData$.subscribe(data => {
         this.connectedUsers = data.publicBrain.connectedUsers;
         this.memories = data.publicBrain.memories;
+        this.displayedIndex = 0;
+        this.displayedMemories = [];
 
-        if (this.memories && this.memories.length > 0 && this.displayedIndex == 0) {
+        if (this.memories && this.memories.length > 0) {
           this.displayedIndex++;
-        }
 
-        if (this.memories && this.memories.length > this.displayedIndex) {
-          this.displayedMemories = this.memories.slice(0, this.displayedIndex);
+          if (this.memories.length >= this.displayedIndex) {
+            this.displayedMemories = this.memories.slice(0, this.displayedIndex);
+          }
         }
 
         this.publicKey = data.params.publicKey;
@@ -70,5 +72,10 @@ export class ConnectionComponent implements OnInit, OnDestroy {
       this.displayedIndex++;
       this.displayedMemories = this.memories.slice(0, this.displayedIndex);
     }
+  }
+
+  canShowMore(): boolean {
+    if (!this.memories) return false;
+    return this.memories.length > this.displayedIndex;
   }
 }
