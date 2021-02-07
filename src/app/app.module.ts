@@ -1,3 +1,4 @@
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { CopyKeyComponent } from './components/copy-key/copy-key.component';
 import { MarkdownPipe } from './pipes/markdown.pipe';
 import { ConnectionEffects } from './reducers/connection/connection.effects';
@@ -84,7 +85,8 @@ import { PublicMemoryComponent } from './pages/public-memory/public-memory.compo
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
     StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal }),
-    MarkdownEditorModule
+    MarkdownEditorModule,
+    InfiniteScrollModule
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },

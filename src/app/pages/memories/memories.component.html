@@ -61,11 +61,13 @@
       <label class="custom-control-label" for="customSwitch1">Show only my memories</label>
     </div>
 
-    <ng-container *ngIf="(memories$ | async) as memories">
-
+    <ng-container *ngIf="displayedMemories as memories">
+      <div class="items" infiniteScroll
+      [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="50"
+      (scrolled)="onScroll()" >
       <ng-container *ngFor="let memory of memories; trackBy:trackMemory">
         <app-memory
-          *ngIf="!onlyMyMemoris.value || !memory.connectedId "
           [memory]="memory"
           (forget)="forgetMemory($event)"
           (publish)="publishMemory($event)"
@@ -74,8 +76,12 @@
           class="mb-3">
         </app-memory>
       </ng-container>
+    </div>
 
     </ng-container>
+    <button *ngIf="canShowMore()" type="button" class="mr-2 btn btn-sm btn-outline-primary" href="#" (click)="onScroll()">
+      Show more ...
+    </button>
 
   </div>
 </div>

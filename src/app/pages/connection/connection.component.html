@@ -11,8 +11,16 @@
       <div *ngIf="brainData?.description" class="text-muted mt-4 mb-2">{{brainData?.description}}</div>
     </div>
     <app-brain-connections *ngIf="connectedUsers" [connectedUsers]="connectedUsers"></app-brain-connections>
-    <ng-container *ngIf="memories">
-      <app-memory *ngFor="let memory of memories; trackBy:trackMemory" [memory]="memory" [ownerPublicKey]="publicKey" [simple]="true" class="mb-3"></app-memory>
+    <ng-container *ngIf="displayedMemories">
+      <div class="items" infiniteScroll
+      [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="50"
+      (scrolled)="onScroll()" >
+      <app-memory *ngFor="let memory of displayedMemories; trackBy:trackMemory" [memory]="memory" [ownerPublicKey]="publicKey" [simple]="true" class="mb-3"></app-memory>
+      </div>
     </ng-container>
+    <button *ngIf="canShowMore()" type="button" class="mr-2 btn btn-sm btn-outline-primary" href="#" (click)="onScroll()">
+      Show more ...
+    </button>
   </div>
 </div>
