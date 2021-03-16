@@ -29,7 +29,6 @@ export class LoginComponent implements OnInit {
   ) {
     const seed = this.cacheService.getSeed();
     if (seed != "") {
-      console.log(seed);
       this.store.dispatch(
         UserActions.authenticateUser({ passphrase: seed })
       );
