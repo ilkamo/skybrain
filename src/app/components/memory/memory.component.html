@@ -67,8 +67,8 @@
   </div>
 
   <div class="card-footer text-center" *ngIf="memory?.connectedId">
-    <button [attr.title]="'User public memories'" [routerLink]="['/connection', memory.connectedId]" class="btn btn-light pull-right">
-      <fa-icon [icon]="['far', 'user']"></fa-icon> Display connection
+    <button [attr.title]="'User public memories'" [routerLink]="['/connection', memory?.connectedId]" class="btn btn-light pull-right">
+      <fa-icon [icon]="['far', 'user']"></fa-icon> {{resolveConnectionName(memory?.connectedId)}}
     </button>
   </div>
 </ng-container>

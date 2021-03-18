@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, EventEmitter, HostBinding, Inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { Memory } from 'src/app/reducers/memory/memory.model';
+import { CacheService } from 'src/app/services/cache.service';
 
 @Component({
   selector: 'app-memory',
@@ -17,7 +18,7 @@ export class MemoryComponent implements OnInit {
   @Output() share = new EventEmitter<Memory>();
   @Input() ownerPublicKey: string | null | undefined;
 
-  constructor(@Inject(DOCUMENT) private document: Document) { }
+  constructor(@Inject(DOCUMENT) private document: Document, private cacheService: CacheService) { }
 
   ngOnInit(): void {
   }
@@ -50,5 +51,9 @@ export class MemoryComponent implements OnInit {
     input.select();
     input.setSelectionRange(0, 99999);
     this.document.execCommand('copy');
+  }
+
+  resolveConnectionName(publicKey: string): string {
+    return this.cacheService.resolveNameFromPublicKey(publicKey);
   }
 }

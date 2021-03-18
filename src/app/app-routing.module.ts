@@ -15,6 +15,8 @@ import { MemoriesInitializedService } from './services/memories-initialized.reso
 import { SharedMemoryService } from './services/shared-memory.resolver';
 import { PublicBrainResolver } from './services/public-brain.resolver';
 import { PublicMemoryService } from './services/public-memory.resolver';
+import { StreamComponent } from './pages/stream/stream.component';
+import { StreamResolver } from './services/stream.resolver';
 
 export interface IBreadcrumbLink {
   title?: string;
@@ -26,17 +28,17 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
-    canActivate: [ NotAuthenticatedGuard ]
+    canActivate: [NotAuthenticatedGuard]
   },
   {
     path: 'register',
     component: RegisterComponent,
-    canActivate: [ NotAuthenticatedGuard ]
+    canActivate: [NotAuthenticatedGuard]
   },
   {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [ AuthenticatedGuard ],
+    canActivate: [AuthenticatedGuard],
     data: {
       breadcrumbs: [
         {
@@ -98,9 +100,23 @@ const routes: Routes = [
     },
   },
   {
+    path: 'stream',
+    component: StreamComponent,
+    resolve: {
+      publicBrain: StreamResolver
+    },
+    data: {
+      breadcrumbs: [
+        {
+          title: 'Stream',
+        } as IBreadcrumbLink,
+      ]
+    },
+  },
+  {
     path: '',
     component: MemoriesComponent,
-    canActivate: [ AuthenticatedGuard, ValidProfileGuard ],
+    canActivate: [AuthenticatedGuard, ValidProfileGuard],
     resolve: {
       memoriesInitialized: MemoriesInitializedService
     },
