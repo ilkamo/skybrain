@@ -19,6 +19,7 @@ export const {
 export const selectNavbarIsVisibleForRoute = createSelector(
   selectUrl,
   url => {
-    return ['/login', '/register'].filter((r) => url && url.indexOf(r) !== -1).length === 0;
+    // return ['/login', '/register'].filter((r) => url && url.indexOf(r) !== -1).length === 0;
+    return true;
   }
 );

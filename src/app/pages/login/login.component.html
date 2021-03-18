@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-center">
-  <div class="card login-card border-0 mt-5 text-left">
-    <img class="card-img-top" src="/assets/skybrain-logo.svg" alt="SkyBrain" />
+  <div class="card login-card border-0 mt-2 text-left">
+    <img class="card-img-top" src="/assets/brock-wegner-bpK7vTq2qn4-unsplash-res.jpeg" alt="thinking" />
     <div class="card-body">
       <div *ngIf="error$ | async as error" class="alert alert-danger">{{ error }}</div>
-      <h6 class="card-title"><p>Enter the place where magic happens. You will be able to store/manage memories and emotions, like happens in the human brain.</p></h6>
+      <h6 class="card-title"><p>Login and start sharing your memories and emotions. Make them viral and inspire the community. Manage your content.</p></h6>
       <h6 class="card-subtitle mb-2 text-muted small">Fill the input with your secure passphrase.</h6>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">

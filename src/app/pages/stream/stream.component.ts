@@ -3,8 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Memory } from 'src/app/reducers/memory/memory.model';
 import { map, withLatestFrom } from 'rxjs/operators';
 import { Observable, Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { State as RootState } from '../../reducers';
+import { isAuthenticated } from '../../reducers/user/user.selectors';
 
 @Component({
   selector: 'app-stream',
@@ -22,6 +23,8 @@ export class StreamComponent implements OnInit, OnDestroy {
   displayedMemories: Memory[] = [];
   displayedIndex = 0;
   toDisplayOnInit = 3;
+
+  isAuthenticated$ = this.store.pipe(select(isAuthenticated));
 
   constructor(private store: Store<RootState>, route: ActivatedRoute) {
     this.routeData$ = route.data.pipe(
