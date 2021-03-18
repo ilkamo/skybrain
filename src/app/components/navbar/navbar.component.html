@@ -9,7 +9,8 @@
 
   <div class="collapse navbar-collapse show" [ngClass]="{ show: opened }">
     <ul class="nav navbar-nav mr-auto">
-      <li class="nav-item" [routerLinkActive]="['active']"> <a [routerLink]="['/']" class="nav-link">Memories</a></li>
+      <li class="nav-item"> <a [routerLink]="['/memories']" class="nav-link">Memories</a></li>
+      <li class="nav-item"> <a [routerLink]="['/']" class="nav-link">Stream</a></li>
     </ul>
     <ul class="nav navbar-nav">
       <ng-container *ngIf="publicKey">
@@ -21,17 +22,17 @@
             <fa-icon [icon]="['far', 'clipboard']"></fa-icon>
           </a>
         </li>
+        <li class="nav-item" [routerLinkActive]="['active']">
+          <a title="profile" [routerLink]="['profile']" class="nav-link">
+            <fa-icon [icon]="['far', 'user']"></fa-icon>
+          </a>
+        </li>
+        <li class="nav-item" [routerLinkActive]="['active']">
+          <a title="sign-out" href="#" (click)="logout()" class="nav-link">
+            <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
+          </a>
+        </li>
       </ng-container>
-      <li class="nav-item" [routerLinkActive]="['active']">
-        <a title="profile" [routerLink]="['profile']" class="nav-link">
-          <fa-icon [icon]="['far', 'user']"></fa-icon>
-        </a>
-      </li>
-      <li class="nav-item" [routerLinkActive]="['active']">
-        <a title="sign-out" href="#" (click)="logout()" class="nav-link">
-          <fa-icon [icon]="['fas', 'sign-out-alt']"></fa-icon>
-        </a>
-      </li>
     </ul>
   </div>
 </nav>

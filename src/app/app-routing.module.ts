@@ -100,7 +100,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'stream',
+    path: '',
     component: StreamComponent,
     resolve: {
       publicBrain: StreamResolver
@@ -109,12 +109,13 @@ const routes: Routes = [
       breadcrumbs: [
         {
           title: 'Stream',
+          link: '/'
         } as IBreadcrumbLink,
       ]
     },
   },
   {
-    path: '',
+    path: 'memories',
     component: MemoriesComponent,
     canActivate: [AuthenticatedGuard, ValidProfileGuard],
     resolve: {
@@ -124,7 +125,7 @@ const routes: Routes = [
       breadcrumbs: [
         {
           title: 'Memories',
-          link: '/'
+          link: 'memories'
         } as IBreadcrumbLink,
       ]
     },

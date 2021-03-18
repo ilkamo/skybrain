@@ -17,7 +17,7 @@ export class NotAuthenticatedGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean | UrlTree> {
       return this.store.pipe(
         select(isAuthenticated),
-        map(authenticated => !authenticated || this.router.createUrlTree(['/']))
+        map(authenticated => !authenticated || this.router.createUrlTree(['/memories']))
       );
   }
 }

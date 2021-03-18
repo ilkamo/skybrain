@@ -1,6 +1,8 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
-    <div class="card login-card border-0 mt-5 text-left">
+    <div class="card border-0 mt-2 text-left">
+      <ng-container *ngIf="isAuthenticated$ | async; else notlogged"></ng-container>
+      <ng-template #notlogged><p class="card-body mb-2 mt-2 text-muted">Try the exciting exerience of sharing a memory on Skybrain? Let's <a routerLink="/login">login</a>!</p></ng-template>
       <img class="card-img-top" src="/assets/docusign-L2iZFRPaH1M-unsplash.jpeg" alt="scrolling" />
       <div class="card-body">
         <h6 class="card-title"><p>Hello Skybrain Stream!</p></h6>
