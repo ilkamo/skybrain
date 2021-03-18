@@ -1,0 +1,22 @@
+<div class="d-flex justify-content-center">
+  <div class="memories d-flex flex-column">
+    <div class="border p-3 bg-white rounded brain-profile">
+      <div class="d-flex justify-content-between">
+        <h5 class="stroke mt-2">Memories stream</h5>
+      </div>
+      <div class="text-muted mt-4 mb-2">A stream of latest public memories stored in Skybrain 💨🧠</div>
+    </div>
+    <br>
+    <ng-container *ngIf="displayedMemories">
+      <div class="items" infiniteScroll
+      [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="50"
+      (scrolled)="onScroll()" >
+      <app-memory *ngFor="let memory of displayedMemories; trackBy:trackMemory" [memory]="memory" [simple]="true" class="mb-3"></app-memory>
+      </div>
+    </ng-container>
+    <button *ngIf="canShowMore()" type="button" class="mr-2 btn btn-sm btn-outline-primary" href="#" (click)="onScroll()">
+      Show more ...
+    </button>
+  </div>
+</div>

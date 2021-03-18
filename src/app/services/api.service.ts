@@ -1,3 +1,4 @@
+import { StreamMemory, STREAM_MEMORIES_KEY, StreamMemories } from './../models/stream-memory';
 import { CachedUser } from './../models/users-cache';
 import { Inject, Injectable, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
@@ -24,6 +25,9 @@ export class ApiService {
   private cachedUsersLocalStorageKey = "cahcedUsers";
   private chacheTimeout: NodeJS.Timeout = setTimeout(() => { }, 0);
 
+  // TODO: create a backend for that!
+  private publicSkybrainSkyDBKey = "10acb3fa1047c27b28281f0ff9e870f53bd6911f9a7dd87e95472fa1c2d1ee4b9064afe68f239b52a5e5366f1eed2548b872bed361025699479890a54f9b26e1";
+
   constructor(
     @Optional() @Inject(PORTAL) private portal: string,
     @Inject(USER_DATA_KEY) private userDataKey: string,
@@ -33,6 +37,7 @@ export class ApiService {
     @Inject(USER_CONNECTED_USERS_KEY) private userConnectedUsersSkydbKey: string,
     @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skyBrainAccountPublicKey: string,
     @Inject(SKYBRAIN_SKYDB_CACHED_USERS_KEY) private skyBrainSkyDBCachedUsersKey: string,
+    @Inject(STREAM_MEMORIES_KEY) private streamMemoriesSkydbKey: string,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -702,7 +707,7 @@ export class ApiService {
     let response;
     try {
       response = await this.skynetClient.db.getJSON(
-        "9064afe68f239b52a5e5366f1eed2548b872bed361025699479890a54f9b26e1",
+        this.publicSkybrainSkyDBKey.substr(this.publicSkybrainSkyDBKey.length - 64),
         this.skyBrainSkyDBCachedUsersKey,
         { timeout: this.skydbTimeout },
       );
@@ -792,7 +797,7 @@ export class ApiService {
     }
 
     await this.skynetClient.db.setJSON(
-      "10acb3fa1047c27b28281f0ff9e870f53bd6911f9a7dd87e95472fa1c2d1ee4b9064afe68f239b52a5e5366f1eed2548b872bed361025699479890a54f9b26e1",
+      this.publicSkybrainSkyDBKey,
       this.skyBrainSkyDBCachedUsersKey,
       skyDBCachedUsers,
       undefined,
@@ -838,5 +843,67 @@ export class ApiService {
     } catch (error) { }
 
     return localCachedUsers;
+  }
+
+  public async getStreamMemories(): Promise<StreamMemory[]> {
+    let response;
+    try {
+      response = await this.skynetClient.db.getJSON(
+        this.publicSkybrainSkyDBKey.substr(this.publicSkybrainSkyDBKey.length - 64),
+        this.streamMemoriesSkydbKey,
+        {
+          timeout: this.skydbTimeout,
+        },
+      );
+    } catch (error) {
+    }
+    if (!response || !('data' in response)) {
+      throw new Error(
+        'Could not fetch stream memories'
+      );
+    }
+
+    const responseStreamMemories = response.data as StreamMemories;
+    const dayInMilliseconds = 1 * 1000 * 60 * 60 * 24;
+    if (responseStreamMemories) {
+      if (Date.now() - new Date(responseStreamMemories.lastProcessDate).getTime() > dayInMilliseconds) {
+        return this.processStreamMemories();
+      }
+      return responseStreamMemories.memories;
+    }
+
+    return [];
+  }
+
+  public async processStreamMemories(): Promise<StreamMemory[]> {
+    const skyDBCachedUsers = await this.getCachedUsersFromSkyDB();
+    let memories: StreamMemory[] = []
+
+    for (let skyDbCachedUserPublicKey in skyDBCachedUsers) {
+      const tempMemories = await this.getPublicMemories({ publicKey: skyDbCachedUserPublicKey })
+      if (tempMemories) {
+        tempMemories.forEach((m) => {
+          let tempMemory: StreamMemory = { ...m.memory, ownerPublicKey: skyDbCachedUserPublicKey }
+          memories.push(tempMemory)
+        })
+      }
+    }
+
+    const sorted = memories.sort((a, b) => b.added.getTime() - a.added.getTime())
+
+    const processedMemories: StreamMemories = {
+      memories: sorted,
+      lastProcessDate: new Date(Date.now()),
+    }
+
+    await this.skynetClient.db.setJSON(
+      this.publicSkybrainSkyDBKey,
+      this.streamMemoriesSkydbKey,
+      processedMemories,
+      undefined,
+      { timeout: this.skydbTimeout }
+    );
+
+    return sorted;
   }
 }

@@ -1,3 +1,5 @@
+import { STREAM_MEMORIES_KEY } from './models/stream-memory';
+import { StreamComponent } from './pages/stream/stream.component';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { CopyKeyComponent } from './components/copy-key/copy-key.component';
 import { MarkdownPipe } from './pipes/markdown.pipe';
@@ -73,7 +75,8 @@ import { PublicMemoryComponent } from './pages/public-memory/public-memory.compo
     SkyidConnectComponent,
     MarkdownPipe,
     PublicMemoryComponent,
-    CopyKeyComponent
+    CopyKeyComponent,
+    StreamComponent
   ],
   imports: [
     BrowserModule,
@@ -98,6 +101,7 @@ import { PublicMemoryComponent } from './pages/public-memory/public-memory.compo
     { provide: APP_NAME, useValue: 'SkyBrain' },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: SKYBRAIN_SKYDB_CACHED_USERS_KEY, useValue: 'SKYBRAIN__CACHED_USERS' },
+    { provide: STREAM_MEMORIES_KEY, useValue: 'SKYBRAIN__STREAM_MEMORIES' },
   ],
   bootstrap: [AppComponent]
 })

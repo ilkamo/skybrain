@@ -1,3 +1,4 @@
+import { StreamMemory } from './../../models/stream-memory';
 import { UserPublicMemory } from './../../models/user-public-memories';
 import { UserMemory } from 'src/app/models/user-memory';
 
@@ -20,5 +21,9 @@ export const mapMemoryToSky = (memory: Memory): UserMemory | undefined => {
 
 export const mapPublicSkyToMemory = (publicMemory: UserPublicMemory): Memory => {
   return mapSkyToMemory(publicMemory.memory);
+};
+
+export const mapStreamMemoryToMemory = (streamMemory: StreamMemory): Memory => {
+  return { ...streamMemory, connectedId: streamMemory.ownerPublicKey };
 };
 
