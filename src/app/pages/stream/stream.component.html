@@ -1,16 +1,16 @@
 <div class="d-flex justify-content-center">
   <div class="memories d-flex flex-column">
 
-    <div class="card memories-card my-3">
-      <div class="card-header">
-        <p class="mb-0 text-center user-select-none">
-          <ng-container *ngIf="isAuthenticated$ | async; else notlogged">
-            <fa-icon [icon]="['fas', 'photo-video']"></fa-icon> Express yourself, share your <a routerLink="/memories">memories</a>!
-          </ng-container>
-          <ng-template #notlogged>
-            Try the exciting exerience of sharing a memory on Skybrain. Let's <a routerLink="/login">login</a>!
-          </ng-template>
-        </p>
+    <div class="accordion">
+      <div class="card my-3">
+        <div class="card-header text-center">
+            <ng-container *ngIf="isAuthenticated$ | async; else notlogged">
+              <fa-icon [icon]="['fas', 'photo-video']"></fa-icon> Express yourself, share your <a routerLink="/memories">memories</a>!
+            </ng-container>
+            <ng-template #notlogged>
+              Try the exciting exerience of sharing a memory on Skybrain. Let's <a routerLink="/login">login</a>!
+            </ng-template>
+        </div>
       </div>
     </div>
 
