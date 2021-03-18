@@ -109,6 +109,7 @@ const routes: Routes = [
       breadcrumbs: [
         {
           title: 'Stream',
+          link: '/'
         } as IBreadcrumbLink,
       ]
     },
