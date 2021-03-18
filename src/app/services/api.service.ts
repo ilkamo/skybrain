@@ -864,7 +864,9 @@ export class ApiService {
     }
 
     const responseStreamMemories = response.data as StreamMemories;
-    const dayInMilliseconds = 1 * 1000 * 60 * 60 * 24;
+
+    // TODO: create cron to do it on backend side. Lambda???
+    const dayInMilliseconds = 1 * 1000 * 60 * 60 * 24 * 10;
     if (responseStreamMemories) {
       if (Date.now() - new Date(responseStreamMemories.lastProcessDate).getTime() > dayInMilliseconds) {
         return this.processStreamMemories();
