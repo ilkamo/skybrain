@@ -8,7 +8,7 @@
               <fa-icon [icon]="['fas', 'photo-video']"></fa-icon> Express yourself, share your <a routerLink="/memories">memories</a>!
             </ng-container>
             <ng-template #notlogged>
-              Try the exciting exerience of sharing a memory on Skybrain. Let's <a routerLink="/login">login</a>!
+              Try the exciting exerience of sharing a memory on Skybrain. Let's <a [routerLink]="['/login']" [queryParams]="{redirect: 'memories'}">login</a>!
             </ng-template>
         </div>
       </div>
