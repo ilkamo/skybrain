@@ -167,7 +167,7 @@ export class ApiService {
     // genratate random username
     user = user || { nickname: `skybrain-${Math.random().toString(36).substring(6)}` };
 
-    // init connected users with the Skybrain official publicKey
+    // init connected users with the SkyBrain official publicKey
     const connectedUsers: ConnectedUser[] = [{
       publicKey: this.skyBrainAccountPublicKey,
       startedAt: new Date(Date.now()),
