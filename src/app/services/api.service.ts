@@ -304,19 +304,13 @@ export class ApiService {
     } as UserMemory;
 
     if (file && file instanceof File) {
-
-      // optimise image
+      // TODO: use skystandards for data format
       if (file.type.indexOf('image') === 0) {
-        this.ng2ImgMax.resizeImage(file, 1200, 10000).subscribe(
-          async result => {
-            try {
-              newMemory.skylinkResized = await this.skynetClient.uploadFile(result);
-            } catch (err) { }
-          },
-          error => {
-            console.log('😢 Oh no! Could not store optimised file', error);
-          }
-        );
+        this.resizeImage(file, 1200).then(async success => {
+          newMemory.skylinkResized = await this.skynetClient.uploadFile(success);
+        }, error => {
+          console.log("Could not resize image: " + error)
+        });
       }
 
       try {
@@ -336,6 +330,28 @@ export class ApiService {
     }
 
     return newMemory;
+  }
+
+  private resizeImage(file: File, maxWidth: number): Promise<File> {
+    return new Promise((resolve, reject) => {
+      let image = new Image();
+      image.src = URL.createObjectURL(file);
+      image.onload = () => {
+        if (image.width > 1280) {
+          this.ng2ImgMax.resizeImage(file, maxWidth, 10000).subscribe(
+            async result => {
+              resolve(result);
+            },
+            error => {
+              reject(error);
+            }
+          );
+        } else {
+          reject("image width less than 1200px")
+        }
+      };
+      image.onerror = reject;
+    });
   }
 
   public async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {
