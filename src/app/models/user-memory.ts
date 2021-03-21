@@ -14,6 +14,7 @@ export interface UserMemory extends BaseMemory {
   added: Date;
   mimeType: string | null;
   skylink?: string;
+  skylinkResized?: string;
   isPublic?: true;
   isShared?: true;
   shareLink?: string;

@@ -12,6 +12,7 @@ import { ConnectedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } 
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
 import { CachedUsers, SKYBRAIN_SKYDB_CACHED_USERS_KEY } from '../models/users-cache';
+import { Ng2ImgMaxService } from 'ng2-img-max';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,7 @@ export class ApiService {
     @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skyBrainAccountPublicKey: string,
     @Inject(SKYBRAIN_SKYDB_CACHED_USERS_KEY) private skyBrainSkyDBCachedUsersKey: string,
     @Inject(STREAM_MEMORIES_KEY) private streamMemoriesSkydbKey: string,
+    private ng2ImgMax: Ng2ImgMaxService,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -302,6 +304,21 @@ export class ApiService {
     } as UserMemory;
 
     if (file && file instanceof File) {
+
+      // optimise image
+      if (file.type.indexOf('image') === 0) {
+        this.ng2ImgMax.resizeImage(file, 1200, 10000).subscribe(
+          async result => {
+            try {
+              newMemory.skylinkResized = await this.skynetClient.uploadFile(result);
+            } catch (err) { }
+          },
+          error => {
+            console.log('😢 Oh no! Could not store optimised file', error);
+          }
+        );
+      }
+
       try {
         newMemory.skylink = await this.skynetClient.uploadFile(file);
         newMemory.mimeType = file.type;
