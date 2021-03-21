@@ -2024,6 +2024,11 @@ bluebird@^3.5.1, bluebird@^3.5.3, bluebird@^3.5.5:
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
+blueimp-canvas-to-blob@^3.28.0:
+  version "3.28.0"
+  resolved "https://registry.yarnpkg.com/blueimp-canvas-to-blob/-/blueimp-canvas-to-blob-3.28.0.tgz#c8ab4dc6bb08774a7f273798cdf94b0776adf6c8"
+  integrity sha512-5q+YHzgGsuHQ01iouGgJaPJXod2AzTxJXmVv90PpGrRxU7G7IqgPqWXz+PBmt3520jKKi6irWbNV87DicEa7wg==
+
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.9:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
@@ -3723,6 +3728,11 @@ execa@^1.0.0:
     signal-exit "^3.0.0"
     strip-eof "^1.0.0"
 
+exifr@^4.3.4:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/exifr/-/exifr-4.3.5.tgz#7ef76da925ae6a3ddc21312ae867c5e7562ae55a"
+  integrity sha512-ir36aoochREnTekiEOqY0yuUjmj4oPWMDE3NTKJoz9Yuz/m5V9nWu1p4UStOOuhJI4Wz+p0nRpuqZNKeAIkhQw==
+
 exit@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/exit/-/exit-0.1.2.tgz#0632638f8d877cc82107d30a0fff1a17cba1cd0c"
@@ -4214,6 +4224,11 @@ globby@^6.1.0:
     object-assign "^4.0.1"
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
+
+glur@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/glur/-/glur-1.1.2.tgz#f20ea36db103bfc292343921f1f91e83c3467689"
+  integrity sha1-8g6jbbEDv8KSNDkh8fkeg8NGdok=
 
 graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4:
   version "4.2.6"
@@ -5851,6 +5866,14 @@ multicast-dns@^6.0.1:
     dns-packet "^1.3.1"
     thunky "^1.0.2"
 
+multimath@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/multimath/-/multimath-2.0.0.tgz#0d37acf67c328f30e3d8c6b0d3209e6082710302"
+  integrity sha512-toRx66cAMJ+Ccz7pMIg38xSIrtnbozk0dchXezwQDMgQmbGpfxjtv68H+L00iFL8hxDaVjrmwAFSb3I6bg8Q2g==
+  dependencies:
+    glur "^1.1.2"
+    object-assign "^4.1.1"
+
 mute-stream@0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
@@ -5902,6 +5925,22 @@ next-tick@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
+
+ng2-img-max@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/ng2-img-max/-/ng2-img-max-2.2.4.tgz#0c783c8d6c3afdcc9616bdd597e7cedac78c2d68"
+  integrity sha512-pcbQJT3N6YEv3Zn4gfTwFEkPFLFuznc6IQAyddTjVSiJV0ilxF+QZ5CkyQEhaY7zw4gFALh54R8ZQjv97njlFw==
+  dependencies:
+    exifr "^4.3.4"
+    ng2-pica "^1.3.1"
+
+ng2-pica@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/ng2-pica/-/ng2-pica-1.3.1.tgz#90862ecf756d29978b26ce384dbc8abd3d87d515"
+  integrity sha512-NkvJJM8QAtgkwGYy+WNl3Pzzc0Gfs573tHLemCKmN8DmVQ7onXvhuxzAkTqs6rDYILOTULBI5m0KbCLJLfNiaQ==
+  dependencies:
+    exifr "^4.3.4"
+    pica ">=4.0.1"
 
 ngx-autosize@^1.8.4:
   version "1.8.4"
@@ -6537,6 +6576,16 @@ performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
+
+pica@>=4.0.1:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/pica/-/pica-6.1.1.tgz#5219d70265bf34926f656e42268b14ddba5c734b"
+  integrity sha512-dmjQheDGFOl+30rQhN3NM3MyDNjeOZvco6IL3ZVYgyVDmhgvcSCGOAsydRCIaZ36mcXO7ci0XFeD+h6unEcBvA==
+  dependencies:
+    inherits "^2.0.3"
+    multimath "^2.0.0"
+    object-assign "^4.1.1"
+    webworkify "^1.5.0"
 
 picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   version "2.2.2"
@@ -9118,6 +9167,11 @@ websocket-extensions@>=0.1.1:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
   integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
+
+webworkify@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/webworkify/-/webworkify-1.5.0.tgz#734ad87a774de6ebdd546e1d3e027da5b8f4a42c"
+  integrity sha512-AMcUeyXAhbACL8S2hqqdqOLqvJ8ylmIbNwUIqQujRSouf4+eUFaXbG6F1Rbu+srlJMmxQWsiU7mOJi0nMBfM1g==
 
 whatwg-mimetype@^2.3.0:
   version "2.3.0"

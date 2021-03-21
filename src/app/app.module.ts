@@ -50,6 +50,7 @@ import { SkyidConnectComponent } from './components/skyid-connect/skyid-connect.
 import { APP_NAME } from './tokens/app-name.token';
 import { MarkdownEditorModule } from './modules/markdown-editor/markdown-editor.module';
 import { PublicMemoryComponent } from './pages/public-memory/public-memory.component';
+import { Ng2ImgMaxModule } from 'ng2-img-max';
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { PublicMemoryComponent } from './pages/public-memory/public-memory.compo
     !environment.production ? StoreDevtoolsModule.instrument() : [],
     StoreRouterConnectingModule.forRoot({ routerState: RouterState.Minimal }),
     MarkdownEditorModule,
-    InfiniteScrollModule
+    InfiniteScrollModule,
+    Ng2ImgMaxModule
   ],
   providers: [
     { provide: USER_DATA_KEY, useValue: 'SKYBRAIN__USER_DATA' },

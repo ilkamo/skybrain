@@ -15,8 +15,8 @@ export const mapMemoryToSky = (memory: Memory): UserMemory | undefined => {
   if (memory.connectedId) {
     return undefined;
   }
-  const { added, id, mimeType, name, skylink, tags, text, location, isPublic, isShared, shareLink, ...rest } = memory;
-  return { added, id, mimeType, name, skylink, tags, text, location, isPublic, isShared, shareLink };
+  const { added, id, mimeType, name, skylink, skylinkResized, tags, text, location, isPublic, isShared, shareLink, ...rest } = memory;
+  return { added, id, mimeType, name, skylink, skylinkResized, tags, text, location, isPublic, isShared, shareLink };
 };
 
 export const mapPublicSkyToMemory = (publicMemory: UserPublicMemory): Memory => {
@@ -26,4 +26,3 @@ export const mapPublicSkyToMemory = (publicMemory: UserPublicMemory): Memory => 
 export const mapStreamMemoryToMemory = (streamMemory: StreamMemory): Memory => {
   return { ...streamMemory, connectedId: streamMemory.ownerPublicKey };
 };
-

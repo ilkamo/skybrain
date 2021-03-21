@@ -113,7 +113,7 @@ export class MemoriesComponent implements OnInit {
 
     const memory: BaseMemory = {
       location: this.form.location.value,
-      tags: this.form.tags.value ? this.form.tags.value.split(',')
+      tags: this.form.tags.value ? this.form.tags.value.split(/[\s,]+/)
         .map((item: string) => item.trim())
         .filter((item: string) => item.length) : [],
       text: this.memoryText,

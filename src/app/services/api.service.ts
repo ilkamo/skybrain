@@ -12,6 +12,7 @@ import { ConnectedUser, SKYBRAIN_ACCOUNT_PUBLIC_KEY, USER_CONNECTED_USERS_KEY } 
 import * as cryptoJS from 'crypto-js';
 import { EncryptionType } from '../models/encryption';
 import { CachedUsers, SKYBRAIN_SKYDB_CACHED_USERS_KEY } from '../models/users-cache';
+import { Ng2ImgMaxService } from 'ng2-img-max';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,7 @@ export class ApiService {
     @Inject(SKYBRAIN_ACCOUNT_PUBLIC_KEY) private skyBrainAccountPublicKey: string,
     @Inject(SKYBRAIN_SKYDB_CACHED_USERS_KEY) private skyBrainSkyDBCachedUsersKey: string,
     @Inject(STREAM_MEMORIES_KEY) private streamMemoriesSkydbKey: string,
+    private ng2ImgMax: Ng2ImgMaxService,
   ) {
     if (!portal) {
       this.portal = defaultSkynetPortalUrl;
@@ -302,6 +304,15 @@ export class ApiService {
     } as UserMemory;
 
     if (file && file instanceof File) {
+      // TODO: use skystandards for data format
+      if (file.type.indexOf('image') === 0) {
+        this.resizeImage(file, 1200).then(async success => {
+          newMemory.skylinkResized = await this.skynetClient.uploadFile(success);
+        }, error => {
+          console.log("Could not resize image: " + error)
+        });
+      }
+
       try {
         newMemory.skylink = await this.skynetClient.uploadFile(file);
         newMemory.mimeType = file.type;
@@ -319,6 +330,28 @@ export class ApiService {
     }
 
     return newMemory;
+  }
+
+  private resizeImage(file: File, maxWidth: number): Promise<File> {
+    return new Promise((resolve, reject) => {
+      let image = new Image();
+      image.src = URL.createObjectURL(file);
+      image.onload = () => {
+        if (image.width > 1280) {
+          this.ng2ImgMax.resizeImage(file, maxWidth, 10000).subscribe(
+            async result => {
+              resolve(result);
+            },
+            error => {
+              reject(error);
+            }
+          );
+        } else {
+          reject("image width less than 1200px")
+        }
+      };
+      image.onerror = reject;
+    });
   }
 
   public async getPublicMemories({ publicKey }: Partial<UserKeys>): Promise<UserPublicMemory[]> {

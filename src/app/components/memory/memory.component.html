@@ -10,7 +10,12 @@
   </div>
 
   <div [ngSwitch]="memory | memoryMediaType">
-    <img  *ngSwitchCase="'image'" class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
+    <div *ngSwitchCase="'image'">
+      <img *ngIf="memory?.skylinkResized; else elseBlock" class="card-img-top" src="{{ memory?.skylinkResized | siaUrl }}" alt="">
+      <ng-template #elseBlock>
+        <img class="card-img-top" src="{{ memory?.skylink | siaUrl }}" alt="">
+      </ng-template>
+    </div>
     <video *ngSwitchCase="'video'" class="card-img-top" controls>
       <source src="{{ memory?.skylink | siaUrl }}">
     </video>
