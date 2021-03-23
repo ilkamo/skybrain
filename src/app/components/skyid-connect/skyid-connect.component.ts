@@ -22,6 +22,12 @@ export class SkyidConnectComponent implements OnInit {
       devMode = true;
     }
 
+    // To support old accounts with legacy appName
+    const lid = this.getQueryStringValue("lid")
+    if (lid == "legacy") {
+      appName = "Skybrain"
+    }
+
     const opts = { devMode };
     this.skyid = new SkyID.SkyID(appName, (message: string) => {
       switch (message) {
@@ -52,5 +58,10 @@ export class SkyidConnectComponent implements OnInit {
     this.store.dispatch(
       UserActions.registerUser({ passphrase: this.skyid.seed })
     );
+  }
+
+  getQueryStringValue(key: string) {
+    const urlParams = new URLSearchParams(window.location.hash);
+    return urlParams.get(key);
   }
 }
