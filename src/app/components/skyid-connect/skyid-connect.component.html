@@ -4,7 +4,16 @@
 	</button>
 </div>
 <ng-template #elseBlock>
-  <button (click)="sessionStart()" class="btn btn-light btn-image btn-block">
-		Sign in with SkyID
-	</button>
+  <div *ngIf="isLegacyAccount(); else legacyBlock">
+    <button *ngIf="isLegacyAccount(); else legacyBlock" (click)="sessionStart()" class="btn btn-light btn-image btn-block">
+      *Sign in with SkyID (legacy)
+    </button>
+    <div class="small mt-2">*Signing in with SkyID (legacy account). If you have a no legacy account, <a [routerLink]="['/login']" [queryParams]="{redirect: 'memories'}">click once here</a> to go back!</div>
+  </div>
+  <ng-template #legacyBlock>
+    <button (click)="sessionStart()" class="btn btn-light btn-image btn-block">
+      *Sign in with SkyID
+    </button>
+    <div class="small mt-2">* If you have a legacy account created before February 2021 and you want to access your SkyBrain data using SkyID, please <a [routerLink]="['/login']" [queryParams]="{redirect: 'memories', lid: 'legacy'}">click once here</a> before Sign in with SkyID!</div>
+  </ng-template>
 </ng-template>

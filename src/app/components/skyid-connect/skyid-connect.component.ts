@@ -13,23 +13,56 @@ import { APP_NAME } from 'src/app/tokens/app-name.token';
   styleUrls: ['./skyid-connect.component.scss']
 })
 export class SkyidConnectComponent implements OnInit {
-  skyid;
+  skyid: any;
   logged = false;
+  legacyAppName = "Skybrain";
 
-  constructor(@Inject(APP_NAME) private appName: string, private store: Store<RootState>) {
+  constructor(@Inject(APP_NAME) private appName: string, private store: Store<RootState>) { }
+
+  ngOnInit(): void { }
+
+  sessionStart(): void {
+    if (!this.skyid) {
+      this.initSkyID();
+    }
+
+    this.skyid.sessionStart();
+  }
+
+  connect(): void {
+    if (!this.skyid) {
+      this.initSkyID();
+    }
+
+    this.store.dispatch(
+      UserActions.registerUser({ passphrase: this.skyid.seed })
+    );
+  }
+
+  getQueryStringValue(key: string) {
+    const urlParams = new URLSearchParams(window.location.hash);
+    return urlParams.get(key);
+  }
+
+  isLegacyAccount(): boolean {
+    return this.getQueryStringValue("lid") == "legacy";
+  }
+
+  initSkyID() {
     let devMode = false;
     if (window.location.hostname === 'idtest.local' || window.location.hostname === 'localhost' || window.location.protocol === 'file:') {
       devMode = true;
     }
 
+    let skyIDAppName = this.appName;
+
     // To support old accounts with legacy appName
-    const lid = this.getQueryStringValue("lid")
-    if (lid == "legacy") {
-      appName = "Skybrain"
+    if (this.isLegacyAccount()) {
+      skyIDAppName = this.legacyAppName;
     }
 
     const opts = { devMode };
-    this.skyid = new SkyID.SkyID(appName, (message: string) => {
+    this.skyid = new SkyID.SkyID(skyIDAppName, (message: string) => {
       switch (message) {
         case 'login_fail':
           UserActions.registerUserFailure({ error: 'Could not login with SkyID' });
@@ -45,23 +78,5 @@ export class SkyidConnectComponent implements OnInit {
     }, opts);
 
     this.logged = this.skyid.seed !== '';
-  }
-
-  ngOnInit(): void {
-  }
-
-  sessionStart(): void {
-    this.skyid.sessionStart();
-  }
-
-  connect(): void {
-    this.store.dispatch(
-      UserActions.registerUser({ passphrase: this.skyid.seed })
-    );
-  }
-
-  getQueryStringValue(key: string) {
-    const urlParams = new URLSearchParams(window.location.hash);
-    return urlParams.get(key);
   }
 }
