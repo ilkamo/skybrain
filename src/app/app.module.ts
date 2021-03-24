@@ -1,3 +1,4 @@
+import { PORTAL } from './tokens/portal.token';
 import { STREAM_MEMORIES_KEY } from './models/stream-memory';
 import { StreamComponent } from './pages/stream/stream.component';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
@@ -104,6 +105,7 @@ import { Ng2ImgMaxModule } from 'ng2-img-max';
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: SKYBRAIN_SKYDB_CACHED_USERS_KEY, useValue: 'SKYBRAIN__CACHED_USERS' },
     { provide: STREAM_MEMORIES_KEY, useValue: 'SKYBRAIN__STREAM_MEMORIES' },
+    { provide: PORTAL, useValue: 'https://skybrain.hns.siasky.net' },
   ],
   bootstrap: [AppComponent]
 })
