@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { CachedUsers, UsersCache } from '../models/users-cache';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -12,6 +11,8 @@ export class CacheService {
   private isUsersCacheSync = false;
 
   constructor(private api: ApiService) {
+    localStorage.removeItem("cahcedUsers"); // remove old deprecated cache!
+
     let localCachedUsers = this.api.getLocalCachedUsers();
     if (this.api.unixTimestampSeconds() - localCachedUsers.lastPullAt > this.maxCacheAge
       && this.isUsersCacheSync == false) {
