@@ -12,3 +12,8 @@ export interface CachedUser {
 export interface CachedUsers {
   [userPublicKey: string]: CachedUser;
 }
+
+export interface UsersCache {
+  lastPullAt: number;
+  cache: CachedUsers;
+}

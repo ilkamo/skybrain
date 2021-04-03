@@ -1,30 +1,34 @@
 import { Injectable } from '@angular/core';
-import { CachedUsers } from '../models/users-cache';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CacheService {
-  private cachedUsersLocalStorageKey = "cahcedUsers";
   private seedLocalStorageKey = "seed";
   private skyidLocalStorageKey = "skyid";
+  private maxCacheAge = 60 * 60 * 24;
+  private isUsersCacheSync = false;
 
-  constructor() { }
+  constructor(private api: ApiService) {
+    localStorage.removeItem("cahcedUsers"); // remove old deprecated cache!
+
+    let localCachedUsers = this.api.getLocalCachedUsers();
+    if (this.api.unixTimestampSeconds() - localCachedUsers.lastPullAt > this.maxCacheAge
+      && this.isUsersCacheSync == false) {
+      this.api.syncCachedUsers();
+      this.isUsersCacheSync = true;
+    }
+  }
 
   public resolveNameFromPublicKey(publicKey: string): string {
-    let localCachedUsers = {} as CachedUsers;
-    try {
-      const fromStorage = localStorage.getItem(this.cachedUsersLocalStorageKey);
-      if (fromStorage) {
-        localCachedUsers = JSON.parse(fromStorage) as CachedUsers;
-      }
-    } catch (error) { }
+    let localCachedUsers = this.api.getLocalCachedUsers();
 
-    if (!(publicKey in localCachedUsers)) {
+    if (!(publicKey in localCachedUsers.cache)) {
       return publicKey;
     }
 
-    const connection = localCachedUsers[publicKey];
+    const connection = localCachedUsers.cache[publicKey];
     const nickname = connection.nickname;
     return nickname !== undefined ? `${nickname}` : publicKey;
   }
