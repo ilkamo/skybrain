@@ -7,10 +7,10 @@ $breadcrumb-border-radius:          0;
 $primary: #3498db;
 
 @import '~bootstrap/scss/bootstrap';
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400&display=swap');
 
 body, html {
-    font-family: 'Noto Sans JP', sans-serif;
+    font-family: 'Lato', sans-serif;
 }
 
 .cursor-pointer {
