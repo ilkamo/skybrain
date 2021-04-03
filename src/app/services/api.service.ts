@@ -1,5 +1,5 @@
 import { StreamMemory, STREAM_MEMORIES_KEY, StreamMemories } from './../models/stream-memory';
-import { CachedUser } from './../models/users-cache';
+import { CachedUser, UsersCache } from './../models/users-cache';
 import { Inject, Injectable, Optional } from '@angular/core';
 import { PORTAL } from '../tokens/portal.token';
 import { SkynetClient, genKeyPairFromSeed, genKeyPairAndSeed, defaultSkynetPortalUrl } from 'skynet-js';
@@ -23,7 +23,7 @@ export class ApiService {
   private skynetClient: SkynetClient;
 
   // Cache mechanism
-  private cachedUsersLocalStorageKey = "cahcedUsers";
+  private cachedUsersLocalStorageKey = "usersCache";
   private chacheTimeout: NodeJS.Timeout = setTimeout(() => { }, 0);
 
   // TODO: create a backend for that!
@@ -780,18 +780,18 @@ export class ApiService {
         cachedAt: new Date(Date.now()),
       }
 
-      this.cacheUserInLocalstorage({ publicKey: toCacheUserPublicKey, user: cachedUser });
+      this.cacheUserInLocalstorage({ publicKey: toCacheUserPublicKey, user: cachedUser, updatePull: false });
 
       clearTimeout(this.chacheTimeout);
       this.chacheTimeout = setTimeout(() => {
-        this.persistCachedUsers();
+        this.syncCachedUsers();
       }, 3000);
     } catch (error) {
       console.log("Could not update cached users.");
     }
   }
 
-  private async persistCachedUsers() {
+  public async syncCachedUsers() {
     const localCachedUsers = this.getLocalCachedUsers();
     if (!localCachedUsers) {
       return;
@@ -800,8 +800,8 @@ export class ApiService {
     const skyDBCachedUsers = await this.getCachedUsersFromSkyDB();
     let callSkyDB = false;
 
-    for (let cachedUserPublicKey in localCachedUsers) {
-      let cachedUser = localCachedUsers[cachedUserPublicKey];
+    for (let cachedUserPublicKey in localCachedUsers.cache) {
+      let cachedUser = localCachedUsers.cache[cachedUserPublicKey];
       if (cachedUserPublicKey in skyDBCachedUsers) {
         const storedCachedUser = skyDBCachedUsers[cachedUserPublicKey];
         if (cachedUser.cachedAt > storedCachedUser.cachedAt) {
@@ -821,7 +821,7 @@ export class ApiService {
     for (let skyDbCachedUserPublicKey in skyDBCachedUsers) {
       if (!(skyDbCachedUserPublicKey in localCachedUsers)) {
         const skyDBCachedUser = skyDBCachedUsers[skyDbCachedUserPublicKey];
-        this.cacheUserInLocalstorage({ publicKey: skyDbCachedUserPublicKey, user: skyDBCachedUser });
+        this.cacheUserInLocalstorage({ publicKey: skyDbCachedUserPublicKey, user: skyDBCachedUser, updatePull: true });
       }
     }
 
@@ -845,9 +845,9 @@ export class ApiService {
 
     const localCachedUsers = this.getLocalCachedUsers();
     if (localCachedUsers) {
-      if (publicKey in localCachedUsers) {
-        if (localCachedUsers[publicKey].nickname === user.nickname &&
-          localCachedUsers[publicKey].description === user.description) {
+      if (publicKey in localCachedUsers.cache) {
+        if (localCachedUsers.cache[publicKey].nickname === user.nickname &&
+          localCachedUsers.cache[publicKey].description === user.description) {
           return true;
         }
       }
@@ -856,22 +856,34 @@ export class ApiService {
     return false;
   }
 
-  private cacheUserInLocalstorage({ publicKey, user }: { user: CachedUser } & Partial<UserKeys>) {
+  private cacheUserInLocalstorage({ publicKey, user, updatePull }:
+    { user: CachedUser, updatePull: boolean } & Partial<UserKeys>) {
     if (!publicKey) {
       throw new Error('cacheUserInLocalstorage: invalid publicKey');;
     }
 
     const localCachedUsers = this.getLocalCachedUsers();
-    localCachedUsers[publicKey] = user;
+    if (updatePull) {
+      localCachedUsers.lastPullAt = this.unixTimestampSeconds();
+    }
+
+    localCachedUsers.cache[publicKey] = user;
     localStorage.setItem(this.cachedUsersLocalStorageKey, JSON.stringify(localCachedUsers));
   }
 
-  public getLocalCachedUsers(): CachedUsers {
-    let localCachedUsers = {};
+  public unixTimestampSeconds(): number {
+    return Math.round(+new Date() / 1000);
+  }
+
+  public getLocalCachedUsers(): UsersCache {
+    let localCachedUsers = {} as UsersCache;
+    localCachedUsers.lastPullAt = 0;
+    localCachedUsers.cache = {} as CachedUsers;
+
     try {
       const fromStorage = localStorage.getItem(this.cachedUsersLocalStorageKey);
       if (fromStorage) {
-        localCachedUsers = JSON.parse(fromStorage) as CachedUsers;
+        localCachedUsers = JSON.parse(fromStorage) as UsersCache;
       }
     } catch (error) { }
 
