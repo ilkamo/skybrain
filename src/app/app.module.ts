@@ -105,7 +105,7 @@ import { Ng2ImgMaxModule } from 'ng2-img-max';
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: SKYBRAIN_SKYDB_CACHED_USERS_KEY, useValue: 'SKYBRAIN__CACHED_USERS' },
     { provide: STREAM_MEMORIES_KEY, useValue: 'SKYBRAIN__STREAM_MEMORIES' },
-    { provide: PORTAL, useValue: 'https://skybrain.hns.siasky.net' },
+    { provide: PORTAL, useValue: 'https://siasky.net' },
   ],
   bootstrap: [AppComponent]
 })

@@ -797,9 +797,12 @@ export class ApiService {
       return;
     }
 
-    const skyDBCachedUsers = await this.getCachedUsersFromSkyDB();
-    let callSkyDB = false;
+    let skyDBCachedUsers: CachedUsers = {};
+    try {
+      skyDBCachedUsers = await this.getCachedUsersFromSkyDB();
+    } catch (error) {}
 
+    let callSkyDB = false;
     for (let cachedUserPublicKey in localCachedUsers.cache) {
       let cachedUser = localCachedUsers.cache[cachedUserPublicKey];
       if (cachedUserPublicKey in skyDBCachedUsers) {
